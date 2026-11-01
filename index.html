@@ -116,8 +116,14 @@ function tone(f,t,d,type='sine',v=.15){
     o.connect(g);g.connect(ac.destination);o.start(ac.currentTime+t);o.stop(ac.currentTime+t+d)}catch(e){}
 }
 const sfx={
-  ok(){tone(660,0,.12);tone(880,.1,.2)},
-  bad(){tone(200,0,.25,'square',.08)},
+  /* đúng: chuông vui 3 nốt, liên tiếp đúng càng nhiều thì càng cao và thêm nốt lấp lánh */
+  ok(combo=0){
+    const up=Math.pow(2,Math.min(combo,6)/12);
+    [[784,0],[988,.08],[1319,.16]].forEach(([f,t])=>{tone(f*up,t,.22,'triangle',.16);tone(f*up*2,t,.12,'sine',.04)});
+    if(combo>=3)tone(2093*up,.28,.25,'sine',.06);
+  },
+  /* sai: hai nốt trầm đi xuống "bù-bu" */
+  bad(){tone(311,0,.18,'sawtooth',.07);tone(220,.16,.32,'sawtooth',.07)},
   win(){[523,659,784,1047].forEach((f,i)=>tone(f,i*.13,.25))},
   click(){tone(500,0,.05,'triangle',.1)}
 };
@@ -142,8 +148,12 @@ const SHAPES={
   rectangle:{vi:'chữ nhật',svg:'<rect x="4" y="25" width="92" height="50" rx="4"/>'},
   oval:{vi:'bầu dục',svg:'<ellipse cx="50" cy="50" rx="46" ry="30"/>'},
   diamond:{vi:'thoi',svg:'<polygon points="50,4 96,50 50,96 4,50"/>'},
-  star:{vi:'ngôi sao',svg:'<polygon points="50,5 61,38 96,38 68,58 79,92 50,71 21,92 32,58 4,38 39,38"/>'}
+  star:{vi:'ngôi sao',svg:'<polygon points="50,5 61,38 96,38 68,58 79,92 50,71 21,92 32,58 4,38 39,38"/>'},
+  pentagon:{vi:'ngũ giác',svg:'<polygon points="50,6 93.7,37.8 77,89.2 23,89.2 6.3,37.8"/>'},
+  hexagon:{vi:'lục giác',svg:'<polygon points="96,50 73,89.8 27,89.8 4,50 27,10.2 73,10.2"/>'},
+  trapezoid:{vi:'thang',svg:'<polygon points="28,22 72,22 96,78 4,78"/>'}
 };
+const SIDES={circle:0,triangle:3,square:4,rectangle:4,diamond:4,trapezoid:4,pentagon:5,hexagon:6};
 const COLORS=['#ef5350','#42a5f5','#66bb6a','#ffa726','#ab47bc','#26c6da'];
 const shapeName=k=>k==='star'?'ngôi sao':'hình '+SHAPES[k].vi;
 function svg(k,color,rot=0){return `<svg viewBox="0 0 100 100" fill="${color}" style="transform:rotate(${rot}deg)">${SHAPES[k].svg}</svg>`}
@@ -185,10 +195,10 @@ function nestedScene(types){
   });
   return{svg:s,counts:cnt};
 }
-function nestedTypesMulti(){
+function nestedTypesMulti(lo=4,hi=5){
   const T=['circle','square','triangle'];
-  for(let k=0;k<200;k++){
-    const n=R(4,5),ty=Array.from({length:n},()=>pick(T));
+  for(let k=0;k<400;k++){
+    const n=R(lo,hi),ty=Array.from({length:n},()=>pick(T));
     if(new Set(ty).size<2)continue;
     if(nestedPlan(ty).pop()*(INR[ty[n-1]])>=11)return ty;
   }
@@ -227,6 +237,43 @@ function comp3(){
   const ty=nestedTypesMulti(),sc=nestedScene(ty);
   return{id:'nm'+ty.join(''),svg:sc.svg,counts:sc.counts};
 }
+/* Lưới ô vuông n×n trong khung SQ (30..170) */
+function gridLines(n){
+  let s='';
+  for(let i=1;i<n;i++){const p=30+140*i/n;s+=ln(p,30,p,170)+ln(30,p,170,p)}
+  return s;
+}
+/* Hàng n ô vuông cạnh 36, tuỳ chọn có hình tròn trong mỗi ô */
+function squareRow(n,withCircles){
+  const s=36,x0=(200-n*s)/2;let out='';
+  for(let i=0;i<n;i++){
+    const x=x0+i*s;
+    out+=poly(`${x},82 ${x+s},82 ${x+s},${82+s} ${x},${82+s}`,FY);
+    if(withCircles)out+=cir(x+s/2,82+s/2,12,FC);
+  }
+  return out;
+}
+/* Hình ghép nâng cao (mức 4) */
+function comp4(){
+  const m=R(0,2);
+  if(m===0){
+    const k=R(3,4),ys=Array.from({length:k},(_,j)=>20+155*(j+1)/(k+1));
+    const s=poly('100,20 20,175 180,175',FY)+ys.map(y=>{const h=80*(y-20)/155;return ln(100-h,y,100+h,y)}).join('');
+    return{id:'tc'+k,svg:s,counts:{triangle:k+1},ex:`${k} đường ngang chia tam giác thành ${k+1} hình tam giác chồng lên nhau, tính từ đỉnh`};
+  }
+  if(m===1)return{id:'g3',svg:poly(SQ,FY)+gridLines(3),counts:{square:14},ex:'9 hình nhỏ + 4 hình vuông 2×2 + 1 hình lớn = 14 hình vuông'};
+  const n=R(3,5);
+  return{id:'row'+n,svg:squareRow(n,false),counts:{square:n},ex:`${n} hình vuông nhỏ xếp thành một hàng`};
+}
+/* Hình ghép thử thách (mức 5) */
+function comp5(){
+  const m=R(0,3);
+  if(m===0)return{id:'g3c',svg:poly(SQ,FY)+gridLines(3)+[0,1,2].map(i=>[0,1,2].map(j=>cir(30+140*(i+.5)/3,30+140*(j+.5)/3,17,FC)).join('')).join(''),counts:{square:14,circle:9}};
+  if(m===1)return{id:'t5c',svg:poly('100,20 20,175 180,175',FY)+ln(60,97.5,140,97.5)+ln(140,97.5,100,175)+ln(60,97.5,100,175)+cir(100,73,16,FC)+cir(60,150.6,16,FC)+cir(140,150.6,16,FC),counts:{triangle:5,circle:3}};
+  if(m===2){const n=R(3,5);return{id:'rowc'+n,svg:squareRow(n,true),counts:{square:n,circle:n}}}
+  const ty=nestedTypesMulti(5,6),sc=nestedScene(ty);
+  return{id:'nx'+ty.join(''),svg:sc.svg,counts:sc.counts};
+}
 function genCount(l){
   if(l===0){
     if(Math.random()<.25){
@@ -241,12 +288,21 @@ function genCount(l){
     return{prompt:'Có bao nhiêu '+shapeName(target)+'?',visual:shuffle(items).map(([k,c])=>svg(k,c,R(-15,15))).join(''),
       choices:numChoices(n,1,10,4),correct:n,key:'c1'+target+n+items.length};
   }
+  if(l===3){
+    const kinds=shuffle(['circle','square','triangle','rectangle','star']);
+    const target=kinds[0],n=R(6,12),items=[];
+    for(let i=0;i<n;i++)items.push([target,COLORS[i%COLORS.length]]);
+    for(let j=1;j<=3;j++){for(let i=0,c=R(1,3);i<c;i++)items.push([kinds[j],pick(COLORS)])}
+    return{prompt:'Có bao nhiêu '+shapeName(target)+'?',visual:shuffle(items).map(([k,c])=>svg(k,c,R(-15,15))).join(''),
+      choices:numChoices(n,1,16,4),correct:n,key:'c3'+target+n+items.length};
+  }
   let sc,kind;
+  const COMP=[null,comp2,comp3,null,comp4,comp5];
   for(let t=0;t<30;t++){
-    sc=l===1?comp2():comp3();
+    sc=COMP[l]();
     const ks=Object.keys(sc.counts);
-    // mức 3: ưu tiên hỏi loại có số lượng >= 2
-    const good=l===2?ks.filter(k=>sc.counts[k]>=2):ks;
+    // từ mức 3: ưu tiên hỏi loại có số lượng >= 2
+    const good=l>=2?ks.filter(k=>sc.counts[k]>=2):ks;
     kind=pick(good.length?good:ks);
     if(sc.counts[kind]<=14)break;
   }
@@ -255,7 +311,23 @@ function genCount(l){
   return{prompt:'Có bao nhiêu '+shapeName(kind)+' trong hình này?',visual:fig(sc.svg),choices:numChoices(n,1,16,4),correct:n,key:'f'+sc.id+kind,explain:ex,say:'Có bao nhiêu '+shapeName(kind)+' trong hình này?'};
 }
 
+/* Mức 4-6 của Nhận biết hình: cạnh và đỉnh */
+function genSides(l){
+  const poly_=['triangle','square','rectangle','diamond','trapezoid','pentagon','hexagon'];
+  if(l===3||l===4){
+    const target=pick(l===3?poly_:[...poly_,'circle']),w=l===4&&Math.random()<.5?'đỉnh':'cạnh',n=SIDES[target];
+    const nums=l===3?[3,4,5,6]:shuffle([0,3,4,5,6].filter(v=>v!==n)).slice(0,3).concat(n);
+    return{prompt:`Hình này có mấy ${w}?`,visual:`<div class="shapebig">${svg(target,pick(COLORS))}</div>`,
+      choices:shuffle(nums).map(v=>({html:String(v),key:v})),correct:n,key:'q'+l+target+w+Math.random(),say:`Hình này có mấy ${w}?`};
+  }
+  const n=pick([0,3,4,5,6]),counts=shuffle([0,3,4,5,6].filter(v=>v!==n)).slice(0,3).concat(n);
+  const byCount=v=>pick(Object.keys(SIDES).filter(k=>SIDES[k]===v));
+  const text=n===0?'Chọn hình không có cạnh':`Chọn hình có ${n} cạnh`;
+  return{prompt:text,visual:'<div class="big">🔍</div>',
+    choices:shuffle(counts).map(v=>({html:svg(byCount(v),pick(COLORS)),key:v})),correct:n,key:'q5'+n+Math.random(),say:text};
+}
 function genShape(l){
+  if(l>=3)return genSides(l);
   const pool=l===0?['circle','square','triangle']:l===1?['circle','square','triangle','rectangle']:['circle','square','triangle','rectangle','oval','diamond','star'];
   const target=pick(pool);
   if(Math.random()<.5){
@@ -267,13 +339,13 @@ function genShape(l){
   return{prompt:'Chọn '+shapeName(target)+'',visual:'<div class="big">🔍</div>',
     choices:shuffle(ks).map(k=>({html:svg(k,pick(COLORS)),key:k})),correct:target,key:'s2'+target+Math.random()};
 }
-const RANGES=[5,10,20];
+const RANGES=[5,10,20,30,50,100];
 function genAdd(l){
   const m=RANGES[l];let a,b;
   do{
-    if(l===2){a=R(1,19);b=R(1,19)}else{a=R(1,m-1);b=R(1,m-1)}
-  }while(a+b>m||(l===2&&a+b<=10));
-  if(l===2&&Math.random()<.2){a=R(1,10);b=R(1,10)}
+    a=R(1,m-1);b=R(1,m-1);
+  }while(a+b>m||(l>=2&&a+b<=RANGES[l-1]));
+  if(l>=2&&Math.random()<.2){a=R(1,RANGES[l-1]);b=R(1,RANGES[l-1])}
   const s=a+b,em=pick(OBJ);
   const vis=m<=10?`<div class="eq">${dots(a,em)}<span class="op">+</span>${dots(b,em).replace('grp','grp b')}</div>`
     :`<div class="eq"><span class="big">${a}</span><span class="op">+</span><span class="big">${b}</span></div>`;
@@ -281,24 +353,26 @@ function genAdd(l){
 }
 function genSplit(l){
   const m=RANGES[l];
-  const t=l===0?R(2,5):l===1?R(4,10):R(11,20);
+  const t=[[2,5],[4,10],[11,20],[21,30],[31,50],[51,100]].map(([lo,hi])=>R(lo,hi))[l];
   const a=R(1,t-1),b=t-a,em=pick(OBJ);
   const vis=m<=10?`<div class="eq">${dots(a,em)}<span class="op">+</span><span class="grp b" style="font-size:44px">❓</span></div><div style="font-size:22px;width:100%">Tất cả: ${t}</div>`
     :`<div class="eq"><span class="big">${t}</span><span class="op">=</span><span class="big">${a}</span><span class="op">+</span><span class="big">❓</span></div>`;
   return{prompt:`Số ${t} gồm ${a} và mấy?`,visual:vis,choices:numChoices(b,0,m,4),correct:b,key:`p${t}-${a}`,say:`Số ${t} gồm ${a} và mấy?`};
 }
 function genCmp(l){
-  const m=RANGES[l];let a=R(0,m),b=R(0,m);if(Math.random()<.2)b=a;
+  const m=RANGES[l];let a=R(0,m),b=R(0,m);
+  if(l>=3&&Math.random()<.4)b=Math.min(m,Math.max(0,a+R(-5,5)));
+  if(Math.random()<.2)b=a;
   const c=a>b?'>':a<b?'<':'=';
   return{prompt:'Điền dấu thích hợp',visual:`<div class="eq"><span class="big">${a}</span><span class="big" style="color:var(--pri)">?</span><span class="big">${b}</span></div>`,
-    choices:[{html:'&lt;',key:'<'},{html:'=',key:'='},{html:'&gt;',key:'>'}],correct:c,key:`k${a}${b}`,say:`So sánh ${a} và ${b}`};
+    choices:[{html:'&lt;',key:'<'},{html:'=',key:'='},{html:'&gt;',key:'>'}],correct:c,key:`k${a}_${b}`,say:`So sánh ${a} và ${b}`};
 }
 const GAMES={
-  count:{name:'Đếm hình',icon:'🔢',color:'#ff8a65',levels:['Hình độc lập','Hình trong hình','Hình lồng nhiều loại'],gen:genCount,desc:'Đếm hình, đếm hình ghép'},
-  shape:{name:'Nhận biết hình',icon:'🔺',color:'#ab47bc',levels:['Dễ: 3 hình','Vừa: 4 hình','Khó: 7 hình'],gen:genShape,desc:'Tròn, vuông, tam giác...'},
-  add:{name:'Gộp số',icon:'➕',color:'#26a69a',levels:['Phạm vi 5','Phạm vi 10','Phạm vi 20'],gen:genAdd,desc:'Gộp hai nhóm lại'},
-  split:{name:'Tách số',icon:'✂️',color:'#42a5f5',levels:['Phạm vi 5','Phạm vi 10','Phạm vi 20'],gen:genSplit,desc:'Số này gồm mấy và mấy?'},
-  cmp:{name:'So sánh số',icon:'⚖️',color:'#ec407a',levels:['Phạm vi 5','Phạm vi 10','Phạm vi 20'],gen:genCmp,desc:'Lớn hơn, bé hơn, bằng'}
+  count:{name:'Đếm hình',icon:'🔢',color:'#ff8a65',levels:['Hình độc lập','Hình trong hình','Hình lồng nhiều loại','Đếm nhiều hình','Hình ghép nâng cao','Hình ghép thử thách'],gen:genCount,desc:'Đếm hình, đếm hình ghép'},
+  shape:{name:'Nhận biết hình',icon:'🔺',color:'#ab47bc',levels:['Dễ: 3 hình','Vừa: 4 hình','Khó: 7 hình','Đếm cạnh','Cạnh và đỉnh','Chọn theo số cạnh'],gen:genShape,desc:'Tròn, vuông, tam giác...'},
+  add:{name:'Gộp số',icon:'➕',color:'#26a69a',levels:['Phạm vi 5','Phạm vi 10','Phạm vi 20','Phạm vi 30','Phạm vi 50','Phạm vi 100'],gen:genAdd,desc:'Gộp hai nhóm lại'},
+  split:{name:'Tách số',icon:'✂️',color:'#42a5f5',levels:['Phạm vi 5','Phạm vi 10','Phạm vi 20','Phạm vi 30','Phạm vi 50','Phạm vi 100'],gen:genSplit,desc:'Số này gồm mấy và mấy?'},
+  cmp:{name:'So sánh số',icon:'⚖️',color:'#ec407a',levels:['Phạm vi 5','Phạm vi 10','Phạm vi 20','Phạm vi 30','Phạm vi 50','Phạm vi 100'],gen:genCmp,desc:'Lớn hơn, bé hơn, bằng'}
 };
 
 /* ============ Phần thưởng ============ */
@@ -358,8 +432,8 @@ function home(){
   speechSynthesis&&speechSynthesis.cancel&&speechSynthesis.cancel();
   app.innerHTML=topbar()+`<h1>Chào ${esc(S.name||'Bé')}! 👋</h1><p class="sub">Hôm nay mình chơi trò nào?${S.streak>1?` · 🔥 ${S.streak} ngày liên tiếp`:''}</p>
   <div class="grid">${Object.entries(GAMES).map(([k,g])=>{
-    const tot=[0,1,2].reduce((a,i)=>a+(S.best[k+'-'+i]||0),0);
-    return `<button class="gcard" style="background:${g.color}" onclick="sfx.click();levels('${k}')"><span class="ic">${g.icon}</span>${g.name}<small>${g.desc}</small><small>${'⭐'.repeat(Math.min(tot,9))||'Chưa chơi'}</small></button>`}).join('')}
+    const tot=g.levels.reduce((a,_,i)=>a+(S.best[k+'-'+i]||0),0);
+    return `<button class="gcard" style="background:${g.color}" onclick="sfx.click();levels('${k}')"><span class="ic">${g.icon}</span>${g.name}<small>${g.desc}</small><small>${tot?`⭐ ${tot}/${g.levels.length*3}`:'Chưa chơi'}</small></button>`}).join('')}
   <button class="gcard" style="background:#fbc02d" onclick="sfx.click();album()"><span class="ic">🎁</span>Phần thưởng<small>${S.stickers.length}/${STICKERS.length} hình dán${S.gifts?` · ${S.gifts} hộp quà mới!`:''}</small></button></div>`;
 }
 function levels(g){
@@ -392,11 +466,11 @@ function answer(btn){
   if(!P||P.locked||btn.classList.contains('bad'))return;
   const c=P.q.choices[+btn.dataset.i];
   if(c.key===P.q.correct){
-    P.locked=true;btn.classList.add('good');sfx.ok();confetti(8);
+    P.locked=true;btn.classList.add('good');sfx.ok(P.combo=(P.combo||0)+1);confetti(8);
     P.i++;
     if(P.q.explain){$('.qcard').insertAdjacentHTML('beforeend',`<div class="explain">💡 ${P.q.explain}</div>`);setTimeout(nextQ,2800)}else setTimeout(nextQ,950);
   }else{
-    P.mistakes++;P.wrong++;btn.classList.add('bad');sfx.bad();
+    P.mistakes++;P.wrong++;P.combo=0;btn.classList.add('bad');sfx.bad();
     if(P.wrong>=2){app.querySelectorAll('.ch').forEach((b,i)=>{if(P.q.choices[i].key===P.q.correct)b.classList.add('hint')})}
   }
 }
@@ -410,7 +484,7 @@ function finish(){
   const newB=checkBadges();save();P=null;
   sfx.win();confetti(40);
   const msg=stars===3?'Giỏi quá! Tuyệt vời! 🎉':stars===2?'Giỏi lắm! Cố lên nào! 👏':'Bé đã cố gắng rồi! Thử lại nhé 💪';
-  const nextOk=l<2&&(S.best[g+'-'+l]||0)>=2;
+  const nextOk=l<GAMES[g].levels.length-1&&(S.best[g+'-'+l]||0)>=2;
   app.innerHTML=topbar()+`<div class="result panel"><h1>${msg}</h1>${starsHTML(stars)}
   <p class="sub">Bé nhận được +${stars} ⭐${gift?' và 1 hộp quà 🎁':''}</p>
   ${newB.map(b=>`<div class="toast">${b.icon} Huy hiệu mới: <b>${b.name}</b></div>`).join('')}
