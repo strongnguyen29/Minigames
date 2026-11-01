@@ -590,7 +590,7 @@ function caroBind(cv){
   const size=()=>[cv.clientWidth,cv.clientHeight];
   const pos=e=>{const r=cv.getBoundingClientRect();return[e.clientX-r.left,e.clientY-r.top]};
   const dist=()=>{const [a,b]=[...ps.values()];return Math.hypot(a[0]-b[0],a[1]-b[1])};
-  cv.onpointerdown=e=>{cv.setPointerCapture(e.pointerId);ps.set(e.pointerId,pos(e));if(ps.size===1)moved=0;else moved=99};
+  cv.onpointerdown=e=>{try{cv.setPointerCapture(e.pointerId)}catch(_){}ps.set(e.pointerId,pos(e));if(ps.size===1)moved=0;else moved=99};
   cv.onpointermove=e=>{
     if(!ps.has(e.pointerId))return;
     const [w,h]=size(),old=ps.get(e.pointerId),cur=pos(e);
