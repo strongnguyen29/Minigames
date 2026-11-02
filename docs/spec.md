@@ -107,15 +107,16 @@ Hiện "a ? b" với a,b ∈ [0, phạm vi], 20% trường hợp bằng nhau. 3 
 - Quy tắc mở khoá, tính sao và dữ liệu `best[<game>-<level>]` giữ nguyên.
 
 ## 7. Phần thưởng
-- **Hình dán (32):** 🐶🐱🐰🦊🐻🐼🐨🐯🦁🐮🐷🐸🐵🐔🐧🐦🦆🦉🦄🐝🦋🐢🐙🐬🐳🦒🐘🦖🚀🌈🍭🏆. Mở hộp quà ra hình ngẫu nhiên chưa có.
-- **Huy hiệu (7):**
-  - 🌱 Bước đầu tiên: hoàn thành 1 màn.
-  - 🎒 Bé chăm chỉ: 10 màn.
-  - 💯 Không sai câu nào: có ít nhất 1 màn 0 lỗi.
-  - 🔥 Học 3 ngày liền: `streak ≥ 3`.
-  - ⭐ 50 ngôi sao: `stars ≥ 50`.
-  - 👑 Nhà sưu tập: có ≥ 10 hình dán.
-  - 🏆 Vua sưu tập: có đủ hình dán.
+- **Hình dán (56):** 🐶🐱🐰🦊🐻🐼🐨🐯🦁🐮🐷🐸🐵🐔🐧🐦🦆🦉🦄🐝🦋🐢🐙🐬🐳🦒🐘🦖🚀🌈🍭🏆🦕🦈🦜🦩🦔🐿️🦥🦦🐞🦀🐠🦓🐊🐲🛸🎠🍦🍩🧁🍓🎈🎸⚽🌻. Mở hộp quà ra hình ngẫu nhiên chưa có.
+- **Huy hiệu (25):** tính từ dữ liệu đã lưu (`best`, `rounds`, `perfect`, `streak`, `stars`, `stickers`).
+  - Số màn: 🌱 1 màn, 🎒 10 màn, 📚 30 màn, 🎓 100 màn.
+  - Không sai câu nào (`perfect`): 💯 1 lần, 🎯 5 lần, 🧠 20 lần.
+  - Chuỗi ngày: 🔥 3 ngày, 🌟 7 ngày, ☄️ 14 ngày.
+  - Sao: ⭐ 50, 🌠 150, 🌌 300.
+  - Hình dán: 👑 10 hình, 🎨 25 hình, 🏆 đủ hình.
+  - Mức 3 sao: 🥉 1 mức, 🥈 10 mức, 🥇 tất cả các mức.
+  - Qua hết mọi mức của một trò (≥ 2 sao): 🔢 Đếm hình, 🔺 Nhận biết hình, ➕ Gộp số, ✂️ Tách số, ⚖️ So sánh số.
+  - 🌈 Bé giỏi toàn diện: đã chơi đủ cả 5 trò.
 - Hiệu ứng: pháo giấy (emoji rơi), âm chiến thắng khi kết thúc màn, thông báo huy hiệu mới ngay trên màn kết quả hoặc màn mở quà.
 
 ## 8. Tiêu chí nghiệm thu
