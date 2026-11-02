@@ -31,7 +31,8 @@ const BADGES=[
   {id:'gadd',icon:'➕',name:'Phù thủy gộp số',desc:'Qua hết mức Gộp số (≥2 sao)',ok:s=>gameDone(s,'add',2)},
   {id:'gsplit',icon:'✂️',name:'Thợ cắt số',desc:'Qua hết mức Tách số (≥2 sao)',ok:s=>gameDone(s,'split',2)},
   {id:'gcmp',icon:'⚖️',name:'Thẩm phán so sánh',desc:'Qua hết mức So sánh số (≥2 sao)',ok:s=>gameDone(s,'cmp',2)},
-  {id:'allg',icon:'🌈',name:'Bé giỏi toàn diện',desc:'Chơi đủ cả 5 trò chơi',ok:s=>Object.keys(GAMES).every(g=>gameLevelsWith(s,g,1)>=1)}
+  {id:'gpat',icon:'🧩',name:'Thám tử quy luật',desc:'Qua hết mức Quy luật (≥2 sao)',ok:s=>gameDone(s,'pattern',2)},
+  {id:'allg',icon:'🌈',name:'Bé giỏi toàn diện',desc:'Chơi đủ tất cả trò chơi',ok:s=>Object.keys(GAMES).every(g=>gameLevelsWith(s,g,1)>=1)}
 ];
 function checkBadges(){
   const gained=[];
