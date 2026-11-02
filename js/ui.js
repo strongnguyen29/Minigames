@@ -4,7 +4,7 @@ let P=null; // trạng thái lượt chơi
 function topbar(back){
   return `<div class="top">${back?`<button class="iconbtn" onclick="sfx.click();${back}">⬅️</button>`:''}
   <div class="me" onclick="settings()"><span class="av">${S.avatar}</span><span>${esc(S.name||'Bé')}</span></div>
-  <span class="chip" title="Số sao">⭐ ${S.stars}</span>
+  <span class="chip" onclick="shop()" title="Số sao (bấm để vào tiệm)">⭐ ${balance()}</span>
   <span class="chip" onclick="album()" title="Hộp quà">🎁 ${S.gifts}</span>
   <button class="iconbtn" onclick="S.sound=!S.sound;save();if(!S.sound)speechSynthesis&&speechSynthesis.cancel();home()">${S.sound?'🔊':'🔇'}</button></div>`;
 }
@@ -31,16 +31,15 @@ function settings(){
   document.body.appendChild(m);
   $('#cl').onclick=()=>m.remove();
   $('#chg').onclick=()=>{m.remove();welcome()};
-  $('#rst').onclick=()=>{if(confirm('Xoá hết sao, hình dán và tên của bé?')){try{localStorage.removeItem(KEY)}catch(e){}memFallback=null;S=Object.assign({},DEF,{stickers:[],best:{},badges:[]});m.remove();welcome()}};
+  $('#rst').onclick=()=>{if(confirm('Xoá hết sao, hình dán và tên của bé?')){try{localStorage.removeItem(KEY)}catch(e){}memFallback=null;S=Object.assign({},DEF,{stickers:[],best:{},badges:[],owned:[]});m.remove();welcome()}};
 }
 function home(){
   speechSynthesis&&speechSynthesis.cancel&&speechSynthesis.cancel();
   app.innerHTML=topbar()+`<h1>Chào ${esc(S.name||'Bé')}! 👋</h1><p class="sub">Hôm nay mình chơi trò nào?${S.streak>1?` · 🔥 ${S.streak} ngày liên tiếp`:''}</p>
-  <div class="grid">${Object.entries(GAMES).map(([k,g])=>{
+  <div class="grid"><button class="gcard" style="background:#ec407a" onclick="sfx.click();shop()"><span class="ic">👑</span>Tiệm công chúa<small>Dùng ⭐ để đổi váy xinh</small></button><button class="gcard" style="background:#fbc02d" onclick="sfx.click();album()"><span class="ic">🎁</span>Phần thưởng<small>${S.stickers.length}/${STICKERS.length} hình dán${S.gifts?` · ${S.gifts} hộp quà mới!`:''}</small></button>${Object.entries(GAMES).map(([k,g])=>{
     const tot=g.levels.reduce((a,_,i)=>a+(S.best[k+'-'+i]||0),0);
     return `<button class="gcard" style="background:${g.color}" onclick="sfx.click();levels('${k}')"><span class="ic">${g.icon}</span>${g.name}<small>${g.desc}</small><small>${tot?`⭐ ${tot}/${g.levels.length*3}`:'Chưa chơi'}</small></button>`}).join('')}
-  <button class="gcard" style="background:#5c6bc0" onclick="sfx.click();caro()"><span class="ic">❌⭕</span>Cờ ca rô<small>2 bạn chơi, bàn cờ vô hạn</small></button>
-  <button class="gcard" style="background:#fbc02d" onclick="sfx.click();album()"><span class="ic">🎁</span>Phần thưởng<small>${S.stickers.length}/${STICKERS.length} hình dán${S.gifts?` · ${S.gifts} hộp quà mới!`:''}</small></button></div>`;
+  <button class="gcard" style="background:#5c6bc0" onclick="sfx.click();caro()"><span class="ic">❌⭕</span>Cờ ca rô<small>2 bạn chơi, bàn cờ vô hạn</small></button></div>`;
 }
 function levels(g){
   const G=GAMES[g];
@@ -124,5 +123,6 @@ function album(){
   <div class="panel" style="text-align:center">${S.gifts>0?`<p class="sub">Bé có ${S.gifts} hộp quà chưa mở!</p><button class="btn" onclick="openGift()">🎁 Mở quà</button>`:`<p class="sub" style="margin:0">Đạt từ 2 ⭐ trở lên để nhận hộp quà mới nhé!</p>`}</div>
   <div class="panel"><h3 style="margin-top:0">Bộ sưu tập hình dán (${S.stickers.length}/${STICKERS.length})</h3>
   <div class="album">${STICKERS.map(s=>S.stickers.includes(s)?`<div class="stk">${s}</div>`:`<div class="stk lock">❓</div>`).join('')}</div></div>
+  ${wardrobe()}
   <div class="panel"><h3 style="margin-top:0">Huy hiệu (${S.badges.length}/${BADGES.length})</h3><div class="badges">${BADGES.map(b=>`<div class="bdg ${S.badges.includes(b.id)?'':'lock'}"><span>${b.icon}</span><div>${b.name}<small>${b.desc}</small></div></div>`).join('')}</div></div>`;
 }

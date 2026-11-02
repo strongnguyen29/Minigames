@@ -6,11 +6,11 @@ const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=R(0,i);[a[i]
 
 /* ============ Lưu trữ (localStorage) ============ */
 const KEY='be_vui_hoc_toan_v1';
-const DEF={name:'',avatar:'🐱',stars:0,gifts:0,stickers:[],best:{},rounds:0,perfect:0,streak:0,lastDay:'',sound:true,badges:[]};
+const DEF={name:'',avatar:'🐱',stars:0,gifts:0,stickers:[],best:{},rounds:0,perfect:0,streak:0,lastDay:'',sound:true,badges:[],spent:0,owned:[]};
 let memFallback=null;
 function load(){
   try{const s=JSON.parse(localStorage.getItem(KEY));if(s)return Object.assign({},DEF,s)}catch(e){if(memFallback)return memFallback}
-  return Object.assign({},DEF,{stickers:[],best:{},badges:[]});
+  return Object.assign({},DEF,{stickers:[],best:{},badges:[],owned:[]});
 }
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){memFallback=S}}
 let S=load();
