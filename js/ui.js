@@ -36,7 +36,7 @@ function settings(){
 function home(){
   speechSynthesis&&speechSynthesis.cancel&&speechSynthesis.cancel();
   app.innerHTML=topbar()+`<h1>Chào ${esc(S.name||'Bé')}! 👋</h1><p class="sub">Hôm nay mình chơi trò nào?${S.streak>1?` · 🔥 ${S.streak} ngày liên tiếp`:''}</p>
-  <div class="grid"><button class="gcard" style="background:#ec407a" onclick="sfx.click();shop()"><span class="ic">👑</span>Tiệm công chúa<small>Dùng ⭐ để đổi váy xinh</small></button><button class="gcard" style="background:#fbc02d" onclick="sfx.click();album()"><span class="ic">🎁</span>Phần thưởng<small>${S.stickers.length}/${STICKERS.length} hình dán${S.gifts?` · ${S.gifts} hộp quà mới!`:''}</small></button>${Object.entries(GAMES).map(([k,g])=>{
+  <div class="grid"><button class="gcard" style="background:#ec407a" onclick="sfx.click();shop()"><span class="ic">👑</span>Tiệm công chúa<small>Dùng ⭐ để đổi váy xinh</small></button><button class="gcard" style="background:#fbc02d" onclick="sfx.click();album()"><span class="ic">🎁</span>Bộ sưu tập<small>${S.stickers.length}/${STICKERS.length} hình dán${S.gifts?` · ${S.gifts} hộp quà mới!`:''}</small></button>${Object.entries(GAMES).map(([k,g])=>{
     const tot=g.levels.reduce((a,_,i)=>a+(S.best[k+'-'+i]||0),0);
     return `<button class="gcard" style="background:${g.color}" onclick="sfx.click();levels('${k}')"><span class="ic">${g.icon}</span>${g.name}<small>${g.desc}</small><small>${tot?`⭐ ${tot}/${g.levels.length*3}`:'Chưa chơi'}</small></button>`}).join('')}
   <button class="gcard" style="background:#5c6bc0" onclick="sfx.click();caro()"><span class="ic">❌⭕</span>Cờ ca rô<small>2 bạn chơi, bàn cờ vô hạn</small></button></div>`;
@@ -119,7 +119,7 @@ function openGift(done){
   };
 }
 function album(){
-  app.innerHTML=topbar('home()')+`<h2>🎁 Phần thưởng của ${esc(S.name||'bé')}</h2>
+  app.innerHTML=topbar('home()')+`<h2>🎁 Bộ sưu tập của ${esc(S.name||'bé')}</h2>
   <div class="panel" style="text-align:center">${S.gifts>0?`<p class="sub">Bé có ${S.gifts} hộp quà chưa mở!</p><button class="btn" onclick="openGift()">🎁 Mở quà</button>`:`<p class="sub" style="margin:0">Đạt từ 2 ⭐ trở lên để nhận hộp quà mới nhé!</p>`}</div>
   <div class="panel"><h3 style="margin-top:0">Bộ sưu tập hình dán (${S.stickers.length}/${STICKERS.length})</h3>
   <div class="album">${STICKERS.map(s=>S.stickers.includes(s)?`<div class="stk">${s}</div>`:`<div class="stk lock">❓</div>`).join('')}</div></div>
