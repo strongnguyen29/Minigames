@@ -6,10 +6,13 @@ const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=R(0,i);[a[i]
 
 /* ============ Lưu trữ (localStorage) ============ */
 const KEY='be_vui_hoc_toan_v1';
-const DEF={name:'',avatar:'🐱',stars:0,gifts:0,stickers:[],best:{},rounds:0,perfect:0,streak:0,lastDay:'',sound:true,badges:[],spent:0,owned:[]};
+const DEF={name:'',avatar:'🐱',stars:0,gifts:0,stickers:[],best:{},rounds:0,perfect:0,streak:0,lastDay:'',sound:true,voice:true,sfx:true,badges:[],spent:0,owned:[]};
 let memFallback=null;
 function load(){
-  try{const s=JSON.parse(localStorage.getItem(KEY));if(s)return Object.assign({},DEF,s)}catch(e){if(memFallback)return memFallback}
+  try{const s=JSON.parse(localStorage.getItem(KEY));if(s){
+    /* bản cũ chỉ có một nút âm thanh: giọng nói và hiệu ứng lấy theo nút đó */
+    if(!('voice' in s))s.voice=s.sfx=s.sound!==false;
+    return Object.assign({},DEF,s)}}catch(e){if(memFallback)return memFallback}
   return Object.assign({},DEF,{stickers:[],best:{},badges:[],owned:[]});
 }
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){memFallback=S}}
@@ -26,7 +29,7 @@ function touchStreak(){
 /* ============ Âm thanh ============ */
 let ac;
 function tone(f,t,d,type='sine',v=.15){
-  if(!S.sound)return;
+  if(!S.sfx)return;
   try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();
     const o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.value=f;
     g.gain.setValueAtTime(v,ac.currentTime+t);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+t+d);
@@ -46,6 +49,12 @@ const sfx={
   /* thay váy: chuỗi nốt lấp lánh đi lên như phép thuật */
   magic(){[1047,1319,1568,2093,2637,3136].forEach((f,i)=>{tone(f,i*.06,.3,'sine',.08);tone(f*1.5,i*.06+.03,.15,'triangle',.03)})}
 };
+/* Nút 🔊 trên cùng: đang bật một trong hai thì tắt cả hai, đang tắt cả hai thì bật cả hai */
+function toggleAllSound(){
+  const on=!(S.voice||S.sfx);S.voice=S.sfx=on;
+  if(!on&&typeof voice!=='undefined')voice.stop();
+  save();
+}
 /* Đọc một câu bằng giọng Kuromi (xem js/voice.js) */
 function say(text){return voice.text(text)}
 function confetti(n=26){

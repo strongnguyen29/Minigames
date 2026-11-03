@@ -6,7 +6,7 @@ function topbar(back){
   <div class="me" onclick="settings()"><span class="av">${S.avatar}</span><span>${esc(S.name||'Bé')}</span></div>
   <span class="chip" onclick="shop()" title="Số sao (bấm để vào tiệm)">⭐ ${balance()}</span>
   <span class="chip" onclick="album()" title="Hộp quà">🎁 ${S.gifts}</span>
-  <button class="iconbtn" onclick="S.sound=!S.sound;save();if(!S.sound)speechSynthesis&&speechSynthesis.cancel();home()">${S.sound?'🔊':'🔇'}</button></div>`;
+  <button class="iconbtn" onclick="toggleAllSound();home()">${S.voice||S.sfx?'🔊':'🔇'}</button></div>`;
 }
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function starsHTML(n){return `<span class="stars">${[1,2,3].map(i=>`<span class="${i<=n?'':'off'}">⭐</span>`).join('')}</span>`}
