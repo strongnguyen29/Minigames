@@ -35,7 +35,7 @@ test('thiếu một mẩu thì đọc cả câu bằng giọng máy', async () =
   const { v, played, tts } = setup({ have: ['num_5','p_cong','p_bang_may'] });
   await v.text('5 cộng 7 bằng mấy?');
   assert.deepEqual(played, []); assert.equal(tts[0].text, '5 cộng 7 bằng mấy?');
-  assert.ok(tts[0].pitch > 1 && tts[0].rate < .85 && tts[0].lang === 'vi-VN');
+  assert.ok(tts[0].pitch > 1 && Math.abs(tts[0].rate - 1.04) < 1e-9 && tts[0].lang === 'vi-VN');
 });
 test('file lỗi giữa chừng thì dừng phát mẩu và đọc cả câu bằng giọng máy', async () => {
   const { v, played, tts } = setup({ have: ALL, bad: ['audio/voice/p_cong.mp3'] });

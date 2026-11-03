@@ -49,6 +49,8 @@ function segment(text){
 
 /* ---- Phát giọng: một câu một lúc; câu mới hoặc stop() dừng câu cũ và resolve promise của nó ---- */
 const VOICE_DIR='audio/voice/';
+/* Tốc độ giọng máy dự phòng (0,8 × 1,3 theo yêu cầu phụ huynh) */
+const TTS_RATE=1.04;
 const SILENT_WAV='data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
 const voice=(()=>{
   let token=0,cur=null,el=null;const last={};
@@ -64,7 +66,7 @@ const voice=(()=>{
   }
   function tts(text,done){
     if(!window.speechSynthesis){done();return}
-    try{const u=new SpeechSynthesisUtterance(plain(text));u.lang='vi-VN';u.rate=.8;u.pitch=1.4;u.onend=u.onerror=done;speechSynthesis.speak(u)}catch(e){done()}
+    try{const u=new SpeechSynthesisUtterance(plain(text));u.lang='vi-VN';u.rate=TTS_RATE;u.pitch=1.4;u.onend=u.onerror=done;speechSynthesis.speak(u)}catch(e){done()}
   }
   /* ids: các mẩu cần phát nối tiếp; thiếu bất kỳ mẩu nào (hoặc file lỗi) → đọc cả câu bằng giọng máy */
   function play(ids,text){
