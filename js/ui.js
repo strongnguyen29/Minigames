@@ -88,32 +88,50 @@ function levels(g){
 function toast(t){const e=$('#tt');if(e){e.innerHTML=`<div class="toast enter">${t}</div>`}}
 
 function start(g,l){
-  P={g,l,i:0,total:8,mistakes:0,seen:new Set(),locked:false};
-  nextQ();
+  P={g,l,i:0,total:8,mistakes:0,seen:new Set(),locked:false,token:0};
+  nextQ(true);
 }
-function nextQ(){
+/* P.token tăng mỗi câu: mọi việc chạy sau await phải còn đúng lượt chơi (P===R) và đúng câu (token) */
+const alive=(R,my)=>P===R&&R.token===my;
+async function nextQ(first){
+  if(!P)return;
   if(P.i>=P.total)return finish();
   let q,tries=0;
   do{q=GAMES[P.g].gen(P.l)}while(P.seen.has(q.key)&&tries++<15);
   P.seen.add(q.key);P.q=q;P.wrong=0;P.locked=false;
-  const G=GAMES[P.g];
-  app.innerHTML=topbar(`P=null;levels('${P.g}')`)+`<div class="bar">${Array.from({length:P.total},(_,i)=>`<i class="${i<P.i?'done':i===P.i?'cur':''}"></i>`).join('')}</div>
-  <div class="qcard"><button class="iconbtn speak" onclick="say(P.q.say||P.q.prompt)">🔊</button>
-  <div class="prompt">${q.prompt}</div><div class="visual">${q.visual}</div></div>
-  <div class="choices">${q.choices.map((c,i)=>`<button class="ch" data-i="${i}">${c.html}</button>`).join('')}</div>`;
+  const R=P,my=++P.token;
+  app.innerHTML=screenHTML({mascot:{emo:'neutral',size:'md'},cls:'play',
+    top:`<div class="ttl"><button class="back" onclick="goTap(this,()=>{const g=P&&P.g;P=null;levels(g)})">⬅️</button>
+      <div class="prog">${Array.from({length:P.total},(_,i)=>`<i class="${i<P.i?'d':i===P.i?'cur':''}"></i>`).join('')}</div></div>`,
+    body:`<div class="qc card3d"><button class="spk" onclick="say(P.q.say||P.q.prompt)">🔊</button>
+      <div class="prompt">${q.prompt}</div><div class="visual">${q.visual}</div></div>
+      <div class="chs n${q.choices.length}">${q.choices.map((c,i)=>`<button class="ch enter" style="--d:${(i*.05).toFixed(2)}s" data-i="${i}">${c.html}</button>`).join('')}</div>`});
   app.querySelectorAll('.ch').forEach(b=>b.onclick=()=>answer(b));
-  if(q.say)setTimeout(()=>P&&P.q===q&&say(q.say),300);
+  if(first){await voiceWait(mascotSay('round_start'),0,3000);if(!alive(R,my))return}
+  else{await new Promise(r=>setTimeout(r,300));if(!alive(R,my))return}
+  say(q.say||q.prompt);
 }
-function answer(btn){
+async function answer(btn){
   if(!P||P.locked||btn.classList.contains('bad'))return;
-  const c=P.q.choices[+btn.dataset.i];
-  if(c.key===P.q.correct){
+  voice.stop();
+  const R=P,my=P.token,q=P.q,c=q.choices[+btn.dataset.i];
+  if(c.key===q.correct){
     P.locked=true;btn.classList.add('good');sfx.ok(P.combo=(P.combo||0)+1);confetti(8);
     P.i++;
-    if(P.q.explain){$('.qcard').insertAdjacentHTML('beforeend',`<div class="explain">💡 ${P.q.explain}</div>`);setTimeout(nextQ,2800)}else setTimeout(nextQ,950);
+    let chain=mascotSay(P.combo>=3?'combo':'correct');
+    const img=$('#mimg');burst(img&&img.parentNode,8);
+    if(q.explain){
+      const qc=$('.qc');qc&&qc.insertAdjacentHTML('beforeend',`<div class="explain enter">💡 ${q.explain}</div>`);
+      chain=chain.then(()=>alive(R,my)?voice.text(q.explain):null);
+    }
+    await voiceWait(chain,950,q.explain?6000:3000);
+    if(alive(R,my))nextQ();
   }else{
     P.mistakes++;P.wrong++;P.combo=0;btn.classList.add('bad');sfx.bad();
-    if(P.wrong>=2){app.querySelectorAll('.ch').forEach((b,i)=>{if(P.q.choices[i].key===P.q.correct)b.classList.add('hint')})}
+    if(P.wrong>=2){
+      app.querySelectorAll('.ch').forEach((b,i)=>{if(q.choices[i].key===q.correct)b.classList.add('hint')});
+      mascotSay('hint');
+    }else mascotSay('wrong');
   }
 }
 function finish(){

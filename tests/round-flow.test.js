@@ -1,0 +1,87 @@
+const test = require('node:test'), assert = require('node:assert/strict');
+const { loadGame, fakeEl } = require('./helpers/load');
+const FILES = ['js/core.js','js/questions.js','js/rewards.js','js/lines.js','audio/voice/manifest.js','js/voice.js',
+  'js/scene.js','js/mascot.js','js/shop.js','js/ui.js','js/pattern.js'];
+const flush = async () => { for (let i = 0; i < 5; i++) await new Promise(r => setImmediate(r)); };
+
+/* Hẹn giờ giả + giọng giả: done của mỗi câu resolve sau voiceMs (Infinity = không bao giờ) */
+function setup({ voiceMs = 100 } = {}) {
+  let now = 0, timers = [], seq = 0;
+  const st = (f, ms = 0) => { const id = ++seq; timers.push({ id, at: now + (ms || 0), f }); return id; };
+  const ct = id => { timers = timers.filter(t => t.id !== id); };
+  const g = loadGame(FILES, { setTimeout: st, clearTimeout: ct, storage: { be_vui_hoc_toan_v1: JSON.stringify({ name: 'Mai' }) } });
+  const calls = [];
+  g.ctx.__calls = calls;
+  const delay = () => voiceMs === Infinity ? new Promise(() => {}) : new Promise(r => st(r, voiceMs));
+  g.ctx.__delay = delay;
+  g.run(`voice.line=grp=>{__calls.push(['line',grp]);const l=LINES[grp][0];return{line:l,done:__delay()}};
+         voice.text=t=>{__calls.push(['text',t]);return __delay()};voice.stop=()=>__calls.push(['stop']);`);
+  /* nút đáp án giả, tạo lại cho mỗi câu hỏi */
+  let btns = [], forQ = null;
+  const app = g.get('app');
+  app.querySelectorAll = s => {
+    if (s !== '.ch') return [];
+    const q = g.get('P&&P.q');
+    if (q && q !== forQ) { forQ = q; btns = q.choices.map((c, i) => { const b = fakeEl('button'); b.dataset.i = String(i); return b; }); }
+    return btns;
+  };
+  const tick = async ms => {
+    const end = now + ms;
+    for (;;) { timers.sort((a, b) => a.at - b.at); const t = timers[0]; if (!t || t.at > end) break; timers.shift(); now = t.at; t.f(); await flush(); }
+    now = end; await flush();
+  };
+  const q = () => g.get('P&&P.q');
+  const correctBtn = () => btns.find(b => q().choices[+b.dataset.i].key === q().correct);
+  const wrongBtn = (k = 0) => btns.filter(b => q().choices[+b.dataset.i].key !== q().correct)[k];
+  const img = g.ctx.document.querySelector('#mimg');
+  return { g, calls, tick, q, correctBtn, wrongBtn, img, btns: () => btns };
+}
+
+test('bấm đáp án đúng hai lần chỉ tăng P.i một lần', async () => {
+  const s = setup(); s.g.run("start('add',0)"); await s.tick(4000);
+  const b = s.correctBtn(); b.onclick(); b.onclick(); await flush();
+  assert.equal(s.g.get('P.i'), 1);
+});
+test('đúng thì Kuromi chuyển clap; câu sau đến khi câu khen xong nhưng không sớm hơn 950ms', async () => {
+  const s = setup({ voiceMs: 100 }); s.g.run("start('add',0)"); await s.tick(4000);
+  const q0 = s.q(); s.correctBtn().onclick(); await flush();
+  assert.match(s.img.src, /clap/);
+  assert.ok(s.calls.some(c => c[0] === 'line' && (c[1] === 'correct' || c[1] === 'combo')));
+  await s.tick(900); assert.equal(s.q(), q0);
+  await s.tick(100); assert.notEqual(s.q(), q0);
+});
+test('có explain thì đọc explain sau câu khen; giọng treo thì tối đa 6000ms mới sang câu sau', async () => {
+  const s = setup({ voiceMs: Infinity }); s.g.run("start('count',1)"); await s.tick(4000);
+  const q0 = s.q(); assert.ok(q0.explain); s.correctBtn().onclick(); await flush();
+  await s.tick(5900); assert.equal(s.q(), q0);
+  await s.tick(200); assert.notEqual(s.q(), q0);
+});
+test('explain được đọc bằng voice.text ngay sau câu khen', async () => {
+  const s = setup({ voiceMs: 100 }); s.g.run("start('count',1)"); await s.tick(4000);
+  const q0 = s.q(); s.correctBtn().onclick(); await s.tick(150);
+  assert.ok(s.calls.some(c => c[0] === 'text' && c[1] === q0.explain));
+});
+test('sai lần 1: think + nhóm wrong; sai lần 2: nhóm hint + nút đúng có lớp hint', async () => {
+  const s = setup(); s.g.run("start('add',1)"); await s.tick(4000);
+  s.wrongBtn(0).onclick(); await flush();
+  assert.match(s.img.src, /think/); assert.deepEqual([...s.calls.filter(c => c[0] === 'line').pop()], ['line','wrong']);
+  s.wrongBtn(1).onclick(); await flush();
+  assert.deepEqual([...s.calls.filter(c => c[0] === 'line').pop()], ['line','hint']);
+  assert.ok(s.correctBtn().classList.contains('hint'));
+});
+test('bấm đáp án khi đang đọc đề thì gọi voice.stop trước khi phản ứng', async () => {
+  const s = setup({ voiceMs: Infinity }); s.g.run("start('add',0)"); await s.tick(3500);
+  s.calls.length = 0; s.wrongBtn(0).onclick();
+  assert.deepEqual([...s.calls[0]], ['stop']);
+});
+test('mọi đề đều được đọc, kể cả câu chỉ có prompt (không có say)', async () => {
+  const s = setup(); s.g.run("start('shape',0)");
+  for (let i = 0; i < 6; i++) { await s.tick(4000); const q = s.q(); assert.ok(s.calls.some(c => c[0] === 'text' && c[1] === (q.say || q.prompt)), q.prompt); s.correctBtn().onclick(); }
+});
+test('rời màn (P=null) trong lúc chờ thì câu cũ không vẽ lại màn chơi', async () => {
+  const s = setup({ voiceMs: 100 }); s.g.run("start('add',0)"); await s.tick(4000);
+  s.correctBtn().onclick(); await flush();
+  s.g.run('P=null'); const html = s.g.get('app.innerHTML');
+  await s.tick(7000);
+  assert.equal(s.g.get('P'), null); assert.equal(s.g.get('app.innerHTML'), html);
+});
