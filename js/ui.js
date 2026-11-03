@@ -187,11 +187,20 @@ function openGift(done){
     const ag=$('#again');if(ag)ag.onclick=()=>{m.remove();openGift(done)};
   };
 }
-function album(){
-  app.innerHTML=topbar('home()')+`<h2>🎁 Bộ sưu tập của ${esc(S.name||'bé')}</h2>
-  <div class="panel" style="text-align:center">${S.gifts>0?`<p class="sub">Bé có ${S.gifts} hộp quà chưa mở!</p><button class="btn" onclick="openGift()">🎁 Mở quà</button>`:`<p class="sub" style="margin:0">Đạt từ 2 ⭐ trở lên để nhận hộp quà mới nhé!</p>`}</div>
-  <div class="panel"><h3 style="margin-top:0">Bộ sưu tập hình dán (${S.stickers.length}/${STICKERS.length})</h3>
-  <div class="album">${STICKERS.map(s=>S.stickers.includes(s)?`<div class="stk">${s}</div>`:`<div class="stk lock">❓</div>`).join('')}</div></div>
-  ${wardrobe()}
-  <div class="panel"><h3 style="margin-top:0">Huy hiệu (${S.badges.length}/${BADGES.length})</h3><div class="badges">${BADGES.map(b=>`<div class="bdg ${S.badges.includes(b.id)?'':'lock'}"><span>${b.icon}</span><div>${b.name}<small>${b.desc}</small></div></div>`).join('')}</div></div>`;
+/* Bộ sưu tập: dải hộp quà + 3 tab (hình dán / tủ váy / huy hiệu); tab đang chọn được nhớ */
+let albumTab='stickers';
+function album(tab){
+  if(tab)albumTab=tab;
+  const mineN=SHOP_ITEMS.filter(x=>owns(x.id)).length;
+  const tabs=[['stickers','🐶 Hình dán',`${S.stickers.length}/${STICKERS.length}`],['wardrobe','👗 Tủ váy',`${mineN}/${SHOP_ITEMS.length}`],['badges','🏅 Huy hiệu',`${S.badges.length}/${BADGES.length}`]];
+  const body=albumTab==='stickers'?`<div class="stks">${STICKERS.map((s,i)=>S.stickers.includes(s)?`<div class="stk enter" style="--d:${(i*.015).toFixed(3)}s">${s}</div>`:`<div class="stk lk">❓</div>`).join('')}</div>`
+    :albumTab==='wardrobe'?wardrobe()
+    :`<div class="bdgs">${BADGES.map((b,i)=>`<div class="bdg enter ${S.badges.includes(b.id)?'':'lk'}" style="--d:${(i*.03).toFixed(2)}s"><span>${b.icon}</span><div>${esc(b.name)}<small>${esc(b.desc)}</small></div></div>`).join('')}</div>`;
+  app.innerHTML=screenHTML({mascot:{emo:'happy',size:'md'},cls:'album',
+    top:`<div class="ttl"><button class="back" onclick="goTap(this,home)">⬅️</button>🎁 Bộ sưu tập của ${esc(S.name||'bé')}<span class="coin">⭐ ${balance()}</span></div>`,
+    body:`<div class="giftbar">${S.gifts>0?`<span><b>🎁</b> Bé có ${S.gifts} hộp quà chưa mở!</span><button class="btn p-pink gloss" onclick="openGift()">Mở quà</button>`:`<span>Đạt từ 2 ⭐ trở lên để nhận hộp quà mới nhé!</span>`}</div>
+    <div class="atabs">${tabs.map(([k,n,c])=>`<button class="atab ${k===albumTab?'sel':''}" onclick="sfx.click();voice.stop();album('${k}')">${n} <i>${c}</i></button>`).join('')}</div>
+    <div class="acard card3d">${body}</div>`});
+  const say={stickers:`Bé có ${S.stickers.length} hình dán rồi!`,wardrobe:`Bé có ${mineN} bộ váy xinh!`,badges:`Bé có ${S.badges.length} huy hiệu rồi!`}[albumTab];
+  mascotSay('album_'+albumTab,{emo:'happy',hold:true,format:t=>say+' '+t});
 }

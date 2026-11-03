@@ -198,9 +198,9 @@ function shop(){
     `<div class="shoplayout"><div class="side mine"><h3>👗 Kéo để mặc</h3><div class="thumbs">${ownedList}</div></div>${shopStage(cur)}<div class="side"><h3>🔒 Chưa có</h3><div class="thumbs">${lockList}</div></div></div>`;
   shopBackdrop(prev);
 }
+/* Tab "Tủ váy" của Bộ sưu tập */
 function wardrobe(){
   const mine=SHOP_ITEMS.filter(x=>owns(x.id));
-  return `<div class="panel"><h3 style="margin-top:0">Tủ đồ của bé (${mine.length}/${SHOP_ITEMS.length})</h3>${mine.length?
-    `<div class="shopgrid small">${mine.map(it=>`<div class="shopitem"><img class="shopimg cutout" src="${it.src}" alt="${esc(it.name)}" loading="lazy" onclick="viewItem('${it.id}')"></div>`).join('')}</div>`:
-    `<p class="sub" style="margin:0">Chưa có món nào. Đổi sao ở tiệm nhé! 🛍️</p>`}</div>`;
+  return mine.length?`<div class="wd">${mine.map((it,i)=>`<img class="enter" style="--d:${(i*.04).toFixed(2)}s" src="${it.thumb}" alt="${esc(it.name)}" loading="lazy" onclick="viewItem('${it.id}')">`).join('')}</div>`
+    :`<p class="empty">Chưa có bộ váy nào. Đổi sao ở tiệm công chúa nhé! 🛍️</p>`;
 }
