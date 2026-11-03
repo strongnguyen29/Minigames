@@ -3,35 +3,60 @@ const app=$('#app');
 let P=null; // trạng thái lượt chơi
 function starsHTML(n){return `<span class="stars">${[1,2,3].map(i=>`<span class="${i<=n?'':'off'}">⭐</span>`).join('')}</span>`}
 
+/* Mọi lần chuyển màn: dừng giọng, huỷ hẹn giờ cảm xúc của màn cũ */
+function go(fn){voice.stop();mascotReset();fn()}
+/* Bấm nút điều hướng: nút nảy kiểu thạch rồi mới chuyển màn (chặn bấm đúp) */
+let goBusy=false;
+function goTap(el,fn){
+  if(goBusy)return;goBusy=true;sfx.click();
+  el&&el.classList.add('tap');
+  setTimeout(()=>{goBusy=false;go(fn)},180);
+}
+const enter=i=>`style="--d:${(i*.05).toFixed(2)}s"`;
+
 function welcome(){
   let av=S.avatar;
-  app.innerHTML=`<h1>🎈 Bé Vui Học Toán 🎈</h1><p class="sub">Xin chào! Bé tên là gì nhỉ?</p>
-  <div class="panel"><input class="txt" id="nm" maxlength="14" placeholder="Nhập tên bé" value="${esc(S.name)}">
-  <div class="avs">${AVATARS.map(a=>`<button class="${a===av?'sel':''}" data-a="${a}">${a}</button>`).join('')}</div>
-  <div class="row"><button class="btn" id="go">Bắt đầu!</button></div></div>`;
-  app.querySelectorAll('.avs button').forEach(b=>b.onclick=()=>{av=b.dataset.a;app.querySelectorAll('.avs button').forEach(x=>x.classList.toggle('sel',x===b));sfx.click()});
-  $('#go').onclick=()=>{S.name=$('#nm').value.trim()||'Bé';S.avatar=av;save();sfx.ok();home()};
+  app.innerHTML=screenHTML({mascot:{emo:'neutral',size:'lg'},cls:'welcome',
+    body:`<div class="wel"><h1 class="hero-t">Chào mừng bé!</h1>
+    <input class="inp" id="nm" maxlength="14" placeholder="Nhập tên bé" value="${esc(S.name)}">
+    <div class="avs2">${AVATARS.map((a,i)=>`<button class="av2 enter ${a===av?'sel':''}" ${enter(i)} data-a="${a}">${a}</button>`).join('')}</div>
+    <button class="btn p-pink gloss big-go" id="go">Bắt đầu!</button></div>`});
+  mascotSay('welcome_ask');
+  app.querySelectorAll('.av2').forEach(b=>b.onclick=()=>{av=b.dataset.a;app.querySelectorAll('.av2').forEach(x=>x.classList.toggle('sel',x===b));sfx.click()});
+  $('#go').onclick=()=>{S.name=$('#nm').value.trim()||'Bé';S.avatar=av;save();sfx.ok();voice.line('welcome_done');mascotReset();touchStreak();home()};
 }
 function settings(){
   sfx.click();
   const m=document.createElement('div');m.className='modal';
-  m.innerHTML=`<div class="box"><h2>⚙️ Cài đặt</h2>
-  <button class="btn alt" id="chg">Đổi tên / hình đại diện</button>
-  <p style="margin:14px 0 6px">Đã học ${S.rounds} màn · chuỗi ${S.streak} ngày 🔥</p>
-  <button class="btn gray" id="rst" style="font-size:16px">Xoá toàn bộ dữ liệu</button>
-  <div class="row"><button class="btn" id="cl">Đóng</button></div></div>`;
+  m.innerHTML=`<div class="box set"><h2>⚙️ Cài đặt</h2>
+  <div class="stat"><div><b>${S.rounds}</b>màn đã học</div><div><b>${S.streak} 🔥</b>ngày liên tiếp</div><div><b>${S.perfect}</b>lần không sai</div></div>
+  <div class="sw">🗣️ Giọng Kuromi<button class="tg ${S.voice?'':'off'}" id="tv" aria-label="Giọng Kuromi"></button></div>
+  <div class="sw">🎵 Âm thanh hiệu ứng<button class="tg ${S.sfx?'':'off'}" id="ts" aria-label="Âm thanh hiệu ứng"></button></div>
+  <div class="row"><button class="btn p-purple" id="chg">✏️ Đổi tên / hình</button><button class="btn p-gray small" id="rst">Xoá dữ liệu</button></div>
+  <div class="row"><button class="btn p-pink gloss" id="cl">Đóng</button></div>
+  <img class="mm" src="${MASCOT_IMG.neutral}" alt="" draggable="false"></div>`;
   document.body.appendChild(m);
+  const snd=()=>{const b=$('.top .snd');if(b)b.textContent=S.voice||S.sfx?'🔊':'🔇'};
+  $('#tv').onclick=e=>{S.voice=!S.voice;if(!S.voice)voice.stop();e.currentTarget.classList.toggle('off',!S.voice);save();snd()};
+  $('#ts').onclick=e=>{S.sfx=!S.sfx;e.currentTarget.classList.toggle('off',!S.sfx);save();sfx.click();snd()};
   $('#cl').onclick=()=>m.remove();
-  $('#chg').onclick=()=>{m.remove();welcome()};
-  $('#rst').onclick=()=>{if(confirm('Xoá hết sao, hình dán và tên của bé?')){try{localStorage.removeItem(KEY)}catch(e){}memFallback=null;S=Object.assign({},DEF,{stickers:[],best:{},badges:[],owned:[]});m.remove();welcome()}};
+  $('#chg').onclick=()=>{m.remove();go(welcome)};
+  $('#rst').onclick=()=>{if(confirm('Xoá hết sao, hình dán và tên của bé?')){try{localStorage.removeItem(KEY)}catch(e){}memFallback=null;S=Object.assign({},DEF,{stickers:[],best:{},badges:[],owned:[]});m.remove();go(welcome)}};
 }
+/* Trang chủ: 6 trò học + cờ caro, tiệm công chúa, bộ sưu tập */
+const HOME_ORDER=['count','shape','add','split','cmp','pattern'];
+const HOME_COLORS=['p-purple','p-pink','p-blue'];
 function home(){
-  speechSynthesis&&speechSynthesis.cancel&&speechSynthesis.cancel();
-  app.innerHTML=topbar()+`<h1>Chào ${esc(S.name||'Bé')}! 👋</h1><p class="sub">Hôm nay mình chơi trò nào?${S.streak>1?` · 🔥 ${S.streak} ngày liên tiếp`:''}</p>
-  <div class="grid"><button class="gcard" style="background:#ec407a" onclick="sfx.click();shop()"><span class="ic">👑</span>Tiệm công chúa<small>Dùng ⭐ để đổi váy xinh</small></button><button class="gcard" style="background:#fbc02d" onclick="sfx.click();album()"><span class="ic">🎁</span>Bộ sưu tập<small>${S.stickers.length}/${STICKERS.length} hình dán${S.gifts?` · ${S.gifts} hộp quà mới!`:''}</small></button>${Object.entries(GAMES).map(([k,g])=>{
-    const tot=g.levels.reduce((a,_,i)=>a+(S.best[k+'-'+i]||0),0);
-    return `<button class="gcard" style="background:${g.color}" onclick="sfx.click();levels('${k}')"><span class="ic">${g.icon}</span>${g.name}<small>${g.desc}</small><small>${tot?`⭐ ${tot}/${g.levels.length*3}`:'Chưa chơi'}</small></button>`}).join('')}
-  <button class="gcard" style="background:#5c6bc0" onclick="sfx.click();caro()"><span class="ic">❌⭕</span>Cờ ca rô<small>2 bạn chơi, bàn cờ vô hạn</small></button></div>`;
+  const games=HOME_ORDER.filter(k=>GAMES[k]).concat(Object.keys(GAMES).filter(k=>!HOME_ORDER.includes(k)));
+  const card=(i,cls,icon,name,sub,act)=>`<button class="gc btn gloss enter ${cls}" ${enter(i)} onclick="goTap(this,${act})"><b>${icon}</b>${name}${sub?`<i>${sub}</i>`:''}</button>`;
+  const cards=games.map((k,i)=>{const g=GAMES[k],tot=g.levels.reduce((a,_,j)=>a+(S.best[k+'-'+j]||0),0);
+    return card(i,HOME_COLORS[i%3],g.icon,g.name,`⭐ ${tot}/${g.levels.length*3}`,`()=>levels('${k}')`)});
+  const n=cards.length;
+  cards.push(card(n,'p-dark','⭕','Cờ caro','','caro'),card(n+1,'p-pink','👑','Tiệm công chúa','','shop'),
+    card(n+2,'p-purple','🎁','Bộ sưu tập',`${S.stickers.length}/${STICKERS.length}`,'album'));
+  app.innerHTML=screenHTML({mascot:{emo:'neutral',size:'lg'},top:topbar(),cls:'home',body:`<div class="hgrid">${cards.join('')}</div>`});
+  const fire=S.streak>1?` 🔥 ${S.streak} ngày liên tiếp!`:'';
+  mascotSay('home',{format:t=>withName(t)+fire});
 }
 function levels(g){
   const G=GAMES[g];
@@ -40,7 +65,7 @@ function levels(g){
     const locked=i>0&&(S.best[g+'-'+(i-1)]||0)<2;
     return `<button class="lv ${locked?'lock':''}" onclick="${locked?`sfx.bad();toast('Đạt 2 sao ở mức trước để mở khoá nhé! 🔒')`:`sfx.click();start('${g}',${i})`}"><span>${locked?'🔒':'▶️'} ${n}</span>${starsHTML(S.best[g+'-'+i]||0)}</button>`}).join('')+'<div id="tt"></div>';
 }
-function toast(t){const e=$('#tt');if(e){e.innerHTML=`<div class="toast">${t}</div>`}}
+function toast(t){const e=$('#tt');if(e){e.innerHTML=`<div class="toast enter">${t}</div>`}}
 
 function start(g,l){
   P={g,l,i:0,total:8,mistakes:0,seen:new Set(),locked:false};

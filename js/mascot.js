@@ -22,9 +22,12 @@ function mascot(emo,text,{hold=false}={}){
 /* Kuromi nói một câu của nhóm: đổi cảm xúc theo câu, bong bóng hiện chữ (bubble ghi đè chữ hiển thị) */
 function mascotSay(group,opts={}){
   const {line,done}=voice.line(group);
-  mascot(opts.emo||line.emo,opts.bubble!==undefined?opts.bubble:line.text,opts);
+  const txt=opts.bubble!==undefined?opts.bubble:opts.format?opts.format(line.text):line.text;
+  mascot(opts.emo||line.emo,txt,opts);
   return done;
 }
+/* Chỉ cho bong bóng chữ: thay chữ "bé" đầu tiên bằng tên bé (giọng đọc vẫn nói "bé") */
+const withName=t=>S.name?t.replace(/(^|[^\p{L}])([Bb])é(?!\p{L})/u,(m,pre)=>pre+S.name):t;
 function mascotReset(){clearTimeout(mascotTimer);mascotTimer=null;mascotBase='neutral'}
 /* Hạt (tim, sao…) bay lên từ một phần tử */
 function burst(el,n=8,em=['⭐','💜','✨','💖']){
