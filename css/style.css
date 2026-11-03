@@ -1,7 +1,7 @@
 :root{--bg:#e8f6ff;--ink:#2b3a55;--card:#fff;--pri:#ff7043;--ok:#2ecc71;--bad:#ef5350;--yel:#ffd54f}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;min-height:100%;background-color:#e3f3ff;background-image:linear-gradient(#bfe6ff,#fff7e0);background-attachment:fixed;color:var(--ink);font-family:"Baloo 2","Comic Sans MS","Segoe UI",system-ui,sans-serif;user-select:none}
-#app{max-width:760px;margin:0 auto;padding-block:12px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+#app{position:relative;z-index:0;max-width:760px;margin:0 auto;padding-block:12px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .top{display:flex;align-items:center;gap:8px;background:var(--card);border-radius:20px;padding:8px 12px;box-shadow:0 4px 0 #cfe3f2;margin-bottom:14px}
 .top .me{flex:1;font-weight:800;font-size:20px;display:flex;align-items:center;gap:8px;cursor:pointer}
 .top .av{font-size:34px}
@@ -86,7 +86,7 @@ input.txt{font:inherit;font-size:26px;font-weight:800;text-align:center;border:3
 .ch .pc{max-width:140px}
 
 .tabs{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:8px 0}
-.tab{border:3px solid transparent;border-radius:16px;background:#eef6fc;font:inherit;font-weight:800;font-size:18px;padding:6px 16px;cursor:pointer}
+.tab{border:3px solid transparent;border-radius:16px;background:rgba(255,255,255,.78);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);box-shadow:0 3px 10px rgba(0,0,0,.08);font:inherit;font-weight:800;font-size:18px;padding:6px 16px;cursor:pointer}
 .tab.sel{border-color:var(--pri);background:#fff}
 .shopgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-top:8px}
 .shopgrid.small{grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px}
@@ -97,7 +97,7 @@ input.txt{font:inherit;font-size:26px;font-weight:800;text-align:center;border:3
 .shopimg.big.cutout{aspect-ratio:auto;background:none;filter:drop-shadow(0 8px 14px rgba(160,80,160,.35))}
 
 .shoplayout{display:grid;grid-template-columns:96px 1fr 96px;gap:12px;align-items:start;margin-top:6px}
-.side{background:rgba(255,255,255,.7);border-radius:22px;padding:8px 6px;box-shadow:0 4px 0 #cfe3f2;max-height:70vh;overflow-y:auto}
+.side{background:rgba(255,255,255,.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:22px;padding:8px 6px;box-shadow:0 6px 18px rgba(0,0,0,.12);max-height:70vh;overflow-y:auto}
 .side h3{margin:2px 0 8px;font-size:15px;text-align:center}
 .thumbs{display:flex;flex-direction:column;gap:8px}
 .hint{font-size:13px;font-weight:700;text-align:center;opacity:.7;margin:6px 2px}
@@ -108,13 +108,15 @@ input.txt{font:inherit;font-size:26px;font-weight:800;text-align:center;border:3
 .thumb.lockd img{filter:grayscale(.85) brightness(.8) blur(1px)}
 .thumb .tem{position:absolute;top:4px;right:4px;font-size:22px;background:#fff;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 4px rgba(0,0,0,.25);animation:wob 2s infinite}
 .thumb .price{position:absolute;left:0;right:0;bottom:0;background:rgba(43,58,85,.85);color:#fff;font-weight:800;font-size:13px;padding:2px 0}
-.stage{position:relative;border-radius:28px;padding:18px 10px 14px;text-align:center;overflow:hidden;background:radial-gradient(circle at 50% 35%,#fff7fb 0,#ffe0f0 55%,#f3d9ff 100%);box-shadow:0 6px 0 #e3bfe0;min-height:420px;animation:stagein .5s}
+/* Sân khấu không khung: nhân vật đứng thẳng trong cảnh, chỉ có vầng sáng mềm phía sau */
+.stage{position:relative;border-radius:28px;padding:18px 10px 14px;text-align:center;overflow:hidden;border:3px dashed transparent;min-height:420px;animation:stagein .5s}
+.stage::before{content:"";position:absolute;left:50%;top:45%;width:440px;height:440px;margin:-220px 0 0 -220px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.45) 0,rgba(255,255,255,.22) 35%,rgba(255,255,255,0) 65%);pointer-events:none}
 .stage.empty{display:flex;align-items:center;justify-content:center}
-.stage-msg{font-size:20px;font-weight:800;line-height:1.6;opacity:.75;padding:20px}
-.glow{position:absolute;left:50%;top:42%;width:340px;height:340px;margin:-170px 0 0 -170px;background:conic-gradient(from 0deg,rgba(255,255,255,0),rgba(255,214,102,.55),rgba(255,255,255,0),rgba(255,160,220,.5),rgba(255,255,255,0));border-radius:50%;filter:blur(14px);animation:spin 9s linear infinite}
-.hero{position:relative;z-index:1;max-width:100%;max-height:420px;width:auto;filter:drop-shadow(0 10px 14px rgba(160,80,160,.35));cursor:zoom-in;animation:float 3.2s ease-in-out infinite,heroin .6s}
-.pedestal{position:relative;width:55%;height:14px;margin:10px auto 6px;border-radius:50%;background:radial-gradient(ellipse,rgba(160,80,160,.35),rgba(160,80,160,0) 70%);animation:shadow 3.2s ease-in-out infinite}
-.stage-name{position:relative;z-index:1;font-weight:800;font-size:20px}
+.stage-msg{position:relative;font-size:20px;font-weight:800;line-height:1.6;padding:16px 22px;background:rgba(255,255,255,.85);border-radius:22px;box-shadow:0 4px 14px rgba(0,0,0,.1)}
+.glow{position:absolute;left:50%;top:42%;width:340px;height:340px;margin:-170px 0 0 -170px;background:conic-gradient(from 0deg,rgba(255,255,255,0),rgba(255,214,102,.7),rgba(255,255,255,0),rgba(255,160,220,.65),rgba(255,255,255,0));border-radius:50%;filter:blur(14px);animation:spin 9s linear infinite}
+.hero{position:relative;z-index:1;max-width:100%;max-height:420px;width:auto;filter:drop-shadow(0 0 2px #fff) drop-shadow(0 0 10px rgba(255,255,255,.75)) drop-shadow(0 12px 14px rgba(90,40,90,.35));cursor:zoom-in;animation:float 3.2s ease-in-out infinite,heroin .6s}
+.pedestal{position:relative;width:55%;height:14px;margin:10px auto 6px;border-radius:50%;background:radial-gradient(ellipse,rgba(90,40,90,.45),rgba(90,40,90,0) 70%);animation:shadow 3.2s ease-in-out infinite}
+.stage-name{position:relative;z-index:1;display:inline-block;font-weight:800;font-size:20px;background:rgba(255,255,255,.85);border-radius:16px;padding:2px 16px;box-shadow:0 3px 10px rgba(0,0,0,.1)}
 .spark{position:absolute;z-index:2;font-size:24px;pointer-events:none;animation:twinkle 2.2s ease-in-out infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes float{50%{transform:translateY(-10px)}}
@@ -133,6 +135,14 @@ input.txt{font:inherit;font-size:26px;font-weight:800;text-align:center;border:3
   .side.mine{grid-area:mine}.side:not(.mine){grid-area:lock}
 }
 .side,.shoplayout .stage{min-width:0}
+/* Nền toàn trang của tiệm, các khối nổi lên trên */
+.shopbg{position:fixed;inset:0;z-index:-1;background:#f6e9f3 center/cover no-repeat}
+.shopbg::after{content:"";position:absolute;inset:0;background:linear-gradient(rgba(255,255,255,.12),rgba(255,255,255,.3))}
+.shopbg.fadein{animation:bgin .5s ease-out}
+@keyframes bgin{from{opacity:0}}
+.shop-title,.shop-sub{display:table;margin-left:auto;margin-right:auto;background:rgba(255,255,255,.82);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border-radius:18px;padding:2px 18px;box-shadow:0 3px 10px rgba(0,0,0,.08)}
+.shop-title{margin-bottom:8px}
+.shop-sub{opacity:1;font-size:16px;padding:4px 14px;margin-bottom:6px}
 /* Kéo váy vào sân khấu + hiệu ứng thay váy */
 .thumb.drag{touch-action:pan-y;user-select:none;-webkit-user-select:none;cursor:grab}
 .thumb.drag img{pointer-events:none}
@@ -140,9 +150,10 @@ input.txt{font:inherit;font-size:26px;font-weight:800;text-align:center;border:3
 .thumb.nudge{animation:wob .25s 2}
 .drag-ghost{position:fixed;z-index:1000;width:96px;pointer-events:none;border-radius:16px;background:#fff;transform:translate(-50%,-50%) rotate(-6deg) scale(1.1);box-shadow:0 10px 24px rgba(160,80,160,.45)}
 .drag-ghost.back{transition:left .28s,top .28s,opacity .28s;opacity:0}
-.stage{transition:box-shadow .2s,transform .2s}
-.stage.drop-ready{box-shadow:0 6px 0 #e3bfe0,inset 0 0 0 4px rgba(236,64,122,.35)}
-.stage.drop-hover{transform:scale(1.02);box-shadow:0 6px 0 #e3bfe0,inset 0 0 0 5px #ffd54f,0 0 34px rgba(255,128,171,.8)}
+/* Vùng thả chỉ hiện khi đang kéo váy */
+.stage{transition:border-color .2s,background-color .2s,box-shadow .2s,transform .2s}
+.stage.drop-ready{border-color:rgba(255,255,255,.95);background-color:rgba(255,255,255,.15)}
+.stage.drop-hover{transform:scale(1.02);border-style:solid;border-color:#ffd54f;background-color:rgba(255,236,170,.22);box-shadow:0 0 34px rgba(255,214,102,.8)}
 .stage-tip{position:absolute;z-index:3;left:50%;top:14px;transform:translateX(-50%);white-space:nowrap;background:#fff;border-radius:16px;padding:6px 14px;font-weight:800;box-shadow:0 4px 12px rgba(160,80,160,.3);animation:tipin .3s}
 .stage.swap .hero{animation:poof .5s ease-in forwards}
 .stage.swap .stage-name{transition:opacity .3s;opacity:0}
@@ -154,7 +165,7 @@ input.txt{font:inherit;font-size:26px;font-weight:800;text-align:center;border:3
 .hero.hop{animation:hop .5s}
 @keyframes poof{to{transform:scale(.15) rotate(25deg);opacity:0;filter:brightness(3) blur(6px)}}
 @keyframes swirl{from{transform:rotate(var(--a)) translateY(-190px) scale(.5);opacity:0}30%{opacity:1}to{transform:rotate(calc(var(--a) + 300deg)) translateY(0) scale(1.3);opacity:1}}
-@keyframes magicin{0%{transform:scale(.2);opacity:0;filter:brightness(3) blur(8px) drop-shadow(0 10px 14px rgba(160,80,160,0))}60%{transform:scale(1.08);opacity:1;filter:brightness(1.5) blur(0) drop-shadow(0 10px 14px rgba(160,80,160,.35))}100%{transform:scale(1);filter:brightness(1) blur(0) drop-shadow(0 10px 14px rgba(160,80,160,.35))}}
+@keyframes magicin{0%{transform:scale(.2);opacity:0;filter:brightness(3) blur(8px) drop-shadow(0 0 2px #fff) drop-shadow(0 0 10px rgba(255,255,255,.75)) drop-shadow(0 12px 14px rgba(90,40,90,.35))}60%{transform:scale(1.08);opacity:1;filter:brightness(1.5) blur(0) drop-shadow(0 0 2px #fff) drop-shadow(0 0 10px rgba(255,255,255,.75)) drop-shadow(0 12px 14px rgba(90,40,90,.35))}100%{transform:scale(1);filter:brightness(1) blur(0) drop-shadow(0 0 2px #fff) drop-shadow(0 0 10px rgba(255,255,255,.75)) drop-shadow(0 12px 14px rgba(90,40,90,.35))}}
 @keyframes flash{0%{opacity:0}25%{opacity:1}100%{opacity:0}}
 @keyframes burst{0%{transform:translate(0,0) scale(.3);opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(1.1) rotate(180deg);opacity:0}}
 @keyframes hop{40%{transform:translateY(-22px) scale(1.04)}}

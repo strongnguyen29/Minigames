@@ -4,8 +4,9 @@
    Mỗi món: [tên ảnh váy (không đuôi), tên hiển thị, giá (số sao), tên ảnh nhân vật nếu khác tên váy]
    (vài ảnh váy bị đặt nhầm tên nên được ghép với nhân vật theo hình) */
 const SHOP_BASE='images/shop-items/fashion/';
+const SHOP_BG='images/shop-items/bg/'; // ảnh nền toàn trang theo từng phong cách
 const SHOP=[
-  {id:'gown',icon:'👑',name:'Dạ hội',items:[
+  {id:'gown',icon:'👑',name:'Dạ hội',bg:'palace',items:[
     ['gold-princess-gown','Công chúa Vàng Óng',45],
     ['gold-white-ball-gown','Dạ hội Trắng Vàng',40],
     ['purple-princess-gown','Công chúa Tím Mộng Mơ',40],
@@ -13,7 +14,7 @@ const SHOP=[
     ['blue-casual-set','Dạ hội Hồng Phấn',35,'pink-ball-gown'],
     ['purple-tiered-gown','Váy Tím Nhiều Tầng',32]
   ]},
-  {id:'dress',icon:'👗',name:'Váy xinh',items:[
+  {id:'dress',icon:'👗',name:'Váy xinh',bg:'garden',items:[
     ['pink-dress','Váy Hồng Nơ Xinh',15],
     ['beige-dress','Váy Be Dịu Dàng',15],
     ['lavender-dress','Váy Oải Hương',15],
@@ -24,14 +25,14 @@ const SHOP=[
     ['golden-ruffle-dress','Váy Bèo Vàng Nắng',25],
     ['pink-ball-gown','Váy Bèo Hồng',25,'pink-ruffle-dress']
   ]},
-  {id:'aodai',icon:'🏮',name:'Áo dài',items:[
+  {id:'aodai',icon:'🏮',name:'Áo dài',bg:'temple',items:[
     ['pink-ao-dai','Áo dài Hồng Đào',22],
     ['yellow-ao-dai','Áo dài Vàng Hoa Mai',22],
     ['white-floral-ao-dai','Áo dài Trắng Hoa Nhí',22],
     ['blue-embroidered-traditional-set','Áo dài Xanh Hoa Đào',22,'blue-floral-ao-dai'],
     ['red-ao-dai','Áo dài Đỏ Ngày Tết',25,'red-ao-dai-01']
   ]},
-  {id:'uniform',icon:'🎒',name:'Đồng phục',items:[
+  {id:'uniform',icon:'🎒',name:'Đồng phục',bg:'school',items:[
     ['navy-sailor-uniform','Thủy Thủ Xanh Than',16],
     ['light-blue-sailor-uniform','Thủy Thủ Xanh Nhạt',16],
     ['pink-cardigan-uniform','Áo Len Hồng',16],
@@ -40,7 +41,7 @@ const SHOP=[
     ['gray-blazer-uniform','Vest Xám Tinh Nghịch',18],
     ['navy-blazer-uniform','Vest Xanh Than',18]
   ]},
-  {id:'casual',icon:'🧢',name:'Dạo phố',items:[
+  {id:'casual',icon:'🧢',name:'Dạo phố',bg:'playground',items:[
     ['pink-cap-set','Mũ Lưỡi Trai Hồng',12],
     ['lavender-cap-set','Mũ Lưỡi Trai Tím',12],
     ['yellow-casual-set','Dạo Phố Vàng Chanh',12],
@@ -172,6 +173,16 @@ function shopStage(it){
   return `<div class="stage"><div class="glow"></div>${SPARKS.map(([x,y],i)=>`<span class="spark" style="left:${x}%;top:${y}%;animation-delay:${(i*.37).toFixed(2)}s">${i%2?'✨':'⭐'}</span>`).join('')}
     <img class="hero" src="${it.src}" alt="${esc(it.name)}" onclick="viewItem('${it.id}')"><div class="pedestal"></div><div class="stage-name">${esc(it.name)}</div></div>`;
 }
+/* Nền toàn trang: đổi tab thì nền mới mờ dần đè lên nền cũ */
+let shopBgLoaded=false;
+function shopBackdrop(prev){
+  if(!shopBgLoaded){shopBgLoaded=true;SHOP.forEach(c=>{new Image().src=`${SHOP_BG}${c.bg}.jpg`})}
+  const nw=$('.shopbg');
+  if(!prev||!nw)return;
+  if(prev.dataset.bg===nw.dataset.bg)return; // ảnh đã có sẵn trong cache, hiện ngay
+  prev.classList.remove('fadein');nw.classList.add('fadein');nw.before(prev);
+  setTimeout(()=>prev.remove(),600);
+}
 function shop(){
   const cat=SHOP.find(c=>c.id===shopCat)||SHOP[0];
   const mine=SHOP_ITEMS.filter(x=>x.cat===cat.id&&owns(x.id));
@@ -181,8 +192,11 @@ function shop(){
   const catTabs=SHOP.length>1?`<div class="tabs">${SHOP.map(c=>`<button class="tab ${c.id===cat.id?'sel':''}" onclick="setShopTab('${c.id}')">${c.icon} ${c.name}</button>`).join('')}</div>`:'';
   const ownedList=mine.length?mine.map(it=>`<button class="thumb drag ${it.id===shopSel?'sel':''}" data-id="${it.id}" onpointerdown="dragDress(event,'${it.id}')"><img src="${it.thumb}" alt="${esc(it.name)}" loading="lazy" draggable="false"></button>`).join(''):`<p class="hint">Chưa có bộ nào</p>`;
   const lockList=locked.length?locked.map(it=>`<button class="thumb lockd" onclick="lockedItem('${it.id}')"><img src="${it.thumb}" alt="${esc(it.name)}" loading="lazy"><span class="tem">🔒</span><span class="price">${it.price} ⭐</span></button>`).join(''):`<p class="hint">Bé đã có hết rồi! 🎉</p>`;
-  app.innerHTML=topbar('home()')+`<h2>👑 Tiệm công chúa</h2><p class="sub">Bé có ${balance()} ⭐ · kéo váy của bé vào khung để thay · bấm món có khoá 🔒 để đổi</p>`+catTabs+
+  const prev=[...document.querySelectorAll('.shopbg')].pop();
+  app.innerHTML=`<div class="shopbg" data-bg="${cat.bg}" style="background-image:url('${SHOP_BG}${cat.bg}.jpg')"></div>`+
+    topbar('home()')+`<h2 class="shop-title">👑 Tiệm công chúa</h2><p class="sub shop-sub">Bé có ${balance()} ⭐ · kéo váy của bé vào khung để thay · bấm món có khoá 🔒 để đổi</p>`+catTabs+
     `<div class="shoplayout"><div class="side mine"><h3>👗 Kéo để mặc</h3><div class="thumbs">${ownedList}</div></div>${shopStage(cur)}<div class="side"><h3>🔒 Chưa có</h3><div class="thumbs">${lockList}</div></div></div>`;
+  shopBackdrop(prev);
 }
 function wardrobe(){
   const mine=SHOP_ITEMS.filter(x=>owns(x.id));
