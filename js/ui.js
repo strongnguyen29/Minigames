@@ -58,12 +58,32 @@ function home(){
   const fire=S.streak>1?` 🔥 ${S.streak} ngày liên tiếp!`:'';
   mascotSay('home',{format:t=>withName(t)+fire});
 }
+/* Chọn mức: các mức nằm trên con đường chấm trắng uốn lượn trên mây (toạ độ % trong khung) */
+const LEVEL_PATH=[[12,85],[30,55],[60,45],[85,38],[62,14],[34,24]];
 function levels(g){
-  const G=GAMES[g];
-  app.innerHTML=topbar('home()')+`<h2>${G.icon} ${G.name}</h2><p class="sub">Chọn mức độ</p>`+
-  G.levels.map((n,i)=>{
-    const locked=i>0&&(S.best[g+'-'+(i-1)]||0)<2;
-    return `<button class="lv ${locked?'lock':''}" onclick="${locked?`sfx.bad();toast('Đạt 2 sao ở mức trước để mở khoá nhé! 🔒')`:`sfx.click();start('${g}',${i})`}"><span>${locked?'🔒':'▶️'} ${n}</span>${starsHTML(S.best[g+'-'+i]||0)}</button>`}).join('')+'<div id="tt"></div>';
+  const G=GAMES[g],best=i=>S.best[g+'-'+i]||0;
+  const locked=i=>i>0&&best(i-1)<2;
+  const cur=G.levels.findIndex((_,i)=>!locked(i)&&best(i)<2);
+  const tot=G.levels.reduce((a,_,i)=>a+best(i),0);
+  const node=(n,i,pos)=>{
+    const st=locked(i)?'lock':i===cur?'cur':best(i)>=1?'done':'open';
+    const stars=[1,2,3].map(k=>`<span class="${k<=best(i)?'':'off'}">⭐</span>`).join('');
+    return `<button class="lvn btn gloss enter ${st} ${st==='lock'?'p-gray':st==='cur'?'p-pink':st==='done'?'p-green':'p-blue'}" style="--d:${(i*.08).toFixed(2)}s${pos?`;left:${pos[0]}%;top:${pos[1]}%`:''}" data-i="${i}">
+      ${st==='lock'?'🔒':i+1}${st==='lock'?'':`<small>${stars}</small>`}<span class="nm">${esc(n)}</span></button>${i===cur&&pos?`<span class="flag" style="left:calc(${pos[0]}% + var(--u)*3);top:calc(${pos[1]}% - var(--u)*12)">🚩</span>`:''}`;
+  };
+  const onPath=G.levels.slice(0,LEVEL_PATH.length),extra=G.levels.slice(LEVEL_PATH.length);
+  const d='M'+LEVEL_PATH.slice(0,onPath.length).map(([x,y])=>`${x} ${y}`).join(' L ');
+  app.innerHTML=screenHTML({mascot:{emo:'neutral',size:'lg'},cls:'levels',
+    top:`<div class="ttl"><button class="back" onclick="goTap(this,home)">⬅️</button>${G.icon} ${esc(G.name)}<span class="coin">⭐ ${tot}/${G.levels.length*3}</span></div>`,
+    body:`<div class="path"><svg viewBox="0 0 100 100" preserveAspectRatio="none"><path d="${d}" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-dasharray="1 6" vector-effect="non-scaling-stroke" opacity=".9"/></svg>
+      ${onPath.map((n,i)=>node(n,i,LEVEL_PATH[i])).join('')}</div>
+      ${extra.length?`<div class="row lvx">${extra.map((n,j)=>node(n,j+LEVEL_PATH.length)).join('')}</div>`:''}`});
+  app.querySelectorAll('.lvn').forEach(b=>b.onclick=()=>{
+    const i=+b.dataset.i;
+    if(locked(i)){sfx.bad();b.classList.remove('shk');void b.offsetWidth;b.classList.add('shk');mascotSay('locked');return}
+    goTap(b,()=>start(g,i));
+  });
+  mascotSay('levels_'+g);
 }
 function toast(t){const e=$('#tt');if(e){e.innerHTML=`<div class="toast enter">${t}</div>`}}
 

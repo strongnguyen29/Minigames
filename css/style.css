@@ -76,8 +76,8 @@ h1{font-size:30px;margin:6px 0 4px;text-align:center}
 h2{text-align:center;margin:8px 0 14px}
 .sub{text-align:center;opacity:.75;margin:0 0 14px;font-size:18px}
 
-.lv{display:flex;align-items:center;justify-content:space-between;background:var(--card);border-radius:20px;padding:14px 18px;margin-bottom:12px;font-weight:800;font-size:22px;cursor:pointer;box-shadow:0 4px 0 #cfe3f2;border:0;width:100%;font-family:inherit;color:inherit}
-.lv.lock{opacity:.5;cursor:not-allowed}
+
+
 .stars{font-size:26px;letter-spacing:2px}
 .stars .off{filter:grayscale(1);opacity:.35}
 .bar{display:flex;gap:6px;justify-content:center;margin-bottom:10px}
@@ -291,3 +291,18 @@ h2{text-align:center;margin:8px 0 14px}
 .box.set{overflow:visible}
 .box .mm{position:absolute;right:-12%;bottom:-6%;width:26%;pointer-events:none;filter:drop-shadow(0 6px 8px rgba(40,10,70,.4));animation:bob 3.2s ease-in-out infinite}
 .toast{display:table;margin:calc(var(--u)*1) auto;border-radius:calc(var(--u)*2);padding:calc(var(--u)*1) calc(var(--u)*2);font-weight:800;font-size:calc(var(--u)*2.2);background:linear-gradient(90deg,#fff3b0,#ffe4f1);box-shadow:0 calc(var(--u)*.4) 0 #f0c9a0}
+
+/* ============ Chọn mức ============ */
+.path{position:relative;flex:1;min-height:calc(var(--u)*40)}
+.path svg{position:absolute;inset:0;width:100%;height:100%}
+.path svg path{stroke-width:calc(var(--u)*.7);stroke-dasharray:calc(var(--u)*.1) calc(var(--u)*1.4)}
+.lvn{position:absolute;width:calc(var(--u)*13);height:calc(var(--u)*13);margin:calc(var(--u)*-6.5) 0 0 calc(var(--u)*-6.5);padding:0;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:calc(var(--u)*5);line-height:1}
+.lvn.enter{animation:popin .5s cubic-bezier(.3,1.6,.5,1) both var(--d,0s)}
+.lvn small{font-size:calc(var(--u)*1.7);letter-spacing:calc(var(--u)*-.1);margin-top:calc(var(--u)*.2);text-shadow:none}
+.lvn small .off{opacity:.35;filter:grayscale(1)}
+.lvn .nm{position:absolute;top:100%;margin-top:calc(var(--u)*1);white-space:nowrap;font-size:calc(var(--u)*1.8);color:var(--ink);text-shadow:none;background:#fff;padding:calc(var(--u)*.2) calc(var(--u)*1);border-radius:calc(var(--u)*1);box-shadow:0 calc(var(--u)*.3) 0 #e0cdf8}
+.lvn.lock{font-size:calc(var(--u)*4)}
+.lvn.cur.enter{animation:popin .5s both var(--d,0s),beat 1.2s ease-in-out infinite .8s}
+.lvn.shk{animation:shake .35s!important}
+.lvx .lvn{position:relative;margin:0 0 calc(var(--u)*3)}
+.flag{position:absolute;z-index:3;font-size:calc(var(--u)*5);pointer-events:none;animation:floaty 2s ease-in-out infinite}
