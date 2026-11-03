@@ -46,10 +46,8 @@ const sfx={
   /* thay váy: chuỗi nốt lấp lánh đi lên như phép thuật */
   magic(){[1047,1319,1568,2093,2637,3136].forEach((f,i)=>{tone(f,i*.06,.3,'sine',.08);tone(f*1.5,i*.06+.03,.15,'triangle',.03)})}
 };
-function say(text){
-  if(!S.sound||!window.speechSynthesis)return;
-  try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='vi-VN';u.rate=.85;speechSynthesis.speak(u)}catch(e){}
-}
+/* Đọc một câu bằng giọng Kuromi (xem js/voice.js) */
+function say(text){return voice.text(text)}
 function confetti(n=26){
   const em=['⭐','🎉','✨','🎈','🌟'];
   for(let i=0;i<n;i++){

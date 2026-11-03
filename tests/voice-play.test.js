@@ -1,0 +1,80 @@
+const test = require('node:test'), assert = require('node:assert/strict');
+const { loadGame } = require('./helpers/load');
+const FILES = ['js/core.js','js/questions.js','js/rewards.js','js/pattern.js','js/lines.js','audio/voice/manifest.js','js/voice.js'];
+
+/* Audio giả (một phần tử dùng lại): ghi lại src khi play, gọi onended sau 1ms (hoặc onerror nếu src nằm trong bad) */
+function setup({ have = [], bad = [], noTTS = false, voiceOn = true } = {}) {
+  const played = [];
+  class FakeAudio {
+    constructor(src) { this.src = src || ''; }
+    play() { const src = this.src; played.push(src); setTimeout(() => { if (this.src === src) (bad.includes(src) ? this.onerror : this.onended)?.(); }, 1); return Promise.resolve(); }
+    pause() {}
+  }
+  const g = loadGame(FILES, { Audio: FakeAudio, noTTS });
+  g.run(`VOICE_FILES.length=0;VOICE_FILES.push(...${JSON.stringify(have)});S.voice=${voiceOn};`);
+  return { g, v: g.get('voice'), played, tts: g.ctx.__tts };
+}
+const ALL = ['num_5','p_cong','num_7','p_bang_may'];
+
+test('LINES: mỗi nhóm 3–5 câu, id duy nhất, emo hợp lệ, đủ 36 nhóm', () => {
+  const { g } = setup(); const L = g.get('LINES'); const ids = new Set();
+  for (const [grp, arr] of Object.entries(L)) {
+    assert.ok(arr.length >= 3 && arr.length <= 5, grp);
+    for (const x of arr) { assert.ok(!ids.has(x.id), x.id); ids.add(x.id);
+      assert.ok(['neutral','happy','think','clap'].includes(x.emo), x.id); assert.ok(x.text && x.tone, x.id); }
+  }
+  assert.equal(Object.keys(L).length, 36);
+});
+test('voice.text phát đủ mẩu khi có file', async () => {
+  const { v, played, tts } = setup({ have: ALL });
+  await v.text('5 cộng 7 bằng mấy?');
+  assert.deepEqual(played, ALL.map(i => `audio/voice/${i}.mp3`));
+  assert.equal(tts.length, 0);
+});
+test('thiếu một mẩu thì đọc cả câu bằng giọng máy', async () => {
+  const { v, played, tts } = setup({ have: ['num_5','p_cong','p_bang_may'] });
+  await v.text('5 cộng 7 bằng mấy?');
+  assert.deepEqual(played, []); assert.equal(tts[0].text, '5 cộng 7 bằng mấy?');
+  assert.ok(tts[0].pitch > 1 && tts[0].rate < .85 && tts[0].lang === 'vi-VN');
+});
+test('file lỗi giữa chừng thì dừng phát mẩu và đọc cả câu bằng giọng máy', async () => {
+  const { v, played, tts } = setup({ have: ALL, bad: ['audio/voice/p_cong.mp3'] });
+  await v.text('5 cộng 7 bằng mấy?');
+  assert.deepEqual(played, ['audio/voice/num_5.mp3','audio/voice/p_cong.mp3']);
+  assert.equal(tts.length, 1); assert.equal(tts[0].text, '5 cộng 7 bằng mấy?');
+});
+test('câu cố định: có file thì phát file, không thì giọng máy đọc chữ đã bỏ emoji', async () => {
+  const { g, v, played, tts } = setup();
+  const r = v.line('correct'); assert.ok(r.line.text); await r.done;
+  assert.equal(played.length, 0); assert.equal(tts.length, 1); assert.doesNotMatch(tts[0].text, /\p{Extended_Pictographic}/u);
+  g.run(`VOICE_FILES.push(...LINES.correct.map(x=>x.id))`);
+  const r2 = v.line('correct'); await r2.done;
+  assert.deepEqual(played, [`audio/voice/${r2.line.id}.mp3`]);
+});
+test('line không lặp lại câu vừa nói của cùng nhóm', () => {
+  const { v } = setup(); let prev = v.line('correct').line.id;
+  for (let i = 0; i < 30; i++) { const id = v.line('correct').line.id; assert.notEqual(id, prev); prev = id; }
+});
+test('câu mới dừng câu cũ, promise cũ vẫn resolve', async () => {
+  const { v } = setup({ have: ALL });
+  const a = v.text('5 cộng 7 bằng mấy?'); const b = v.line('correct').done;
+  await a; await b;
+});
+test('voice.stop resolve câu đang phát', async () => {
+  const { v, played } = setup({ have: ALL });
+  const a = v.text('5 cộng 7 bằng mấy?'); v.stop(); await a;
+  await new Promise(r => setTimeout(r, 20)); assert.ok(played.length <= 1);
+});
+test('S.voice=false thì không phát gì, promise resolve ngay', async () => {
+  const { v, played, tts } = setup({ have: ALL, voiceOn: false });
+  await v.text('5 cộng 7 bằng mấy?'); await v.line('correct').done;
+  assert.equal(played.length + tts.length, 0);
+});
+test('không có speechSynthesis thì vẫn resolve, không ném lỗi', async () => {
+  const { v } = setup({ noTTS: true }); await v.text('5 cộng 7 bằng mấy?'); await v.line('hint').done;
+});
+test('voiceWait tôn trọng min và max', async () => {
+  const { g } = setup(); const voiceWait = g.get('voiceWait');
+  const t0 = Date.now(); await voiceWait(new Promise(() => {}), 10, 60); assert.ok(Date.now() - t0 >= 55);
+  const t1 = Date.now(); await voiceWait(Promise.resolve(), 40, 1000); assert.ok(Date.now() - t1 >= 35);
+});

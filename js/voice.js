@@ -46,3 +46,62 @@ function segment(text){
   }
   return out.length?out:null;
 }
+
+/* ---- Phát giọng: một câu một lúc; câu mới hoặc stop() dừng câu cũ và resolve promise của nó ---- */
+const VOICE_DIR='audio/voice/';
+const SILENT_WAV='data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
+const voice=(()=>{
+  let token=0,cur=null,el=null;const last={};
+  /* iOS chỉ cho phát phần tử Audio đã được "mở khoá" bằng một lần chạm → dùng lại một phần tử duy nhất */
+  const audio=()=>el||(el=new Audio());
+  const have=id=>VOICE_FILES.includes(id);
+  const plain=t=>String(t).replace(/[\p{Extended_Pictographic}‍️]/gu,'').replace(/\s+/g,' ').trim();
+  function finish(){if(!cur)return;const c=cur;cur=null;c.resolve()}
+  function stop(){
+    token++;finish();
+    if(el){el.onended=el.onerror=null;try{el.pause()}catch(e){}}
+    try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){}
+  }
+  function tts(text,done){
+    if(!window.speechSynthesis){done();return}
+    try{const u=new SpeechSynthesisUtterance(plain(text));u.lang='vi-VN';u.rate=.8;u.pitch=1.4;u.onend=u.onerror=done;speechSynthesis.speak(u)}catch(e){done()}
+  }
+  /* ids: các mẩu cần phát nối tiếp; thiếu bất kỳ mẩu nào (hoặc file lỗi) → đọc cả câu bằng giọng máy */
+  function play(ids,text){
+    stop();const my=token;
+    return new Promise(resolve=>{
+      cur={resolve};
+      if(S.voice===false){finish();return}
+      const done=()=>{if(my===token)finish()};
+      if(!ids||!ids.length||!ids.every(have)){tts(text,done);return}
+      const a=audio();let i=0,failed=false;
+      const fail=()=>{if(my!==token||failed)return;failed=true;a.onended=a.onerror=null;tts(text,done)};
+      const next=()=>{
+        if(my!==token||failed)return;
+        if(i>=ids.length){a.onended=a.onerror=null;done();return}
+        a.onended=next;a.onerror=fail;a.src=VOICE_DIR+ids[i++]+'.mp3';
+        try{const p=a.play();p&&p.catch&&p.catch(fail)}catch(e){fail()}
+      };
+      next();
+    });
+  }
+  return{
+    unlock(){
+      try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();ac.resume&&ac.resume()}catch(e){}
+      try{const a=audio();a.src=SILENT_WAV;const p=a.play();p&&p.catch&&p.catch(()=>{})}catch(e){}
+    },
+    /* chọn ngẫu nhiên một câu của nhóm, không lặp câu vừa nói */
+    line(group){
+      const arr=LINES[group]||[];
+      const pool=arr.length>1?arr.filter(x=>x.id!==last[group]):arr;
+      const line=pool[Math.floor(Math.random()*pool.length)];
+      if(!line)return{line:{id:'',text:'',emo:'neutral'},done:Promise.resolve()};
+      last[group]=line.id;
+      return{line,done:play([line.id],line.text)};
+    },
+    text(t){return play(segment(t),t)},
+    stop
+  };
+})();
+/* Chờ giọng nói xong nhưng không ít hơn min và không quá max (ms) */
+const voiceWait=(p,min,max)=>Promise.all([Promise.race([p,new Promise(r=>setTimeout(r,max))]),new Promise(r=>setTimeout(r,min))]).then(()=>{});
