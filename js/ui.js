@@ -142,34 +142,48 @@ function finish(){
   if(m===0)S.perfect++;
   let gift=false;if(stars>=2){S.gifts++;gift=true}
   const newB=checkBadges();save();P=null;
-  sfx.win();confetti(40);
-  const msg=stars===3?'Giỏi quá! Tuyệt vời! 🎉':stars===2?'Giỏi lắm! Cố lên nào! 👏':'Bé đã cố gắng rồi! Thử lại nhé 💪';
+  sfx.win();
+  const msg=stars===3?'Giỏi quá! Tuyệt vời! 🎉':stars===2?'Giỏi lắm! 👏':'Bé đã cố gắng rồi! 💪';
   const nextOk=l<GAMES[g].levels.length-1&&(S.best[g+'-'+l]||0)>=2;
-  app.innerHTML=topbar()+`<div class="result panel"><h1>${msg}</h1>${starsHTML(stars)}
-  <p class="sub">Bé nhận được +${stars} ⭐${gift?' và 1 hộp quà 🎁':''}</p>
-  ${newB.map(b=>`<div class="toast">${b.icon} Huy hiệu mới: <b>${b.name}</b></div>`).join('')}
-  <div class="row">${gift?`<button class="btn" onclick="openGift(()=>result_btns())">🎁 Mở quà</button>`:''}
-  <button class="btn alt" onclick="start('${g}',${l})">🔁 Chơi lại</button>
-  ${nextOk?`<button class="btn" style="background:#66bb6a;box-shadow:0 5px 0 #3d8b40" onclick="start('${g}',${l+1})">➡️ Mức tiếp theo</button>`:''}
-  <button class="btn gray" onclick="home()">🏠 Về nhà</button></div></div>`;
-  window.result_btns=()=>{const b=document.querySelector('.result .row .btn');if(b&&b.textContent.includes('Mở quà')){if(S.gifts<1)b.remove()}};
+  const emo=stars>=2?'clap':'think';
+  app.innerHTML=screenHTML({mascot:{emo,size:'lg'},cls:'result',
+    body:`<div class="res card3d">${stars>=2?'<div class="rays"></div>':''}<h1>${msg}</h1>
+    <div class="bigst">${[1,2,3].map(i=>`<span class="${i<=stars?'on':'off'}">⭐</span>`).join('')}</div>
+    <div class="gain"><b>+${stars} ⭐</b>${gift?'<b>+1 🎁</b>':''}</div>
+    ${newB.length?`<div class="newb">${newB.map((b,i)=>`<div class="badge${newB.length>1?' sm':''}" style="--d:${(2.4+i*.2).toFixed(1)}s"><span>${b.icon}</span>${newB.length>1?'':'Huy hiệu mới: '}${esc(b.name)}!</div>`).join('')}</div>`:''}
+    <div class="row" id="rbtn">${gift?`<button class="btn p-pink gloss" id="rgift" onclick="openGift(()=>result_btns())">🎁 Mở quà</button>`:''}
+    <button class="btn p-blue" onclick="goTap(this,()=>start('${g}',${l}))">🔁 Chơi lại</button>
+    ${nextOk?`<button class="btn p-green" onclick="goTap(this,()=>start('${g}',${l+1}))">➡️ Mức tiếp</button>`:''}
+    <button class="btn p-white" onclick="goTap(this,home)" aria-label="Về nhà">🏠</button></div></div>`});
+  [400,900,1400].slice(0,stars).forEach(t=>setTimeout(()=>sfx.click(),t));
+  if(stars>=2)setTimeout(()=>confetti(30),1500);
+  mascotSay('result'+stars,{hold:true}).then(()=>{if(newB.length&&$('.res'))mascotSay('badge',{hold:true})});
+  window.result_btns=()=>{const b=$('#rgift');if(b&&S.gifts<1)b.remove()};
 }
+/* Mở quà: lớp phủ tím mờ, hộp quà lắc lư, Kuromi nhảy bên cạnh; chạm hộp thì hình dán bung ra */
 function openGift(done){
   if(S.gifts<1)return;
   sfx.click();
-  const m=document.createElement('div');m.className='modal';
-  m.innerHTML=`<div class="box"><h2>Chạm vào hộp quà!</h2><div class="gift" id="gb">🎁</div></div>`;
+  const m=document.createElement('div');m.className='modal gift-ov';
+  m.innerHTML=`<div class="gbox"><img class="gmas" src="${MASCOT_IMG.happy}" alt="" draggable="false">
+    <div class="gb" id="gb">🎁</div><div class="gtxt">Chạm vào hộp quà nào!</div></div>`;
   document.body.appendChild(m);
+  voice.line('gift_open');
+  let opened=false;
   $('#gb').onclick=()=>{
+    if(opened)return;opened=true;
     const left=STICKERS.filter(s=>!S.stickers.includes(s));
-    let html;
+    let pic,title;
     S.gifts--;
-    if(left.length){const s=pick(left);S.stickers.push(s);html=`<div class="pop">${s}</div><h2>Hình dán mới!</h2>`}
-    else{S.stars+=3;html=`<div class="pop">🌟</div><h2>Bé đã có tất cả hình dán! +3 ⭐</h2>`}
+    if(left.length){pic=pick(left);S.stickers.push(pic);title='Hình dán mới!'}
+    else{S.stars+=3;pic='🌟';title='Bé đã có tất cả hình dán! +3 ⭐'}
     const gained=checkBadges();save();sfx.win();confetti(40);
-    m.querySelector('.box').innerHTML=html+gained.map(b=>`<div class="toast">${b.icon} Huy hiệu: ${b.name}</div>`).join('')+
-      `<div class="row">${S.gifts>0?`<button class="btn" id="again">🎁 Mở tiếp (${S.gifts})</button>`:''}<button class="btn alt" id="ok">Tuyệt!</button></div>`;
-    $('#ok').onclick=()=>{m.remove();done&&done();if(!done)album()};
+    voice.line(left.length?'sticker_new':'sticker_all');
+    m.querySelector('.gbox').innerHTML=`<img class="gmas" src="${MASCOT_IMG.happy}" alt="" draggable="false"><div class="halo"></div>
+      <div class="stk-big">${pic}</div><div class="gtxt">${title}</div>
+      ${gained.map(b=>`<div class="badge" style="--d:.6s"><span>${b.icon}</span>Huy hiệu mới: ${esc(b.name)}!</div>`).join('')}
+      <div class="row">${S.gifts>0?`<button class="btn p-pink gloss" id="again">🎁 Mở tiếp (${S.gifts})</button>`:''}<button class="btn p-green" id="ok">Tuyệt!</button></div>`;
+    $('#ok').onclick=()=>{m.remove();done?done():go(album)};
     const ag=$('#again');if(ag)ag.onclick=()=>{m.remove();openGift(done)};
   };
 }
