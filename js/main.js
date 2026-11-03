@@ -1,1 +1,1 @@
-if(!S.name)welcome();else{touchStreak();home()}
+splash(()=>{if(!S.name)welcome();else{touchStreak();home()}});
