@@ -1,5 +1,5 @@
 /* ============ Cờ ca rô (2 người, bàn cờ vô hạn) ============ */
-const CARO_WIN=5,CARO_DIRS=[[1,0],[0,1],[1,1],[1,-1]],CARO_COL={X:'#ef5350',O:'#42a5f5'};
+const CARO_WIN=5,CARO_DIRS=[[1,0],[0,1],[1,1],[1,-1]],CARO_COL={X:'#f0609f',O:'#4aa8f0'};
 let C=null;
 const ckey=(x,y)=>x+','+y;
 /* các ô thẳng hàng >= 5 quân cùng loại đi qua (x,y), hoặc null */
@@ -16,24 +16,30 @@ function caroLine(cells,x,y,p){
 }
 function caro(){
   C={cells:new Map(),moves:[],turn:'X',win:null,cam:{x:.5,y:.5,s:38}};
-  app.innerHTML=topbar('caroLeave()')+`<h2>❌⭕ Cờ ca rô</h2><div class="caro-st" id="cs"></div>
-  <canvas id="caro"></canvas>
-  <p class="sub" style="font-size:15px;margin:8px 0 0">Kéo để di chuyển · lăn chuột / chụm hai ngón để phóng to · ${CARO_WIN} quân liên tiếp là thắng</p>
-  <div class="row" style="margin-top:10px"><button class="btn gray" id="cu" style="font-size:18px">↩️ Đi lại</button>
-  <button class="btn alt" id="cc" style="font-size:18px">🎯 Về giữa</button>
-  <button class="btn" id="cn" style="font-size:18px">🔄 Ván mới</button></div>`;
+  app.innerHTML=screenHTML({mascot:{emo:'neutral',size:'sm'},cls:'caro',
+    top:`<div class="ttl"><button class="back" onclick="goTap(this,caroLeave)">⬅️</button>
+      <div class="turn"><span class="pl X" id="px">❌ Bạn 1</span><span class="pl O" id="po">⭕ Bạn 2</span></div></div>`,
+    body:`<div class="board card3d"><canvas id="caro"></canvas></div>
+    <div class="row"><button class="btn p-gray" id="cu">↩️ Đi lại</button><button class="btn p-blue" id="cc">🎯 Về giữa</button><button class="btn p-pink gloss" id="cn">🔄 Ván mới</button></div>`});
   const cv=$('#caro');
   $('#cu').onclick=caroUndo;
-  $('#cn').onclick=()=>{sfx.click();caro()};
+  $('#cn').onclick=()=>{sfx.click();voice.stop();caro()};
   $('#cc').onclick=()=>{sfx.click();const m=C.moves[C.moves.length-1];C.cam.x=m?m[0]+.5:.5;C.cam.y=m?m[1]+.5:.5;caroDraw()};
   caroBind(cv);
   window.onresize=()=>{if($('#caro'))caroDraw();else window.onresize=null};
   caroDraw();
+  /* lần đầu: Kuromi hướng dẫn cách chơi rồi báo lượt (có giọng) */
+  mascotSay('caro_turn_x',{format:t=>`Kéo để di chuyển, chụm hai ngón để phóng to. ${CARO_WIN} quân liên tiếp là thắng! ${t}`});
 }
 function caroLeave(){window.onresize=null;C=null;home()}
+/* Đổi lượt: chỉ đổi chữ trong bong bóng, không đọc (để Kuromi khỏi nói liên tục) */
+function caroTurnBubble(){
+  const l=LINES[C.turn==='X'?'caro_turn_x':'caro_turn_o'][0];
+  mascot('neutral',l.text);
+}
 function caroStatus(){
-  const t=C.turn;
-  $('#cs').innerHTML=C.win?`🎉 <b class="${C.win.p}">${C.win.p==='X'?'❌':'⭕'}</b> thắng rồi!`:`Lượt của <b class="${t}">${t==='X'?'❌':'⭕'}</b>`;
+  const px=$('#px'),po=$('#po');
+  if(px){px.classList.toggle('on',!C.win&&C.turn==='X'||C.win&&C.win.p==='X');po.classList.toggle('on',!C.win&&C.turn==='O'||C.win&&C.win.p==='O')}
   $('#cu').disabled=!C.moves.length;
 }
 function caroUndo(){
@@ -41,7 +47,7 @@ function caroUndo(){
   sfx.click();
   const [x,y]=C.moves.pop();
   C.turn=C.cells.get(ckey(x,y));C.cells.delete(ckey(x,y));C.win=null;
-  caroDraw();
+  caroDraw();caroTurnBubble();
 }
 function caroZoom(f,px,py,w,h){
   const c=C.cam,wx=c.x+(px-w/2)/c.s,wy=c.y+(py-h/2)/c.s;
@@ -55,9 +61,10 @@ function caroPlace(px,py,w,h){
   const p=C.turn;
   C.cells.set(k,p);C.moves.push([x,y]);
   const line=caroLine(C.cells,x,y,p);
-  if(line){C.win={p,line};sfx.win();confetti(40)}
-  else{C.turn=p==='X'?'O':'X';tone(p==='X'?520:660,0,.12,'triangle',.12)}
-  caroDraw();
+  if(line){C.win={p,line};sfx.win();confetti(40);caroDraw();
+    mascotSay(p==='X'?'caro_win_x':'caro_win_o',{hold:true});const k=$('.kuromi');burst(k,8,['⭐','💜','✨']);return}
+  C.turn=p==='X'?'O':'X';tone(p==='X'?520:660,0,.12,'triangle',.12);
+  caroDraw();caroTurnBubble();
 }
 function caroBind(cv){
   const ps=new Map();let moved=0;
@@ -88,16 +95,16 @@ function caroBind(cv){
 }
 function caroDraw(){
   const cv=$('#caro');if(!cv||!C)return;
-  const w=cv.clientWidth,h=Math.max(320,Math.round(innerHeight-330)),dpr=window.devicePixelRatio||1;
-  cv.style.height=h+'px';cv.width=w*dpr;cv.height=h*dpr;
+  const box=cv.parentNode,w=box.clientWidth,h=Math.max(240,box.clientHeight),dpr=window.devicePixelRatio||1;
+  cv.style.width=w+'px';cv.style.height=h+'px';cv.width=w*dpr;cv.height=h*dpr;
   const g=cv.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);
   const {x:cx,y:cy,s}=C.cam,sx=i=>w/2+(i-cx)*s,sy=j=>h/2+(j-cy)*s;
   const i0=Math.floor(cx-w/2/s),i1=Math.ceil(cx+w/2/s),j0=Math.floor(cy-h/2/s),j1=Math.ceil(cy+h/2/s);
-  g.fillStyle='#fffdf5';g.fillRect(0,0,w,h);
+  g.fillStyle='#fff';g.fillRect(0,0,w,h);
   const last=C.moves[C.moves.length-1];
-  if(C.win){g.fillStyle='#b9f6ca';C.win.line.forEach(([i,j])=>g.fillRect(sx(i),sy(j),s,s))}
+  if(C.win){g.fillStyle='rgba(255,214,90,.55)';C.win.line.forEach(([i,j])=>g.fillRect(sx(i),sy(j),s,s))}
   else if(last){g.fillStyle='#fff3b0';g.fillRect(sx(last[0]),sy(last[1]),s,s)}
-  g.strokeStyle='#d6e4ee';g.lineWidth=1;g.beginPath();
+  g.strokeStyle='#efe4ff';g.lineWidth=1;g.beginPath();
   for(let i=i0;i<=i1;i++){const x=Math.round(sx(i))+.5;g.moveTo(x,0);g.lineTo(x,h)}
   for(let j=j0;j<=j1;j++){const y=Math.round(sy(j))+.5;g.moveTo(0,y);g.lineTo(w,y)}
   g.stroke();

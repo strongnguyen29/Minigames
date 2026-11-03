@@ -39,7 +39,7 @@ button{font:inherit;color:inherit}
   background:linear-gradient(#fff,#f6eeff);box-shadow:0 calc(var(--u)*.5) 0 var(--soft),0 calc(var(--u)*1) calc(var(--u)*1.6) rgba(60,20,100,.25);transform-origin:30% 100%}
 .bub:empty{display:none}
 .bub::after{content:"";position:absolute;bottom:calc(var(--u)*-1.4);left:40%;border:calc(var(--u)*1.4) solid transparent;border-bottom:0;border-top-color:#f6eeff}
-.kuromi.md .bub{font-size:calc(var(--u)*2.1)}.kuromi.sm .bub{font-size:calc(var(--u)*1.9);left:2%;right:-4%}
+.kuromi.md .bub{font-size:calc(var(--u)*2.1)}.kuromi.sm .bub{font-size:calc(var(--u)*1.9);left:4%;right:4%}
 .kuromi.corner{position:absolute;left:calc(var(--u)*1);bottom:0;width:calc(var(--u)*16);height:auto;z-index:4;pointer-events:none}
 .kuromi.corner img{pointer-events:auto}
 .kuromi.corner .bub{left:60%;right:auto;top:-30%;width:calc(var(--u)*26)}
@@ -99,9 +99,9 @@ h2{text-align:center;margin:8px 0 14px}
 
 @keyframes pop{0%{transform:scale(0) rotate(-90deg)}70%{transform:scale(1.3)}100%{transform:scale(1)}}
 
-.caro-st{text-align:center;font-weight:800;font-size:24px;margin:0 0 10px}
-.caro-st b.X{color:#ef5350}.caro-st b.O{color:#42a5f5}
-#caro{display:block;width:100%;border-radius:20px;background:#fffdf5;box-shadow:0 5px 0 #cfe3f2;touch-action:none;cursor:grab}
+
+
+
 
 .pseq{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center}
 .pi{display:inline-block}
@@ -401,3 +401,13 @@ h2{text-align:center;margin:8px 0 14px}
 
 .stabs .atab.sel{background:linear-gradient(#c79bff,#8a4fe0);color:#fff}
 .scr.shop .kuromi.corner{z-index:55}
+
+/* ============ Cờ caro ============ */
+.turn{display:flex;gap:calc(var(--u)*1.2);font-weight:800;font-size:calc(var(--u)*2.6)}
+.turn .pl{border-radius:calc(var(--u)*2);padding:calc(var(--u)*.6) calc(var(--u)*2);background:#fff;box-shadow:0 calc(var(--u)*.4) 0 #e0cdf8;opacity:.5}
+.turn .pl.X{color:#f0609f}.turn .pl.O{color:#4aa8f0}
+.turn .pl.on{opacity:1;animation:beat 1.2s ease-in-out infinite}
+.turn .pl.X.on{box-shadow:0 calc(var(--u)*.4) 0 #f0609f,0 0 0 calc(var(--u)*.4) #ffd6ea}.turn .pl.O.on{box-shadow:0 calc(var(--u)*.4) 0 #4aa8f0,0 0 0 calc(var(--u)*.4) #d6efff}
+.board{flex:1;min-height:0;padding:0;overflow:hidden}
+#caro{display:block;border-radius:calc(var(--u)*3);touch-action:none;cursor:grab}
+.btn:disabled{opacity:.5;cursor:default}
