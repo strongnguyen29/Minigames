@@ -35,7 +35,7 @@ test('thiếu một mẩu thì đọc cả câu bằng giọng máy', async () =
   const { v, played, tts } = setup({ have: ['num_5','p_cong','p_bang_may'] });
   await v.text('5 cộng 7 bằng mấy?');
   assert.deepEqual(played, []); assert.equal(tts[0].text, '5 cộng 7 bằng mấy?');
-  assert.ok(tts[0].pitch > 1 && Math.abs(tts[0].rate - 1.14) < 1e-9 && tts[0].lang === 'vi-VN');
+  assert.ok(tts[0].pitch === 1 && Math.abs(tts[0].rate - 1.14) < 1e-9 && tts[0].lang === 'vi-VN');
 });
 test('file lỗi giữa chừng thì dừng phát mẩu và đọc cả câu bằng giọng máy', async () => {
   const { v, played, tts } = setup({ have: ALL, bad: ['audio/voice/p_cong.mp3'] });
@@ -95,4 +95,16 @@ test('giọng máy đọc emoji thành chữ (không bỏ mất từ)', async ()
   const { v, tts } = setup();
   await v.text('Có bao nhiêu 🍎 ?');
   assert.match(tts[0].text, /quả táo/);
+});
+test('giọng máy chọn giọng tiếng Việt có sẵn trên máy (ưu tiên vi-VN)', async () => {
+  const { g, v, tts } = setup();
+  g.run(`speechSynthesis.getVoices=()=>[{name:'Samantha',lang:'en-US'},{name:'Linh',lang:'vi-VN'},{name:'An',lang:'vi'}]`);
+  await v.text('Bé ơi');
+  assert.equal(tts[0].voice && tts[0].voice.name, 'Linh');
+});
+test('máy không có giọng tiếng Việt thì không gán voice, vẫn đọc với lang vi-VN', async () => {
+  const { g, v, tts } = setup();
+  g.run(`speechSynthesis.getVoices=()=>[{name:'Samantha',lang:'en-US'}]`);
+  await v.text('Bé ơi');
+  assert.equal(tts[0].voice, undefined); assert.equal(tts[0].lang, 'vi-VN');
 });

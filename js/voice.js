@@ -67,9 +67,20 @@ const voice=(()=>{
     if(el){el.onended=el.onerror=null;try{el.pause()}catch(e){}}
     try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){}
   }
+  /* giọng tiếng Việt có sẵn trên máy (ưu tiên vi-VN); không có thì để trình duyệt tự chọn theo lang */
+  function viVoice(){
+    try{const vs=speechSynthesis.getVoices?speechSynthesis.getVoices():[];
+      return vs.find(x=>/^vi[-_]VN$/i.test(x.lang))||vs.find(x=>/^vi\b/i.test(x.lang))||null}catch(e){return null}
+  }
   function tts(text,done){
     if(!window.speechSynthesis){done();return}
-    try{const u=new SpeechSynthesisUtterance(plain(text));u.lang='vi-VN';u.rate=TTS_RATE;u.pitch=1.4;u.onend=u.onerror=done;speechSynthesis.speak(u)}catch(e){done()}
+    try{
+      const u=new SpeechSynthesisUtterance(plain(text));u.lang='vi-VN';u.rate=TTS_RATE;
+      /* giữ cao độ tự nhiên: tiếng Việt phân biệt dấu thanh bằng cao độ, ép giọng cao làm "bé" nghe thành "bớ" */
+      u.pitch=1;
+      const vi=viVoice();if(vi)u.voice=vi;
+      u.onend=u.onerror=done;speechSynthesis.speak(u);
+    }catch(e){done()}
   }
   /* ids: các mẩu cần phát nối tiếp; thiếu bất kỳ mẩu nào (hoặc file lỗi) → đọc cả câu bằng giọng máy */
   function play(ids,text){
