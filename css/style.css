@@ -4,7 +4,9 @@
   --sky1:#bfe0ff;--sky2:#e7d4ff;--sky3:#ffd9ec;--ok:#36c76b;--bad:#f06262;
   --pri:#f0609f;--yel:#ffc93c;--card:#fff}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;height:100%;background:#e7d4ff linear-gradient(var(--sky1),var(--sky2) 50%,var(--sky3)) fixed;color:var(--ink);
+/* nền chỉ đặt ở html: nếu body cũng có nền, nó sẽ che ảnh nền z-index:-1 của tiệm */
+html{background:#e7d4ff linear-gradient(var(--sky1),var(--sky2) 50%,var(--sky3)) fixed}
+html,body{margin:0;height:100%;color:var(--ink);
   font-family:"Baloo 2","Comic Sans MS","Segoe UI",system-ui,sans-serif;user-select:none;-webkit-user-select:none;overflow:hidden}
 #app{position:relative;width:100%;height:100dvh;overflow-x:hidden;overflow-y:auto}
 button{font:inherit;color:inherit}
@@ -370,3 +372,32 @@ h2{text-align:center;margin:8px 0 14px}
 .wd{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:calc(var(--u)*1.2)}
 .wd img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:calc(var(--u)*2);box-shadow:0 calc(var(--u)*.4) 0 #e0cdf8;cursor:zoom-in;background:#fff}
 .empty{text-align:center;font-weight:800;font-size:calc(var(--u)*2.4);opacity:.75;margin:calc(var(--u)*4) 0}
+
+/* ============ Tiệm công chúa (kiểu mới, đè lên kiểu cũ) ============ */
+.scr.shop .mainc{padding:calc(var(--u)*2.4) calc(var(--u)*3);gap:calc(var(--u)*1.4)}
+.shopbg::after{background:linear-gradient(rgba(231,212,255,.15),rgba(255,217,236,.35))}
+.ttl.glass{background:rgba(255,255,255,.82);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);border-radius:calc(var(--u)*2.4);padding:calc(var(--u)*1) calc(var(--u)*1.6);box-shadow:0 calc(var(--u)*.5) 0 var(--soft)}
+.stabs{margin:0;flex-wrap:wrap}
+.stabs .atab{background:rgba(255,255,255,.75);border-radius:calc(var(--u)*2.4)}
+.shopl{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1.25fr 1fr;gap:calc(var(--u)*1.6)}
+.shopl .side{max-height:none;min-height:0;display:flex;flex-direction:column;gap:calc(var(--u)*1);border-radius:calc(var(--u)*2.6);background:rgba(255,255,255,.82);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);box-shadow:0 calc(var(--u)*.6) 0 var(--soft);padding:calc(var(--u)*1.4)}
+.shopl .side h3{margin:0;font-size:calc(var(--u)*2.2);text-align:center}
+.shopl .thumbs{display:grid;grid-template-columns:1fr 1fr;gap:calc(var(--u)*1);overflow-y:auto;padding:calc(var(--u)*.4)}
+.shopl .thumb{border:calc(var(--u)*.3) solid #fff;border-radius:calc(var(--u)*1.6);box-shadow:0 calc(var(--u)*.4) 0 #e0cdf8;animation:floaty 3s ease-in-out infinite}
+.shopl .thumb:nth-child(2n){animation-delay:.6s}
+.shopl .thumb img{aspect-ratio:3/4;object-fit:cover}
+.shopl .thumb.sel{border-color:#f0609f;box-shadow:0 0 0 calc(var(--u)*.4) #ffd6ea,0 calc(var(--u)*.4) 0 #e0cdf8}
+.shopl .thumb.lockd img{filter:grayscale(.7) brightness(.85)}
+.shopl .thumb .tem{width:calc(var(--u)*3.4);height:calc(var(--u)*3.4);font-size:calc(var(--u)*2);top:calc(var(--u)*.4);right:calc(var(--u)*.4)}
+.shopl .thumb .price{background:linear-gradient(#fff3b0,#ffc93c);color:#6a3b00;font-size:calc(var(--u)*1.7)}
+.shopl .hint{font-size:calc(var(--u)*1.8);grid-column:1/-1}
+.shopl .stage{min-height:0;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:calc(var(--u)*1);border-radius:calc(var(--u)*3);
+  background:radial-gradient(circle at 50% 70%,rgba(255,255,255,.9),rgba(255,255,255,.35) 60%);box-shadow:inset 0 0 0 calc(var(--u)*.4) rgba(255,255,255,.8)}
+.shopl .hero{max-height:calc(100% - calc(var(--u)*8));max-width:100%;object-fit:contain}
+.shopl .stage-name{font-size:calc(var(--u)*2.2);color:#fff;background:linear-gradient(#c79bff,#8a4fe0);box-shadow:0 calc(var(--u)*.4) 0 #4a1f8c;border-radius:calc(var(--u)*2);padding:calc(var(--u)*.4) calc(var(--u)*1.6);white-space:nowrap}
+.shopl .stage-msg{font-size:calc(var(--u)*2.2)}
+.scr.shop .kuromi.corner{left:calc(var(--u)*.6);bottom:0;width:calc(var(--u)*13)}
+.scr.shop .kuromi.corner .bub{top:-34%;width:calc(var(--u)*24);font-size:calc(var(--u)*1.9)}
+
+.stabs .atab.sel{background:linear-gradient(#c79bff,#8a4fe0);color:#fff}
+.scr.shop .kuromi.corner{z-index:55}

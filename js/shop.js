@@ -109,9 +109,7 @@ function dragDress(e,id){
 function dragHint(th){
   sfx.click();
   th.classList.remove('nudge');void th.offsetWidth;th.classList.add('nudge');
-  const st=$('.stage');if(!st||st.querySelector('.stage-tip'))return;
-  const t=document.createElement('div');t.className='stage-tip';t.textContent='Kéo váy thả vào bạn nhỏ nhé! 👗➡️';
-  st.appendChild(t);setTimeout(()=>t.remove(),1800);
+  mascotSay('shop_drag');
 }
 /* Rải lấp lánh bay ra từ giữa sân khấu */
 function magicBurst(st){
@@ -141,7 +139,7 @@ function wearItem(id){
     const cur=$('.stage');if(!cur){swapping=false;return}
     cur.outerHTML=shopStage(it).replace('class="stage"','class="stage swapin"');
     const nw=$('.stage');nw.insertAdjacentHTML('afterbegin','<div class="flash"></div>');magicBurst(nw);
-    swapping=false;
+    swapping=false;mascotSay('shop_wear');
   },500);
 }
 function buyItem(id){
@@ -151,23 +149,25 @@ function buyItem(id){
   S.spent=(S.spent||0)+it.price;S.owned=[...(S.owned||[]),id];shopSel=id;save();
   sfx.win();confetti(40);
   document.querySelectorAll('.modal').forEach(m=>m.remove());
-  shop();
+  shop(true);
+  mascotSay('shop_buy');const k=$('.kuromi');burst(k,8,['⭐','💖','✨']);
 }
 /* Popup khi bấm món chưa mua: đủ sao thì cho đổi, thiếu thì gợi ý chơi game */
 function lockedItem(id){
   const it=SHOP_ITEMS.find(x=>x.id===id);if(!it||owns(id))return;
   sfx.click();
   const need=it.price-balance(),ok=need<=0;
+  if(!ok)mascotSay('shop_poor',{format:t=>`Cần ${it.price} ⭐ nha! ${t}`});
   const m=modalBox(`<img class="shopimg big locked-preview" src="${it.thumb}" alt="${esc(it.name)}">
     <h2 style="margin:6px 0">${esc(it.name)}</h2>
     <p class="sub">Giá: <b>${it.price} ⭐</b> · Bé đang có <b>${balance()} ⭐</b></p>
     ${ok?'':`<div class="toast">Bé cần thêm ${need} ⭐ nữa! Chơi game để kiếm sao nhé 🎮</div>`}
-    <div class="row">${ok?`<button class="btn" id="buy">🛍️ Đổi ngay</button>`:`<button class="btn alt" id="play">🎮 Chơi game kiếm sao</button>`}<button class="btn gray" id="cl">Để sau</button></div>`);
+    <div class="row">${ok?`<button class="btn p-pink gloss" id="buy">🛍️ Đổi ngay</button>`:`<button class="btn p-blue" id="play">🎮 Chơi game kiếm sao</button>`}<button class="btn p-gray" id="cl">Để sau</button></div>`);
   $('#cl').onclick=()=>m.remove();
   const b=$('#buy');if(b)b.onclick=()=>buyItem(id);
-  const p=$('#play');if(p)p.onclick=()=>{m.remove();sfx.click();home()};
+  const p=$('#play');if(p)p.onclick=()=>{m.remove();sfx.click();go(home)};
 }
-function setShopTab(cat){sfx.click();shopCat=cat;shop()}
+function setShopTab(cat){sfx.click();shopCat=cat;shop(true)}
 function shopStage(it){
   if(!it)return `<div class="stage empty"><div class="stage-msg">👗<br>Chọn một bộ đồ bên phải để đổi nhé!</div></div>`;
   return `<div class="stage"><div class="glow"></div>${SPARKS.map(([x,y],i)=>`<span class="spark" style="left:${x}%;top:${y}%;animation-delay:${(i*.37).toFixed(2)}s">${i%2?'✨':'⭐'}</span>`).join('')}
@@ -183,20 +183,24 @@ function shopBackdrop(prev){
   prev.classList.remove('fadein');nw.classList.add('fadein');nw.before(prev);
   setTimeout(()=>prev.remove(),600);
 }
-function shop(){
+/* quiet: vẽ lại tiệm (đổi tab, vừa mua) mà Kuromi không chào lại */
+function shop(quiet){
   const cat=SHOP.find(c=>c.id===shopCat)||SHOP[0];
   const mine=SHOP_ITEMS.filter(x=>x.cat===cat.id&&owns(x.id));
   const locked=SHOP_ITEMS.filter(x=>x.cat===cat.id&&!owns(x.id));
   if(!shopSel||!owns(shopSel))shopSel=mine.length?mine[mine.length-1].id:null;
   const cur=SHOP_ITEMS.find(x=>x.id===shopSel);
-  const catTabs=SHOP.length>1?`<div class="tabs">${SHOP.map(c=>`<button class="tab ${c.id===cat.id?'sel':''}" onclick="setShopTab('${c.id}')">${c.icon} ${c.name}</button>`).join('')}</div>`:'';
+  const catTabs=SHOP.length>1?`<div class="atabs stabs">${SHOP.map(c=>`<button class="atab ${c.id===cat.id?'sel':''}" onclick="setShopTab('${c.id}')">${c.icon} ${c.name}</button>`).join('')}</div>`:'';
   const ownedList=mine.length?mine.map(it=>`<button class="thumb drag ${it.id===shopSel?'sel':''}" data-id="${it.id}" onpointerdown="dragDress(event,'${it.id}')"><img src="${it.thumb}" alt="${esc(it.name)}" loading="lazy" draggable="false"></button>`).join(''):`<p class="hint">Chưa có bộ nào</p>`;
   const lockList=locked.length?locked.map(it=>`<button class="thumb lockd" onclick="lockedItem('${it.id}')"><img src="${it.thumb}" alt="${esc(it.name)}" loading="lazy"><span class="tem">🔒</span><span class="price">${it.price} ⭐</span></button>`).join(''):`<p class="hint">Bé đã có hết rồi! 🎉</p>`;
   const prev=[...document.querySelectorAll('.shopbg')].pop();
-  app.innerHTML=`<div class="shopbg" data-bg="${cat.bg}" style="background-image:url('${SHOP_BG}${cat.bg}.jpg')"></div>`+
-    topbar('home()')+`<h2 class="shop-title">👑 Tiệm công chúa</h2><p class="sub shop-sub">Bé có ${balance()} ⭐ · kéo váy của bé vào khung để thay · bấm món có khoá 🔒 để đổi</p>`+catTabs+
-    `<div class="shoplayout"><div class="side mine"><h3>👗 Kéo để mặc</h3><div class="thumbs">${ownedList}</div></div>${shopStage(cur)}<div class="side"><h3>🔒 Chưa có</h3><div class="thumbs">${lockList}</div></div></div>`;
+  app.innerHTML=`<div class="shopbg" data-bg="${cat.bg}" style="background-image:url('${SHOP_BG}${cat.bg}.jpg')"></div>
+  <div class="scr shop nomascot"><main class="mainc">
+    <div class="ttl glass"><button class="back" onclick="goTap(this,home)">⬅️</button>👑 Tiệm công chúa<span class="coin">⭐ ${balance()}</span></div>${catTabs}
+    <div class="shopl"><div class="side mine"><h3>👗 Kéo để mặc</h3><div class="thumbs">${ownedList}</div></div>${shopStage(cur)}<div class="side"><h3>🔒 Chưa có</h3><div class="thumbs">${lockList}</div></div></div>
+  </main>${mascotHTML({emo:'neutral',size:'corner'})}</div>`;
   shopBackdrop(prev);
+  if(!quiet)mascotSay('shop_hello');
 }
 /* Tab "Tủ váy" của Bộ sưu tập */
 function wardrobe(){
