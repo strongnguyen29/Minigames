@@ -1,2 +1,4 @@
 .playwright-mcp/
 .DS_Store.superpowers/
+node_modules/
+tests/e2e/shots/
