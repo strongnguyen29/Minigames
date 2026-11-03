@@ -1,7 +1,6 @@
 /* ============ Giao diện ============ */
 const app=$('#app');
 let P=null; // trạng thái lượt chơi
-function starsHTML(n){return `<span class="stars">${[1,2,3].map(i=>`<span class="${i<=n?'':'off'}">⭐</span>`).join('')}</span>`}
 
 /* Mọi lần chuyển màn: dừng giọng, huỷ hẹn giờ cảm xúc của màn cũ */
 function go(fn){voice.stop();mascotReset();fn()}
