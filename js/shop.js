@@ -56,7 +56,8 @@ const SHOP_ITEMS=SHOP.flatMap(c=>c.items.map(([f,name,price,ch])=>({
 (()=>{
   const owned=(S.owned||[]).filter(id=>SHOP_ITEMS.some(x=>x.id===id));
   if(owned.length===(S.owned||[]).length)return;
-  S.owned=owned;S.spent=owned.reduce((a,id)=>a+SHOP_ITEMS.find(x=>x.id===id).price,0);save();
+  S.owned=owned;S.giftOwned=(S.giftOwned||[]).filter(id=>owned.includes(id));
+  S.spent=owned.filter(id=>!S.giftOwned.includes(id)).reduce((a,id)=>a+SHOP_ITEMS.find(x=>x.id===id).price,0);save();
 })();
 const balance=()=>Math.max(0,S.stars-(S.spent||0));
 const owns=id=>(S.owned||[]).includes(id);

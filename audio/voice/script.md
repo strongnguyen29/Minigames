@@ -1,6 +1,6 @@
 # Kịch bản giọng Kuromi
 
-Tổng cộng **287 file**. Đặt tên file đúng cột "File", bỏ vào `audio/voice/`, rồi chạy `npm run voice:manifest`.
+Tổng cộng **290 file**. Đặt tên file đúng cột "File", bỏ vào `audio/voice/`, rồi chạy `npm run voice:manifest`.
 
 ## Điểm chạm: splash
 
@@ -158,6 +158,14 @@ Tổng cộng **287 file**. Đặt tên file đúng cột "File", bỏ vào `aud
 | `sticker_new_1.mp3` | Yeah! Hình dán mới của bạn nè! | Vui sướng | reo vui |
 | `sticker_new_2.mp3` | Xinh quá đi! Thêm vào bộ sưu tập nha! | Vui sướng | reo vui |
 | `sticker_new_3.mp3` | Bạn có thêm một hình dán rồi! | Vui sướng | reo vui |
+
+## Điểm chạm: gift_dress
+
+| File | Câu nói | Cảm xúc | Cách đọc |
+|---|---|---|---|
+| `gift_dress_1.mp3` | Oa! Trong hộp có váy mới nè! | Vui sướng | reo vui, bất ngờ |
+| `gift_dress_2.mp3` | Bất ngờ chưa! Bạn được tặng một chiếc váy xinh! | Vui sướng | reo vui, bất ngờ |
+| `gift_dress_3.mp3` | Váy mới cho bạn nhỏ nè, xem trong tủ váy nha! | Vui sướng | reo vui, bất ngờ |
 
 ## Điểm chạm: sticker_all
 

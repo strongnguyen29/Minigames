@@ -99,6 +99,7 @@ const LINES={
   badge:L_('badge','clap','phấn khích, bất ngờ',['Ôi! Bạn có huy hiệu mới kìa! 🏅','Huy hiệu mới nè! Bạn giỏi quá!','Wow, thêm một huy hiệu cho bạn!']),
   gift_open:L_('gift_open','happy','háo hức, tò mò',['Có quà nè! Bạn chạm vào hộp quà đi! 🎁','Trong hộp có gì nhỉ? Mở ra xem nào!','Quà của bạn đó, mở nhanh lên!']),
   sticker_new:L_('sticker_new','happy','reo vui',['Yeah! Hình dán mới của bạn nè!','Xinh quá đi! Thêm vào bộ sưu tập nha!','Bạn có thêm một hình dán rồi!']),
+  gift_dress:L_('gift_dress','happy','reo vui, bất ngờ',['Oa! Trong hộp có váy mới nè! 👗','Bất ngờ chưa! Bạn được tặng một chiếc váy xinh!','Váy mới cho bạn nhỏ nè, xem trong tủ váy nha!']),
   sticker_all:L_('sticker_all','happy','phấn khích',['Bạn có đủ tất cả hình dán rồi! Thưởng thêm ba sao nè!','Bộ sưu tập đầy đủ luôn! Bạn được thêm sao nha!','Giỏi quá, đủ hết hình dán rồi! Tặng bạn ba sao!']),
   locked:L_('locked','think','nhẹ nhàng, giải thích',['Mức này còn khoá. Bạn đạt hai sao ở mức trước để mở nha 🔒','Chưa mở được đâu, bạn qua mức trước với hai sao nhé!','Hmm… cần hai sao ở mức trước mới mở được đó!']),
   shop_hello:L_('shop_hello','neutral','thích thú, mơ mộng',['Chào mừng bạn đến tiệm công chúa! 👑','Váy nào cũng xinh hết, bạn thích cái nào?','Mình cùng thay đồ cho bạn nhỏ nhé!']),

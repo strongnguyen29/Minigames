@@ -40,7 +40,7 @@ function settings(){
   $('#ts').onclick=e=>{S.sfx=!S.sfx;e.currentTarget.classList.toggle('off',!S.sfx);save();sfx.click();snd()};
   $('#cl').onclick=()=>m.remove();
   $('#chg').onclick=()=>{m.remove();go(welcome)};
-  $('#rst').onclick=()=>{if(confirm('Xoá hết sao, hình dán và tên của bé?')){try{localStorage.removeItem(KEY)}catch(e){}memFallback=null;S=Object.assign({},DEF,{stickers:[],best:{},badges:[],owned:[]});m.remove();go(welcome)}};
+  $('#rst').onclick=()=>{if(confirm('Xoá hết sao, hình dán và tên của bé?')){try{localStorage.removeItem(KEY)}catch(e){}memFallback=null;S=Object.assign({},DEF,{stickers:[],best:{},badges:[],owned:[],giftOwned:[]});m.remove();go(welcome)}};
 }
 /* Trang chủ: 6 trò học + cờ caro, tiệm công chúa, bộ sưu tập */
 const HOME_ORDER=['count','shape','add','split','cmp','pattern'];
@@ -137,10 +137,12 @@ async function answer(btn){
 function finish(){
   const m=P.mistakes,stars=m<=1?3:m<=3?2:1,k=P.g+'-'+P.l,g=P.g,l=P.l;
   touchStreak();
+  const first3=stars===3&&(S.best[k]||0)<3;
   S.best[k]=Math.max(S.best[k]||0,stars);
   S.stars+=stars;S.rounds++;
   if(m===0)S.perfect++;
   let gift=false;if(stars>=2){S.gifts++;gift=true}
+  if(first3)S.luckyGifts=(S.luckyGifts||0)+1; // quà lần đầu 3 sao: có cơ hội ra váy
   const newB=checkBadges();save();P=null;
   sfx.win();
   const msg=stars===3?'Giỏi quá! Tuyệt vời! 🎉':stars===2?'Giỏi lắm! 👏':'Bạn đã cố gắng rồi! 💪';
@@ -174,12 +176,18 @@ function openGift(done){
   $('#gb').onclick=()=>{
     if(opened)return;opened=true;
     const left=STICKERS.filter(s=>!S.stickers.includes(s));
-    let pic,title;
+    let pic,title,line;
     S.gifts--;
-    if(left.length){pic=pick(left);S.stickers.push(pic);title='Hình dán mới!'}
-    else{S.stars+=3;pic='🌟';title='Bạn đã có tất cả hình dán! +3 ⭐'}
+    /* hộp quà lần đầu 3 sao (mở trước): 30% ra một váy chưa có, không thì như quà thường */
+    const lucky=(S.luckyGifts||0)>0;if(lucky)S.luckyGifts--;
+    const dresses=SHOP_ITEMS.filter(x=>!owns(x.id));
+    const dress=lucky&&dresses.length&&Math.random()<.3?pick(dresses):null;
+    if(dress){S.owned=[...(S.owned||[]),dress.id];S.giftOwned=[...(S.giftOwned||[]),dress.id];
+      pic=`<img class="gdress" src="${dress.thumb}" alt="${esc(dress.name)}" draggable="false">`;title=`Váy mới: ${esc(dress.name)}!`;line='gift_dress'}
+    else if(left.length){pic=pick(left);S.stickers.push(pic);title='Hình dán mới!';line='sticker_new'}
+    else{S.stars+=3;pic='🌟';title='Bạn đã có tất cả hình dán! +3 ⭐';line='sticker_all'}
     const gained=checkBadges();save();sfx.win();confetti(40);
-    voice.line(left.length?'sticker_new':'sticker_all');
+    voice.line(line);
     m.querySelector('.gbox').innerHTML=`<img class="gmas" src="${MASCOT_IMG.happy}" alt="" draggable="false"><div class="halo"></div>
       <div class="stk-big">${pic}</div><div class="gtxt">${title}</div>
       ${gained.map(b=>`<div class="badge" style="--d:.6s"><span>${b.icon}</span>Huy hiệu mới: ${esc(b.name)}!</div>`).join('')}
@@ -199,7 +207,7 @@ function album(tab){
     :`<div class="bdgs">${BADGES.map((b,i)=>`<div class="bdg enter ${S.badges.includes(b.id)?'':'lk'}" style="--d:${(i*.03).toFixed(2)}s"><span>${b.icon}</span><div>${esc(b.name)}<small>${esc(b.desc)}</small></div></div>`).join('')}</div>`;
   app.innerHTML=screenHTML({mascot:{emo:'happy',size:'md'},cls:'album',
     top:`<div class="ttl"><button class="back" onclick="goTap(this,home)">⬅️</button>🎁 Bộ sưu tập của ${esc(S.name||'bạn')}<span class="coin">⭐ ${balance()}</span></div>`,
-    body:`<div class="giftbar">${S.gifts>0?`<span><b>🎁</b> Bạn có ${S.gifts} hộp quà chưa mở!</span><button class="btn p-pink gloss" onclick="openGift()">Mở quà</button>`:`<span>Đạt từ 2 ⭐ trở lên để nhận hộp quà mới nhé!</span>`}</div>
+    body:`<div class="giftbar">${S.gifts>0?`<span><b>🎁</b> Bạn có ${S.gifts} hộp quà chưa mở!</span><button class="btn p-pink gloss" onclick="openGift()">Mở quà</button>`:`<span>Đạt từ 2 ⭐ trở lên để nhận hộp quà mới nhé! Lần đầu 3 ⭐ mỗi màn còn có cơ hội nhận váy 👗</span>`}</div>
     <div class="atabs">${tabs.map(([k,n,c])=>`<button class="atab ${k===albumTab?'sel':''}" onclick="sfx.click();voice.stop();album('${k}')">${n} <i>${c}</i></button>`).join('')}</div>
     <div class="acard card3d">${body}</div>`});
   const say={stickers:`Bạn có ${S.stickers.length} hình dán rồi!`,wardrobe:`Bạn có ${mineN} bộ váy xinh!`,badges:`Bạn có ${S.badges.length} huy hiệu rồi!`}[albumTab];

@@ -348,6 +348,7 @@ h2{text-align:center;margin:8px 0 14px}
 .gift-ov .gtxt{position:relative;font-size:calc(var(--u)*3.6);font-weight:800;color:#fff;text-shadow:0 calc(var(--u)*.3) 0 #4a1f8c}
 .gift-ov .gmas{position:absolute;left:-30%;bottom:-6%;height:80%;filter:drop-shadow(0 8px 10px rgba(40,10,70,.4));animation:jump .8s ease-in-out infinite;pointer-events:none}
 .gift-ov .stk-big{position:relative;font-size:calc(var(--u)*20);line-height:1;animation:pop 1s cubic-bezier(.3,1.8,.5,1) both}
+.gift-ov .gdress{display:block;width:calc(var(--u)*30);height:calc(var(--u)*30);object-fit:cover;border-radius:calc(var(--u)*4);border:calc(var(--u)*1) solid #fff;box-shadow:0 calc(var(--u)*1.5) calc(var(--u)*4) rgba(120,60,160,.35)}
 .gift-ov .halo{position:absolute;top:calc(var(--u)*2);width:calc(var(--u)*44);height:calc(var(--u)*44);border-radius:50%;background:radial-gradient(#fff 0,#fff6c9 30%,transparent 65%);animation:beat 1.6s ease-in-out infinite}
 .gift-ov .row{position:relative}
 .newb{position:relative;display:flex;flex-wrap:wrap;gap:calc(var(--u)*1);justify-content:center;max-width:calc(var(--u)*56)}

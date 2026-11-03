@@ -114,3 +114,23 @@ test('nút ⬅️ của màn chơi ghi sẵn mã trò, không phụ thuộc P l�
   const s = setup(); s.g.run("start('add',0)"); await s.tick(100);
   assert.match(s.g.get('app.innerHTML'), /levels\('add'\)/);
 });
+/* lớp phủ mở quà cần querySelector('.gbox') trả về phần tử */
+const GIFT_DOM = "document.createElement=t=>{const e=fakeEl(t);e.querySelector=()=>fakeEl();return e}";
+test('lần đầu 3 sao: hộp quà may mắn, 30% ra váy chưa có (không trừ sao)', async () => {
+  const s = setup(); s.g.run(GIFT_DOM);
+  s.g.run("P={g:'add',l:0,i:8,total:8,mistakes:0,seen:new Set(),token:0};finish()");
+  assert.equal(s.g.get('S.luckyGifts'), 1);
+  s.g.run("P={g:'add',l:0,i:8,total:8,mistakes:0,seen:new Set(),token:0};finish()");
+  assert.equal(s.g.get('S.luckyGifts'), 1, 'lần 3 sao thứ hai của cùng màn không thêm');
+  s.g.run("Math.random=()=>0.1;openGift(()=>{});$('#gb').onclick()");
+  assert.equal(s.g.get('S.owned.length'), 1); assert.equal(s.g.get('S.giftOwned.length'), 1);
+  assert.equal(s.g.get('S.luckyGifts'), 0); assert.equal(s.g.get('balance()'), s.g.get('S.stars'));
+  assert.ok(s.calls.some(c => c[0] === 'line' && c[1] === 'gift_dress'));
+  s.g.run("openGift(()=>{});$('#gb').onclick()");
+  assert.equal(s.g.get('S.owned.length'), 1, 'quà thường không ra váy');
+});
+test('hộp quà may mắn trượt 30% thì ra hình dán', async () => {
+  const s = setup(); s.g.run(GIFT_DOM);
+  s.g.run("P={g:'add',l:0,i:8,total:8,mistakes:0,seen:new Set(),token:0};finish();Math.random=()=>0.5;openGift(()=>{});$('#gb').onclick()");
+  assert.equal(s.g.get('S.owned.length'), 0); assert.equal(s.g.get('S.stickers.length'), 1); assert.equal(s.g.get('S.luckyGifts'), 0);
+});
