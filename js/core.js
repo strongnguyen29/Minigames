@@ -42,7 +42,9 @@ const sfx={
   /* sai: hai nốt trầm đi xuống "bù-bu" */
   bad(){tone(311,0,.18,'sawtooth',.07);tone(220,.16,.32,'sawtooth',.07)},
   win(){[523,659,784,1047].forEach((f,i)=>tone(f,i*.13,.25))},
-  click(){tone(500,0,.05,'triangle',.1)}
+  click(){tone(500,0,.05,'triangle',.1)},
+  /* thay váy: chuỗi nốt lấp lánh đi lên như phép thuật */
+  magic(){[1047,1319,1568,2093,2637,3136].forEach((f,i)=>{tone(f,i*.06,.3,'sine',.08);tone(f*1.5,i*.06+.03,.15,'triangle',.03)})}
 };
 function say(text){
   if(!S.sound||!window.speechSynthesis)return;

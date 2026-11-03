@@ -1,49 +1,62 @@
 /* ============ Tiệm công chúa ============ */
-/* Thêm loại mới: thêm 1 mục vào SHOP, ảnh để ở images/shop-items/<loại>/<phong cách>/
-   Mỗi món: [tên file ảnh, tên hiển thị, giá (số sao)] */
-const SHOP_BASE='images/shop-items/';
+/* Ảnh ở images/shop-items/fashion/: items/<tên>.jpg là ảnh váy (thumb),
+   characters-cutout/<tên>.webp là nhân vật mặc váy đã tách nền (sân khấu).
+   Mỗi món: [tên ảnh váy (không đuôi), tên hiển thị, giá (số sao), tên ảnh nhân vật nếu khác tên váy]
+   (vài ảnh váy bị đặt nhầm tên nên được ghép với nhân vật theo hình) */
+const SHOP_BASE='images/shop-items/fashion/';
 const SHOP=[
-  {id:'dress',icon:'👗',name:'Váy',styles:[
-    {id:'chibi',items:[
-      ['cong-chua-bong-tuyet.jpg','Công chúa Bông Tuyết',20],
-      ['cong-chua-keo-hong.jpg','Công chúa Kẹo Hồng',20],
-      ['nu-hoang-mat-ong.jpg','Nữ hoàng Mật Ong',25],
-      ['cong-chua-may-trang.jpg','Công chúa Mây Trắng',22],
-      ['nu-hoang-bang-gia.jpg','Nữ hoàng Băng Giá',30],
-      ['cong-chua-oai-huong.jpg','Công chúa Oải Hương',25],
-      ['tien-nu-rung-xanh.jpg','Tiên Nữ Rừng Xanh',30],
-      ['co-be-no-hong.jpg','Cô Bé Nơ Hồng',12],
-      ['hoang-hau-hong-ngoc.jpg','Hoàng hậu Hồng Ngọc',30],
-      ['dau-tay-ngot-ngao.jpg','Dâu Tây Ngọt Ngào',12],
-      ['keo-bong-gon.jpg','Kẹo Bông Gòn',12],
-      ['banh-kem-xanh-bien.jpg','Bánh Kem Xanh Biển',14],
-      ['giot-suong-xanh.jpg','Giọt Sương Xanh',12],
-      ['chanh-vang-ti-hon.jpg','Chanh Vàng Tí Hon',12],
-      ['da-hoi-phep-mau.jpg','Dạ Hội Phép Màu',22]
-    ]},
-    {id:'fantasy',items:[
-      ['thien-nga-trang.jpg','Thiên Nga Trắng',30],
-      ['bau-troi-sao-lap-lanh.jpg','Bầu Trời Sao Lấp Lánh',28],
-      ['hoa-dao-mua-xuan.jpg','Hoa Đào Mùa Xuân',24],
-      ['canh-buom-hoang-hon.jpg','Cánh Bướm Hoàng Hôn',30],
-      ['vu-dieu-hoa-hong.jpg','Vũ Điệu Hoa Hồng',26],
-      ['vuong-mien-vang.jpg','Vương Miện Vàng',40],
-      ['dao-choi-canh-dong-may.jpg','Dạo Chơi Cánh Đồng Mây',24],
-      ['huong-duong-ruc-ro.jpg','Hướng Dương Rực Rỡ',26],
-      ['hoa-lam-xoay-tron.jpg','Hoa Lam Xoay Tròn',26],
-      ['nu-hoang-hong-phan.jpg','Nữ hoàng Hồng Phấn',36],
-      ['thac-nuoc-pha-le.jpg','Thác Nước Pha Lê',36],
-      ['hoang-gia-anh-vang.jpg','Hoàng Gia Ánh Vàng',45],
-      ['hong-nhung-kieu-sa.jpg','Hồng Nhung Kiêu Sa',32],
-      ['buom-tim-oai-huong.jpg','Bướm Tím Oải Hương',28],
-      ['cuc-hoa-mi.jpg','Cúc Họa Mi',20],
-      ['hong-phan-diu-dang.jpg','Hồng Phấn Dịu Dàng',20]
-    ]}
+  {id:'gown',icon:'👑',name:'Dạ hội',items:[
+    ['gold-princess-gown','Công chúa Vàng Óng',45],
+    ['gold-white-ball-gown','Dạ hội Trắng Vàng',40],
+    ['purple-princess-gown','Công chúa Tím Mộng Mơ',40],
+    ['blue-floral-ao-dai','Dạ hội Xanh Biển',35,'blue-ball-gown'],
+    ['blue-casual-set','Dạ hội Hồng Phấn',35,'pink-ball-gown'],
+    ['purple-tiered-gown','Váy Tím Nhiều Tầng',32]
+  ]},
+  {id:'dress',icon:'👗',name:'Váy xinh',items:[
+    ['pink-dress','Váy Hồng Nơ Xinh',15],
+    ['beige-dress','Váy Be Dịu Dàng',15],
+    ['lavender-dress','Váy Oải Hương',15],
+    ['sage-green-dress','Váy Xanh Lá Mạ',15],
+    ['blue-ball-gown','Váy Xanh Nơ Lớn',18,'light-blue-dress'],
+    ['pink-sailor-dress','Váy Thủy Thủ Hồng',18],
+    ['light-blue-ruffle-dress','Váy Bèo Xanh Nhạt',25],
+    ['golden-ruffle-dress','Váy Bèo Vàng Nắng',25],
+    ['pink-ball-gown','Váy Bèo Hồng',25,'pink-ruffle-dress']
+  ]},
+  {id:'aodai',icon:'🏮',name:'Áo dài',items:[
+    ['pink-ao-dai','Áo dài Hồng Đào',22],
+    ['yellow-ao-dai','Áo dài Vàng Hoa Mai',22],
+    ['white-floral-ao-dai','Áo dài Trắng Hoa Nhí',22],
+    ['blue-embroidered-traditional-set','Áo dài Xanh Hoa Đào',22,'blue-floral-ao-dai'],
+    ['red-ao-dai','Áo dài Đỏ Ngày Tết',25,'red-ao-dai-01']
+  ]},
+  {id:'uniform',icon:'🎒',name:'Đồng phục',items:[
+    ['navy-sailor-uniform','Thủy Thủ Xanh Than',16],
+    ['light-blue-sailor-uniform','Thủy Thủ Xanh Nhạt',16],
+    ['pink-cardigan-uniform','Áo Len Hồng',16],
+    ['beige-blazer-uniform','Vest Be Học Trò',18],
+    ['burgundy-blazer-uniform','Vest Đỏ Mận',18],
+    ['gray-blazer-uniform','Vest Xám Tinh Nghịch',18],
+    ['navy-blazer-uniform','Vest Xanh Than',18]
+  ]},
+  {id:'casual',icon:'🧢',name:'Dạo phố',items:[
+    ['pink-cap-set','Mũ Lưỡi Trai Hồng',12],
+    ['lavender-cap-set','Mũ Lưỡi Trai Tím',12],
+    ['yellow-casual-set','Dạo Phố Vàng Chanh',12],
+    ['navy-sailor-set','Dạo Phố Xanh Dương',12,'blue-casual-set'],
+    ['mint-casual-set','Dạo Phố Bạc Hà',12]
   ]}
 ];
-/* Danh sách phẳng: mỗi món có id = đường dẫn ảnh (ổn định khi thêm món) */
-const SHOP_ITEMS=SHOP.flatMap(c=>c.styles.flatMap(st=>st.items.map(([f,name,price])=>({
-  id:`${c.id}/${st.id}/${f}`,cat:c.id,style:st.id,price,name,src:`${SHOP_BASE}${c.id}/${st.id}/${f}`}))));
+/* Danh sách phẳng: id = fashion/<tên ảnh váy> (ổn định khi thêm món) */
+const SHOP_ITEMS=SHOP.flatMap(c=>c.items.map(([f,name,price,ch])=>({
+  id:`fashion/${f}`,cat:c.id,price,name,thumb:`${SHOP_BASE}items/${f}.jpg`,src:`${SHOP_BASE}characters-cutout/${ch||f}.webp`})));
+/* Bỏ món đã mua thuộc tiệm cũ (ảnh không còn dùng) và hoàn lại sao cho bé */
+(()=>{
+  const owned=(S.owned||[]).filter(id=>SHOP_ITEMS.some(x=>x.id===id));
+  if(owned.length===(S.owned||[]).length)return;
+  S.owned=owned;S.spent=owned.reduce((a,id)=>a+SHOP_ITEMS.find(x=>x.id===id).price,0);save();
+})();
 const balance=()=>Math.max(0,S.stars-(S.spent||0));
 const owns=id=>(S.owned||[]).includes(id);
 let shopCat=SHOP[0].id;
@@ -61,10 +74,75 @@ function modalBox(html){
 function viewItem(id){
   const it=SHOP_ITEMS.find(x=>x.id===id);if(!it)return;
   sfx.click();
-  const m=modalBox(`<img class="shopimg big" src="${it.src}" alt="${esc(it.name)}"><p class="sub">${esc(it.name)}</p><div class="row"><button class="btn gray" id="cl">Đóng</button></div>`);
+  const m=modalBox(`<img class="shopimg big cutout" src="${it.src}" alt="${esc(it.name)}"><p class="sub">${esc(it.name)}</p><div class="row"><button class="btn gray" id="cl">Đóng</button></div>`);
   $('#cl').onclick=()=>m.remove();
 }
-function selectItem(id){sfx.click();shopSel=id;shop()}
+/* Kéo váy ở "Của bé" thả vào sân khấu để thay (dùng pointer nên chạy cả chuột lẫn cảm ứng) */
+function dragDress(e,id){
+  if(e.button>0)return;
+  const th=e.currentTarget,x0=e.clientX,y0=e.clientY;let ghost=null;
+  const over=(x,y)=>{const r=$('.stage')?.getBoundingClientRect();return !!r&&x>=r.left&&x<=r.right&&y>=r.top&&y<=r.bottom};
+  const move=ev=>{
+    if(!ghost){
+      if(Math.hypot(ev.clientX-x0,ev.clientY-y0)<8)return;
+      ghost=document.createElement('img');ghost.className='drag-ghost';ghost.src=th.querySelector('img').src;
+      document.body.appendChild(ghost);th.classList.add('dragging');$('.stage')?.classList.add('drop-ready');
+    }
+    ev.preventDefault();
+    ghost.style.left=ev.clientX+'px';ghost.style.top=ev.clientY+'px';
+    $('.stage')?.classList.toggle('drop-hover',over(ev.clientX,ev.clientY));
+  };
+  const end=ev=>{
+    removeEventListener('pointermove',move);removeEventListener('pointerup',end);removeEventListener('pointercancel',end);
+    th.classList.remove('dragging');$('.stage')?.classList.remove('drop-ready','drop-hover');
+    if(!ghost){if(ev.type==='pointerup')dragHint(th);return}
+    if(ev.type==='pointerup'&&over(ev.clientX,ev.clientY)){ghost.remove();wearItem(id);return}
+    /* thả ra ngoài: váy bay về chỗ cũ */
+    const r=th.getBoundingClientRect();ghost.classList.add('back');
+    ghost.style.left=r.left+r.width/2+'px';ghost.style.top=r.top+r.height/2+'px';
+    setTimeout(()=>ghost.remove(),300);
+  };
+  addEventListener('pointermove',move,{passive:false});addEventListener('pointerup',end);addEventListener('pointercancel',end);
+}
+/* Bấm mà không kéo: lắc váy và nhắc bé kéo vào khung */
+function dragHint(th){
+  sfx.click();
+  th.classList.remove('nudge');void th.offsetWidth;th.classList.add('nudge');
+  const st=$('.stage');if(!st||st.querySelector('.stage-tip'))return;
+  const t=document.createElement('div');t.className='stage-tip';t.textContent='Kéo váy thả vào bạn nhỏ nhé! 👗➡️';
+  st.appendChild(t);setTimeout(()=>t.remove(),1800);
+}
+/* Rải lấp lánh bay ra từ giữa sân khấu */
+function magicBurst(st){
+  const em=['✨','⭐','💖','🌟','💫'];
+  for(let i=0;i<18;i++){
+    const a=i/18*Math.PI*2,d=110+Math.random()*90,e=document.createElement('span');
+    e.className='burst';e.textContent=em[i%em.length];
+    e.style.setProperty('--dx',Math.cos(a)*d+'px');e.style.setProperty('--dy',Math.sin(a)*d+'px');
+    e.style.animationDelay=(Math.random()*.12).toFixed(2)+'s';
+    st.appendChild(e);setTimeout(()=>e.remove(),1200);
+  }
+}
+let swapping=false;
+/* Thay váy: nhân vật cũ xoáy sao biến mất, nhân vật mới bừng sáng hiện ra */
+function wearItem(id){
+  const it=SHOP_ITEMS.find(x=>x.id===id),st=$('.stage');
+  if(!it||!st||swapping)return;
+  if(id===shopSel){sfx.click();const h=st.querySelector('.hero');h?.classList.remove('hop');void h?.offsetWidth;h?.classList.add('hop');return}
+  swapping=true;shopSel=id;sfx.magic();
+  document.querySelectorAll('.side.mine .thumb').forEach(b=>b.classList.toggle('sel',b.dataset.id===id));
+  const img=new Image();img.src=it.src;
+  const ready=img.decode().catch(()=>{});
+  st.classList.add('swap');
+  st.insertAdjacentHTML('beforeend',`<div class="swirl">${Array.from({length:10},(_,i)=>`<span style="--a:${i*36}deg">${i%2?'✨':'⭐'}</span>`).join('')}</div>`);
+  setTimeout(async()=>{
+    await ready;
+    const cur=$('.stage');if(!cur){swapping=false;return}
+    cur.outerHTML=shopStage(it).replace('class="stage"','class="stage swapin"');
+    const nw=$('.stage');nw.insertAdjacentHTML('afterbegin','<div class="flash"></div>');magicBurst(nw);
+    swapping=false;
+  },500);
+}
 function buyItem(id){
   const it=SHOP_ITEMS.find(x=>x.id===id);
   if(!it||owns(id))return;
@@ -79,7 +157,7 @@ function lockedItem(id){
   const it=SHOP_ITEMS.find(x=>x.id===id);if(!it||owns(id))return;
   sfx.click();
   const need=it.price-balance(),ok=need<=0;
-  const m=modalBox(`<img class="shopimg big locked-preview" src="${it.src}" alt="${esc(it.name)}">
+  const m=modalBox(`<img class="shopimg big locked-preview" src="${it.thumb}" alt="${esc(it.name)}">
     <h2 style="margin:6px 0">${esc(it.name)}</h2>
     <p class="sub">Giá: <b>${it.price} ⭐</b> · Bé đang có <b>${balance()} ⭐</b></p>
     ${ok?'':`<div class="toast">Bé cần thêm ${need} ⭐ nữa! Chơi game để kiếm sao nhé 🎮</div>`}
@@ -89,32 +167,26 @@ function lockedItem(id){
   const p=$('#play');if(p)p.onclick=()=>{m.remove();sfx.click();home()};
 }
 function setShopTab(cat){sfx.click();shopCat=cat;shop()}
-/* Trộn các phong cách xen kẽ nhau: chibi1, fantasy1, chibi2, fantasy2... */
-function interleaveStyles(cat){
-  const lists=cat.styles.map(st=>SHOP_ITEMS.filter(x=>x.cat===cat.id&&x.style===st.id&&!owns(x.id)));
-  const n=Math.max(...lists.map(l=>l.length));
-  return Array.from({length:n},(_,i)=>lists.map(l=>l[i]).filter(Boolean)).flat();
-}
 function shopStage(it){
-  if(!it)return `<div class="stage empty"><div class="stage-msg">👗<br>Chọn một chiếc váy bên phải để đổi nhé!</div></div>`;
+  if(!it)return `<div class="stage empty"><div class="stage-msg">👗<br>Chọn một bộ đồ bên phải để đổi nhé!</div></div>`;
   return `<div class="stage"><div class="glow"></div>${SPARKS.map(([x,y],i)=>`<span class="spark" style="left:${x}%;top:${y}%;animation-delay:${(i*.37).toFixed(2)}s">${i%2?'✨':'⭐'}</span>`).join('')}
     <img class="hero" src="${it.src}" alt="${esc(it.name)}" onclick="viewItem('${it.id}')"><div class="pedestal"></div><div class="stage-name">${esc(it.name)}</div></div>`;
 }
 function shop(){
   const cat=SHOP.find(c=>c.id===shopCat)||SHOP[0];
   const mine=SHOP_ITEMS.filter(x=>x.cat===cat.id&&owns(x.id));
-  const locked=interleaveStyles(cat);
+  const locked=SHOP_ITEMS.filter(x=>x.cat===cat.id&&!owns(x.id));
   if(!shopSel||!owns(shopSel))shopSel=mine.length?mine[mine.length-1].id:null;
   const cur=SHOP_ITEMS.find(x=>x.id===shopSel);
   const catTabs=SHOP.length>1?`<div class="tabs">${SHOP.map(c=>`<button class="tab ${c.id===cat.id?'sel':''}" onclick="setShopTab('${c.id}')">${c.icon} ${c.name}</button>`).join('')}</div>`:'';
-  const ownedList=mine.length?mine.map(it=>`<button class="thumb ${it.id===shopSel?'sel':''}" onclick="selectItem('${it.id}')"><img src="${it.src}" alt="${esc(it.name)}" loading="lazy"></button>`).join(''):`<p class="hint">Chưa có váy nào</p>`;
-  const lockList=locked.length?locked.map(it=>`<button class="thumb lockd" onclick="lockedItem('${it.id}')"><img src="${it.src}" alt="${esc(it.name)}" loading="lazy"><span class="tem">🔒</span><span class="price">${it.price} ⭐</span></button>`).join(''):`<p class="hint">Bé đã có hết rồi! 🎉</p>`;
-  app.innerHTML=topbar('home()')+`<h2>👑 Tiệm công chúa</h2><p class="sub">Bé có ${balance()} ⭐ · bấm váy có khoá 🔒 để đổi</p>`+catTabs+
-    `<div class="shoplayout"><div class="side mine"><h3>👗 Của bé</h3><div class="thumbs">${ownedList}</div></div>${shopStage(cur)}<div class="side"><h3>🔒 Chưa có</h3><div class="thumbs">${lockList}</div></div></div>`;
+  const ownedList=mine.length?mine.map(it=>`<button class="thumb drag ${it.id===shopSel?'sel':''}" data-id="${it.id}" onpointerdown="dragDress(event,'${it.id}')"><img src="${it.thumb}" alt="${esc(it.name)}" loading="lazy" draggable="false"></button>`).join(''):`<p class="hint">Chưa có bộ nào</p>`;
+  const lockList=locked.length?locked.map(it=>`<button class="thumb lockd" onclick="lockedItem('${it.id}')"><img src="${it.thumb}" alt="${esc(it.name)}" loading="lazy"><span class="tem">🔒</span><span class="price">${it.price} ⭐</span></button>`).join(''):`<p class="hint">Bé đã có hết rồi! 🎉</p>`;
+  app.innerHTML=topbar('home()')+`<h2>👑 Tiệm công chúa</h2><p class="sub">Bé có ${balance()} ⭐ · kéo váy của bé vào khung để thay · bấm món có khoá 🔒 để đổi</p>`+catTabs+
+    `<div class="shoplayout"><div class="side mine"><h3>👗 Kéo để mặc</h3><div class="thumbs">${ownedList}</div></div>${shopStage(cur)}<div class="side"><h3>🔒 Chưa có</h3><div class="thumbs">${lockList}</div></div></div>`;
 }
 function wardrobe(){
   const mine=SHOP_ITEMS.filter(x=>owns(x.id));
   return `<div class="panel"><h3 style="margin-top:0">Tủ đồ của bé (${mine.length}/${SHOP_ITEMS.length})</h3>${mine.length?
-    `<div class="shopgrid small">${mine.map(it=>`<div class="shopitem"><img class="shopimg" src="${it.src}" alt="${esc(it.name)}" loading="lazy" onclick="viewItem('${it.id}')"></div>`).join('')}</div>`:
+    `<div class="shopgrid small">${mine.map(it=>`<div class="shopitem"><img class="shopimg cutout" src="${it.src}" alt="${esc(it.name)}" loading="lazy" onclick="viewItem('${it.id}')"></div>`).join('')}</div>`:
     `<p class="sub" style="margin:0">Chưa có món nào. Đổi sao ở tiệm nhé! 🛍️</p>`}</div>`;
 }

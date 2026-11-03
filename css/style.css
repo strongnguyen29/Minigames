@@ -93,6 +93,8 @@ input.txt{font:inherit;font-size:26px;font-weight:800;text-align:center;border:3
 .shopitem{background:#fff;border-radius:20px;padding:8px;box-shadow:0 4px 0 #cfe3f2;text-align:center}
 .shopimg{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:14px;background:#f6fbff;cursor:zoom-in;display:block}
 .shopimg.big{max-height:60vh;width:auto;max-width:100%;margin:0 auto 8px}
+.shopimg.cutout{object-fit:contain;background:radial-gradient(circle at 50% 40%,#fff7fb 0,#ffe6f3 60%,#f3e3ff 100%)}
+.shopimg.big.cutout{aspect-ratio:auto;background:none;filter:drop-shadow(0 8px 14px rgba(160,80,160,.35))}
 
 .shoplayout{display:grid;grid-template-columns:96px 1fr 96px;gap:12px;align-items:start;margin-top:6px}
 .side{background:rgba(255,255,255,.7);border-radius:22px;padding:8px 6px;box-shadow:0 4px 0 #cfe3f2;max-height:70vh;overflow-y:auto}
@@ -101,7 +103,7 @@ input.txt{font:inherit;font-size:26px;font-weight:800;text-align:center;border:3
 .hint{font-size:13px;font-weight:700;text-align:center;opacity:.7;margin:6px 2px}
 .thumb{position:relative;border:3px solid #fff;border-radius:16px;padding:0;background:#fff;cursor:pointer;overflow:hidden;box-shadow:0 3px 0 #cfe3f2;transition:transform .15s}
 .thumb:hover{transform:scale(1.05)}
-.thumb img{width:100%;aspect-ratio:3/4;object-fit:cover;display:block}
+.thumb img{width:100%;aspect-ratio:1;object-fit:contain;display:block}
 .thumb.sel{border-color:var(--pri);box-shadow:0 0 0 3px #ffd0bf,0 3px 0 #cfe3f2}
 .thumb.lockd img{filter:grayscale(.85) brightness(.8) blur(1px)}
 .thumb .tem{position:absolute;top:4px;right:4px;font-size:22px;background:#fff;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 4px rgba(0,0,0,.25);animation:wob 2s infinite}
@@ -109,9 +111,8 @@ input.txt{font:inherit;font-size:26px;font-weight:800;text-align:center;border:3
 .stage{position:relative;border-radius:28px;padding:18px 10px 14px;text-align:center;overflow:hidden;background:radial-gradient(circle at 50% 35%,#fff7fb 0,#ffe0f0 55%,#f3d9ff 100%);box-shadow:0 6px 0 #e3bfe0;min-height:420px;animation:stagein .5s}
 .stage.empty{display:flex;align-items:center;justify-content:center}
 .stage-msg{font-size:20px;font-weight:800;line-height:1.6;opacity:.75;padding:20px}
-.stage-msg{font-size:20px}
 .glow{position:absolute;left:50%;top:42%;width:340px;height:340px;margin:-170px 0 0 -170px;background:conic-gradient(from 0deg,rgba(255,255,255,0),rgba(255,214,102,.55),rgba(255,255,255,0),rgba(255,160,220,.5),rgba(255,255,255,0));border-radius:50%;filter:blur(14px);animation:spin 9s linear infinite}
-.hero{position:relative;z-index:1;max-width:100%;max-height:420px;width:auto;border-radius:20px;box-shadow:0 10px 24px rgba(160,80,160,.35);cursor:zoom-in;animation:float 3.2s ease-in-out infinite,heroin .6s}
+.hero{position:relative;z-index:1;max-width:100%;max-height:420px;width:auto;filter:drop-shadow(0 10px 14px rgba(160,80,160,.35));cursor:zoom-in;animation:float 3.2s ease-in-out infinite,heroin .6s}
 .pedestal{position:relative;width:55%;height:14px;margin:10px auto 6px;border-radius:50%;background:radial-gradient(ellipse,rgba(160,80,160,.35),rgba(160,80,160,0) 70%);animation:shadow 3.2s ease-in-out infinite}
 .stage-name{position:relative;z-index:1;font-weight:800;font-size:20px}
 .spark{position:absolute;z-index:2;font-size:24px;pointer-events:none;animation:twinkle 2.2s ease-in-out infinite}
@@ -121,7 +122,7 @@ input.txt{font:inherit;font-size:26px;font-weight:800;text-align:center;border:3
 @keyframes twinkle{0%,100%{transform:scale(.4) rotate(0);opacity:0}50%{transform:scale(1.2) rotate(30deg);opacity:1}}
 @keyframes heroin{from{transform:scale(.6) rotate(-6deg);opacity:0}}
 @keyframes stagein{from{opacity:.4}}
-.shopimg.locked-preview{width:96px;max-height:none;aspect-ratio:3/4;filter:grayscale(.6) brightness(.9);margin:0 auto 4px;cursor:default}
+.shopimg.locked-preview{width:160px;max-height:none;aspect-ratio:1;object-fit:contain;background:#fff;margin:0 auto 4px;cursor:default}
 @media(max-width:640px){
   .shoplayout{grid-template-columns:1fr 1fr;grid-template-areas:"stage stage" "mine lock"}
   .shoplayout .stage{grid-area:stage;min-height:340px}
@@ -132,3 +133,30 @@ input.txt{font:inherit;font-size:26px;font-weight:800;text-align:center;border:3
   .side.mine{grid-area:mine}.side:not(.mine){grid-area:lock}
 }
 .side,.shoplayout .stage{min-width:0}
+/* Kéo váy vào sân khấu + hiệu ứng thay váy */
+.thumb.drag{touch-action:pan-y;user-select:none;-webkit-user-select:none;cursor:grab}
+.thumb.drag img{pointer-events:none}
+.thumb.dragging{opacity:.35;transform:scale(.9)}
+.thumb.nudge{animation:wob .25s 2}
+.drag-ghost{position:fixed;z-index:1000;width:96px;pointer-events:none;border-radius:16px;background:#fff;transform:translate(-50%,-50%) rotate(-6deg) scale(1.1);box-shadow:0 10px 24px rgba(160,80,160,.45)}
+.drag-ghost.back{transition:left .28s,top .28s,opacity .28s;opacity:0}
+.stage{transition:box-shadow .2s,transform .2s}
+.stage.drop-ready{box-shadow:0 6px 0 #e3bfe0,inset 0 0 0 4px rgba(236,64,122,.35)}
+.stage.drop-hover{transform:scale(1.02);box-shadow:0 6px 0 #e3bfe0,inset 0 0 0 5px #ffd54f,0 0 34px rgba(255,128,171,.8)}
+.stage-tip{position:absolute;z-index:3;left:50%;top:14px;transform:translateX(-50%);white-space:nowrap;background:#fff;border-radius:16px;padding:6px 14px;font-weight:800;box-shadow:0 4px 12px rgba(160,80,160,.3);animation:tipin .3s}
+.stage.swap .hero{animation:poof .5s ease-in forwards}
+.stage.swap .stage-name{transition:opacity .3s;opacity:0}
+.swirl{position:absolute;z-index:3;left:50%;top:45%;pointer-events:none}
+.swirl span{position:absolute;font-size:26px;margin:-15px 0 0 -13px;animation:swirl .55s ease-in forwards}
+.stage.swapin .hero{animation:magicin .8s cubic-bezier(.2,1.4,.4,1),float 3.2s ease-in-out .8s infinite}
+.flash{position:absolute;inset:0;z-index:2;pointer-events:none;background:radial-gradient(circle at 50% 45%,#fff 0,rgba(255,240,250,.9) 25%,rgba(255,214,102,.4) 50%,rgba(255,255,255,0) 75%);animation:flash .9s ease-out forwards}
+.burst{position:absolute;z-index:3;left:50%;top:45%;font-size:24px;margin:-14px 0 0 -12px;pointer-events:none;opacity:0;animation:burst 1s ease-out forwards}
+.hero.hop{animation:hop .5s}
+@keyframes poof{to{transform:scale(.15) rotate(25deg);opacity:0;filter:brightness(3) blur(6px)}}
+@keyframes swirl{from{transform:rotate(var(--a)) translateY(-190px) scale(.5);opacity:0}30%{opacity:1}to{transform:rotate(calc(var(--a) + 300deg)) translateY(0) scale(1.3);opacity:1}}
+@keyframes magicin{0%{transform:scale(.2);opacity:0;filter:brightness(3) blur(8px) drop-shadow(0 10px 14px rgba(160,80,160,0))}60%{transform:scale(1.08);opacity:1;filter:brightness(1.5) blur(0) drop-shadow(0 10px 14px rgba(160,80,160,.35))}100%{transform:scale(1);filter:brightness(1) blur(0) drop-shadow(0 10px 14px rgba(160,80,160,.35))}}
+@keyframes flash{0%{opacity:0}25%{opacity:1}100%{opacity:0}}
+@keyframes burst{0%{transform:translate(0,0) scale(.3);opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(1.1) rotate(180deg);opacity:0}}
+@keyframes hop{40%{transform:translateY(-22px) scale(1.04)}}
+@keyframes tipin{from{opacity:0;transform:translate(-50%,-8px)}}
+@media(max-width:640px){.thumb.drag{touch-action:pan-x}}
