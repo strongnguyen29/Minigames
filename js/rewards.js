@@ -8,7 +8,7 @@ const gameLevelsWith=(s,g,min)=>Object.keys(s.best||{}).filter(k=>k.startsWith(g
 const gameDone=(s,g,min)=>gameLevelsWith(s,g,min)>=GAMES[g].levels.length;
 const BADGES=[
   {id:'first',icon:'🌱',name:'Bước đầu tiên',desc:'Hoàn thành 1 màn chơi',ok:s=>s.rounds>=1},
-  {id:'ten',icon:'🎒',name:'Bé chăm chỉ',desc:'Hoàn thành 10 màn',ok:s=>s.rounds>=10},
+  {id:'ten',icon:'🎒',name:'Bạn chăm chỉ',desc:'Hoàn thành 10 màn',ok:s=>s.rounds>=10},
   {id:'r30',icon:'📚',name:'Học trò siêu cấp',desc:'Hoàn thành 30 màn',ok:s=>s.rounds>=30},
   {id:'r100',icon:'🎓',name:'Bác học nhí',desc:'Hoàn thành 100 màn',ok:s=>s.rounds>=100},
   {id:'perf',icon:'💯',name:'Không sai câu nào',desc:'Đạt 3 sao với 0 lỗi',ok:s=>s.perfect>=1},
@@ -32,7 +32,7 @@ const BADGES=[
   {id:'gsplit',icon:'✂️',name:'Thợ cắt số',desc:'Qua hết mức Tách số (≥2 sao)',ok:s=>gameDone(s,'split',2)},
   {id:'gcmp',icon:'⚖️',name:'Thẩm phán so sánh',desc:'Qua hết mức So sánh số (≥2 sao)',ok:s=>gameDone(s,'cmp',2)},
   {id:'gpat',icon:'🧩',name:'Thám tử quy luật',desc:'Qua hết mức Quy luật (≥2 sao)',ok:s=>gameDone(s,'pattern',2)},
-  {id:'allg',icon:'🌈',name:'Bé giỏi toàn diện',desc:'Chơi đủ tất cả trò chơi',ok:s=>Object.keys(GAMES).every(g=>gameLevelsWith(s,g,1)>=1)}
+  {id:'allg',icon:'🌈',name:'Bạn giỏi toàn diện',desc:'Chơi đủ tất cả trò chơi',ok:s=>Object.keys(GAMES).every(g=>gameLevelsWith(s,g,1)>=1)}
 ];
 function checkBadges(){
   const gained=[];

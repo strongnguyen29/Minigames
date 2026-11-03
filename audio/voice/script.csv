@@ -1,95 +1,95 @@
 file,text,group,emotion,tone
-splash_1.mp3,Chào mừng bé đến Vương Quốc Vui Vẻ!,splash,happy,"reo vui, phấn khích"
+splash_1.mp3,Chào mừng bạn đến Vương Quốc Vui Vẻ!,splash,happy,"reo vui, phấn khích"
 splash_2.mp3,"Yeah! Mình là Kuromi, mình chơi cùng nhau nha!",splash,happy,"reo vui, phấn khích"
 splash_3.mp3,"Vương Quốc Vui Vẻ mở cửa rồi, vào thôi nào!",splash,happy,"reo vui, phấn khích"
-home_1.mp3,Chào bé! Hôm nay mình chơi trò nào nè?,home,neutral,"ấm áp, thân thiện"
-home_2.mp3,"Bé ơi, chọn một trò thật vui đi nào!",home,neutral,"ấm áp, thân thiện"
-home_3.mp3,Mình nhớ bé quá! Mình cùng học nha!,home,neutral,"ấm áp, thân thiện"
-home_4.mp3,Hôm nay bé muốn chơi gì nhỉ?,home,neutral,"ấm áp, thân thiện"
-levels_count_1.mp3,Trò đếm hình nè! Bé đếm thật kỹ nha.,levels_count,neutral,"hào hứng, rõ ràng"
-levels_count_2.mp3,"Mình cùng đếm hình nhé, bé chọn mức đi nào!",levels_count,neutral,"hào hứng, rõ ràng"
+home_1.mp3,Chào bạn! Hôm nay mình chơi trò nào nè?,home,neutral,"ấm áp, thân thiện"
+home_2.mp3,"Bạn ơi, chọn một trò thật vui đi nào!",home,neutral,"ấm áp, thân thiện"
+home_3.mp3,Mình nhớ bạn quá! Mình cùng học nha!,home,neutral,"ấm áp, thân thiện"
+home_4.mp3,Hôm nay bạn muốn chơi gì nhỉ?,home,neutral,"ấm áp, thân thiện"
+levels_count_1.mp3,Trò đếm hình nè! Bạn đếm thật kỹ nha.,levels_count,neutral,"hào hứng, rõ ràng"
+levels_count_2.mp3,"Mình cùng đếm hình nhé, bạn chọn mức đi nào!",levels_count,neutral,"hào hứng, rõ ràng"
 levels_count_3.mp3,"Đếm hình vui lắm đó, bắt đầu thôi!",levels_count,neutral,"hào hứng, rõ ràng"
 levels_shape_1.mp3,"Trò nhận biết hình nè! Tròn, vuông, tam giác…",levels_shape,neutral,"hào hứng, rõ ràng"
-levels_shape_2.mp3,"Mình cùng tìm các hình nhé, bé chọn mức đi!",levels_shape,neutral,"hào hứng, rõ ràng"
-levels_shape_3.mp3,Bé có biết hết các hình không nhỉ? Thử nào!,levels_shape,neutral,"hào hứng, rõ ràng"
+levels_shape_2.mp3,"Mình cùng tìm các hình nhé, bạn chọn mức đi!",levels_shape,neutral,"hào hứng, rõ ràng"
+levels_shape_3.mp3,Bạn có biết hết các hình không nhỉ? Thử nào!,levels_shape,neutral,"hào hứng, rõ ràng"
 levels_add_1.mp3,Trò gộp số nè! Gộp hai nhóm lại với nhau nha.,levels_add,neutral,"hào hứng, rõ ràng"
-levels_add_2.mp3,"Mình cùng làm phép cộng nhé, bé chọn mức đi!",levels_add,neutral,"hào hứng, rõ ràng"
-levels_add_3.mp3,"Gộp số dễ ợt, bé làm được mà!",levels_add,neutral,"hào hứng, rõ ràng"
+levels_add_2.mp3,"Mình cùng làm phép cộng nhé, bạn chọn mức đi!",levels_add,neutral,"hào hứng, rõ ràng"
+levels_add_3.mp3,"Gộp số dễ ợt, bạn làm được mà!",levels_add,neutral,"hào hứng, rõ ràng"
 levels_split_1.mp3,Trò tách số nè! Một số gồm mấy và mấy nhỉ?,levels_split,neutral,"hào hứng, rõ ràng"
-levels_split_2.mp3,"Mình cùng tách số nhé, bé chọn mức đi!",levels_split,neutral,"hào hứng, rõ ràng"
+levels_split_2.mp3,"Mình cùng tách số nhé, bạn chọn mức đi!",levels_split,neutral,"hào hứng, rõ ràng"
 levels_split_3.mp3,"Tách số thú vị lắm, thử nào!",levels_split,neutral,"hào hứng, rõ ràng"
 levels_cmp_1.mp3,Trò so sánh số nè! Số nào lớn hơn nhỉ?,levels_cmp,neutral,"hào hứng, rõ ràng"
 levels_cmp_2.mp3,"Lớn hơn, bé hơn hay bằng nhau? Mình thử nhé!",levels_cmp,neutral,"hào hứng, rõ ràng"
-levels_cmp_3.mp3,"Bé chọn mức đi, mình so sánh số nào!",levels_cmp,neutral,"hào hứng, rõ ràng"
-levels_pattern_1.mp3,Trò quy luật nè! Bé tìm xem cái gì đi tiếp nha.,levels_pattern,neutral,"hào hứng, bí ẩn"
-levels_pattern_2.mp3,"Nhìn kỹ dãy số, dãy hình nhé, bé chọn mức đi!",levels_pattern,neutral,"hào hứng, bí ẩn"
+levels_cmp_3.mp3,"Bạn chọn mức đi, mình so sánh số nào!",levels_cmp,neutral,"hào hứng, rõ ràng"
+levels_pattern_1.mp3,Trò quy luật nè! Bạn tìm xem cái gì đi tiếp nha.,levels_pattern,neutral,"hào hứng, bí ẩn"
+levels_pattern_2.mp3,"Nhìn kỹ dãy số, dãy hình nhé, bạn chọn mức đi!",levels_pattern,neutral,"hào hứng, bí ẩn"
 levels_pattern_3.mp3,Mình cùng làm thám tử quy luật nào!,levels_pattern,neutral,"hào hứng, bí ẩn"
-round_start_1.mp3,Bắt đầu nha! Bé cố lên!,round_start,neutral,"vui vẻ, khích lệ"
+round_start_1.mp3,Bắt đầu nha! Bạn cố lên!,round_start,neutral,"vui vẻ, khích lệ"
 round_start_2.mp3,Sẵn sàng chưa? Mình chơi thôi!,round_start,neutral,"vui vẻ, khích lệ"
-round_start_3.mp3,Bé nghe kỹ câu hỏi nha!,round_start,neutral,"vui vẻ, khích lệ"
-round_start_4.mp3,"Cố lên bé ơi, mình ở đây nè!",round_start,neutral,"vui vẻ, khích lệ"
-correct_1.mp3,Đúng rồi! Bé giỏi quá!,correct,clap,"reo vui, ngắn gọn"
+round_start_3.mp3,Bạn nghe kỹ câu hỏi nha!,round_start,neutral,"vui vẻ, khích lệ"
+round_start_4.mp3,"Cố lên bạn ơi, mình ở đây nè!",round_start,neutral,"vui vẻ, khích lệ"
+correct_1.mp3,Đúng rồi! Bạn giỏi quá!,correct,clap,"reo vui, ngắn gọn"
 correct_2.mp3,Chính xác luôn!,correct,clap,"reo vui, ngắn gọn"
-correct_3.mp3,Hoan hô bé!,correct,clap,"reo vui, ngắn gọn"
+correct_3.mp3,Hoan hô bạn!,correct,clap,"reo vui, ngắn gọn"
 correct_4.mp3,Tuyệt vời!,correct,clap,"reo vui, ngắn gọn"
 correct_5.mp3,Giỏi ghê đó!,correct,clap,"reo vui, ngắn gọn"
-combo_1.mp3,Đúng liên tục luôn! Bé siêu quá!,combo,clap,"phấn khích, reo to"
-combo_2.mp3,"Wow, bé không sai câu nào hết!",combo,clap,"phấn khích, reo to"
-combo_3.mp3,Bé đang cực kỳ xuất sắc đó!,combo,clap,"phấn khích, reo to"
-wrong_1.mp3,"Hmm… chưa đúng rồi, bé thử lại nha",wrong,think,"nhẹ nhàng, an ủi"
+combo_1.mp3,Đúng liên tục luôn! Bạn siêu quá!,combo,clap,"phấn khích, reo to"
+combo_2.mp3,"Wow, bạn không sai câu nào hết!",combo,clap,"phấn khích, reo to"
+combo_3.mp3,Bạn đang cực kỳ xuất sắc đó!,combo,clap,"phấn khích, reo to"
+wrong_1.mp3,"Hmm… chưa đúng rồi, bạn thử lại nha",wrong,think,"nhẹ nhàng, an ủi"
 wrong_2.mp3,"Không sao đâu, mình chọn lại nhé!",wrong,think,"nhẹ nhàng, an ủi"
-wrong_3.mp3,"Gần đúng rồi đó, bé nghĩ thêm chút nữa nha!",wrong,think,"nhẹ nhàng, an ủi"
-wrong_4.mp3,"Ơ, chưa phải rồi. Bé thử cái khác xem!",wrong,think,"nhẹ nhàng, an ủi"
-hint_1.mp3,Bé nhìn nút đang nhấp nháy kìa!,hint,think,thì thầm gợi ý
-hint_2.mp3,Mình gợi ý nè: bé xem nút đang sáng lên nha.,hint,think,thì thầm gợi ý
+wrong_3.mp3,"Gần đúng rồi đó, bạn nghĩ thêm chút nữa nha!",wrong,think,"nhẹ nhàng, an ủi"
+wrong_4.mp3,"Ơ, chưa phải rồi. Bạn thử cái khác xem!",wrong,think,"nhẹ nhàng, an ủi"
+hint_1.mp3,Bạn nhìn nút đang nhấp nháy kìa!,hint,think,thì thầm gợi ý
+hint_2.mp3,Mình gợi ý nè: bạn xem nút đang sáng lên nha.,hint,think,thì thầm gợi ý
 hint_3.mp3,Psst… đáp án đang nhấp nháy đó!,hint,think,thì thầm gợi ý
 result3_1.mp3,Giỏi quá! Ba sao luôn!,result3,clap,"reo vui, tự hào"
-result3_2.mp3,Bé xuất sắc nhất luôn đó!,result3,clap,"reo vui, tự hào"
-result3_3.mp3,Tuyệt vời! Bé được ba ngôi sao rồi!,result3,clap,"reo vui, tự hào"
-result2_1.mp3,Giỏi lắm! Bé được hai sao nè!,result2,clap,"vui vẻ, khích lệ"
+result3_2.mp3,Bạn xuất sắc nhất luôn đó!,result3,clap,"reo vui, tự hào"
+result3_3.mp3,Tuyệt vời! Bạn được ba ngôi sao rồi!,result3,clap,"reo vui, tự hào"
+result2_1.mp3,Giỏi lắm! Bạn được hai sao nè!,result2,clap,"vui vẻ, khích lệ"
 result2_2.mp3,"Làm tốt lắm, cố thêm chút nữa là ba sao đó!",result2,clap,"vui vẻ, khích lệ"
-result2_3.mp3,Hoan hô! Bé có quà nữa nè!,result2,clap,"vui vẻ, khích lệ"
-result1_1.mp3,Bé đã cố gắng rồi! Mình chơi lại nha,result1,think,"dịu dàng, động viên"
-result1_2.mp3,"Không sao đâu, lần sau bé sẽ giỏi hơn!",result1,think,"dịu dàng, động viên"
-result1_3.mp3,"Mình thử lại một lần nữa nhé, bé làm được mà!",result1,think,"dịu dàng, động viên"
-badge_1.mp3,Ôi! Bé có huy hiệu mới kìa!,badge,clap,"phấn khích, bất ngờ"
-badge_2.mp3,Huy hiệu mới nè! Bé giỏi quá!,badge,clap,"phấn khích, bất ngờ"
-badge_3.mp3,"Wow, thêm một huy hiệu cho bé!",badge,clap,"phấn khích, bất ngờ"
-gift_open_1.mp3,Có quà nè! Bé chạm vào hộp quà đi!,gift_open,happy,"háo hức, tò mò"
+result2_3.mp3,Hoan hô! Bạn có quà nữa nè!,result2,clap,"vui vẻ, khích lệ"
+result1_1.mp3,Bạn đã cố gắng rồi! Mình chơi lại nha,result1,think,"dịu dàng, động viên"
+result1_2.mp3,"Không sao đâu, lần sau bạn sẽ giỏi hơn!",result1,think,"dịu dàng, động viên"
+result1_3.mp3,"Mình thử lại một lần nữa nhé, bạn làm được mà!",result1,think,"dịu dàng, động viên"
+badge_1.mp3,Ôi! Bạn có huy hiệu mới kìa!,badge,clap,"phấn khích, bất ngờ"
+badge_2.mp3,Huy hiệu mới nè! Bạn giỏi quá!,badge,clap,"phấn khích, bất ngờ"
+badge_3.mp3,"Wow, thêm một huy hiệu cho bạn!",badge,clap,"phấn khích, bất ngờ"
+gift_open_1.mp3,Có quà nè! Bạn chạm vào hộp quà đi!,gift_open,happy,"háo hức, tò mò"
 gift_open_2.mp3,Trong hộp có gì nhỉ? Mở ra xem nào!,gift_open,happy,"háo hức, tò mò"
-gift_open_3.mp3,"Quà của bé đó, mở nhanh lên!",gift_open,happy,"háo hức, tò mò"
-sticker_new_1.mp3,Yeah! Hình dán mới của bé nè!,sticker_new,happy,reo vui
+gift_open_3.mp3,"Quà của bạn đó, mở nhanh lên!",gift_open,happy,"háo hức, tò mò"
+sticker_new_1.mp3,Yeah! Hình dán mới của bạn nè!,sticker_new,happy,reo vui
 sticker_new_2.mp3,Xinh quá đi! Thêm vào bộ sưu tập nha!,sticker_new,happy,reo vui
-sticker_new_3.mp3,Bé có thêm một hình dán rồi!,sticker_new,happy,reo vui
-sticker_all_1.mp3,Bé có đủ tất cả hình dán rồi! Thưởng thêm ba sao nè!,sticker_all,happy,phấn khích
-sticker_all_2.mp3,Bộ sưu tập đầy đủ luôn! Bé được thêm sao nha!,sticker_all,happy,phấn khích
-sticker_all_3.mp3,"Giỏi quá, đủ hết hình dán rồi! Tặng bé ba sao!",sticker_all,happy,phấn khích
-locked_1.mp3,Mức này còn khoá. Bé đạt hai sao ở mức trước để mở nha,locked,think,"nhẹ nhàng, giải thích"
-locked_2.mp3,"Chưa mở được đâu, bé qua mức trước với hai sao nhé!",locked,think,"nhẹ nhàng, giải thích"
+sticker_new_3.mp3,Bạn có thêm một hình dán rồi!,sticker_new,happy,reo vui
+sticker_all_1.mp3,Bạn có đủ tất cả hình dán rồi! Thưởng thêm ba sao nè!,sticker_all,happy,phấn khích
+sticker_all_2.mp3,Bộ sưu tập đầy đủ luôn! Bạn được thêm sao nha!,sticker_all,happy,phấn khích
+sticker_all_3.mp3,"Giỏi quá, đủ hết hình dán rồi! Tặng bạn ba sao!",sticker_all,happy,phấn khích
+locked_1.mp3,Mức này còn khoá. Bạn đạt hai sao ở mức trước để mở nha,locked,think,"nhẹ nhàng, giải thích"
+locked_2.mp3,"Chưa mở được đâu, bạn qua mức trước với hai sao nhé!",locked,think,"nhẹ nhàng, giải thích"
 locked_3.mp3,Hmm… cần hai sao ở mức trước mới mở được đó!,locked,think,"nhẹ nhàng, giải thích"
-shop_hello_1.mp3,Chào mừng bé đến tiệm công chúa!,shop_hello,neutral,"thích thú, mơ mộng"
-shop_hello_2.mp3,"Váy nào cũng xinh hết, bé thích cái nào?",shop_hello,neutral,"thích thú, mơ mộng"
+shop_hello_1.mp3,Chào mừng bạn đến tiệm công chúa!,shop_hello,neutral,"thích thú, mơ mộng"
+shop_hello_2.mp3,"Váy nào cũng xinh hết, bạn thích cái nào?",shop_hello,neutral,"thích thú, mơ mộng"
 shop_hello_3.mp3,Mình cùng thay đồ cho bạn nhỏ nhé!,shop_hello,neutral,"thích thú, mơ mộng"
-shop_buy_1.mp3,Yeah! Váy mới của bé nè!,shop_buy,happy,reo vui
-shop_buy_2.mp3,Đẹp quá đi! Bé mua được rồi!,shop_buy,happy,reo vui
+shop_buy_1.mp3,Yeah! Váy mới của bạn nè!,shop_buy,happy,reo vui
+shop_buy_2.mp3,Đẹp quá đi! Bạn mua được rồi!,shop_buy,happy,reo vui
 shop_buy_3.mp3,Váy này hợp với bạn nhỏ lắm đó!,shop_buy,happy,reo vui
 shop_poor_1.mp3,"Chưa đủ sao rồi, mình học thêm để có sao nha!",shop_poor,think,"nhẹ nhàng, khích lệ"
-shop_poor_2.mp3,Bé chơi thêm vài màn nữa là mua được đó!,shop_poor,think,"nhẹ nhàng, khích lệ"
+shop_poor_2.mp3,Bạn chơi thêm vài màn nữa là mua được đó!,shop_poor,think,"nhẹ nhàng, khích lệ"
 shop_poor_3.mp3,"Cần thêm sao nữa, mình cùng cố gắng nhé!",shop_poor,think,"nhẹ nhàng, khích lệ"
-shop_drag_1.mp3,Bé kéo váy thả vào bạn nhỏ để thay đồ nha!,shop_drag,neutral,"hướng dẫn, vui"
+shop_drag_1.mp3,Bạn kéo váy thả vào bạn nhỏ để thay đồ nha!,shop_drag,neutral,"hướng dẫn, vui"
 shop_drag_2.mp3,Giữ váy rồi kéo vào giữa nhé!,shop_drag,neutral,"hướng dẫn, vui"
 shop_drag_3.mp3,Kéo váy vào bạn nhỏ thử xem nào!,shop_drag,neutral,"hướng dẫn, vui"
 shop_wear_1.mp3,Xinh quá trời luôn!,shop_wear,happy,trầm trồ
 shop_wear_2.mp3,"Wow, bạn nhỏ đẹp lung linh!",shop_wear,happy,trầm trồ
 shop_wear_3.mp3,Bộ này đẹp ghê!,shop_wear,happy,trầm trồ
-album_stickers_1.mp3,Bộ sưu tập hình dán của bé nè!,album_stickers,happy,tự hào
-album_stickers_2.mp3,Bé sưu tầm thêm hình dán nha!,album_stickers,happy,tự hào
+album_stickers_1.mp3,Bộ sưu tập hình dán của bạn nè!,album_stickers,happy,tự hào
+album_stickers_2.mp3,Bạn sưu tầm thêm hình dán nha!,album_stickers,happy,tự hào
 album_stickers_3.mp3,Nhiều hình dán xinh quá!,album_stickers,happy,tự hào
-album_wardrobe_1.mp3,Tủ váy của bé xinh quá đi!,album_wardrobe,happy,trầm trồ
-album_wardrobe_2.mp3,Bé có nhiều váy đẹp ghê!,album_wardrobe,happy,trầm trồ
+album_wardrobe_1.mp3,Tủ váy của bạn xinh quá đi!,album_wardrobe,happy,trầm trồ
+album_wardrobe_2.mp3,Bạn có nhiều váy đẹp ghê!,album_wardrobe,happy,trầm trồ
 album_wardrobe_3.mp3,Mình mua thêm váy mới nha!,album_wardrobe,happy,trầm trồ
-album_badges_1.mp3,"Huy hiệu của bé nè, giỏi ghê!",album_badges,happy,tự hào
-album_badges_2.mp3,"Bé chăm chỉ quá, nhiều huy hiệu ghê!",album_badges,happy,tự hào
+album_badges_1.mp3,"Huy hiệu của bạn nè, giỏi ghê!",album_badges,happy,tự hào
+album_badges_2.mp3,"Bạn chăm chỉ quá, nhiều huy hiệu ghê!",album_badges,happy,tự hào
 album_badges_3.mp3,Cố gắng để có thêm huy hiệu nha!,album_badges,happy,tự hào
 caro_turn_x_1.mp3,Đến lượt dấu nhân nha!,caro_turn_x,neutral,"vui, rõ ràng"
 caro_turn_x_2.mp3,Bạn dấu nhân đi nào!,caro_turn_x,neutral,"vui, rõ ràng"
@@ -103,15 +103,15 @@ caro_win_x_3.mp3,Bạn dấu nhân giỏi quá!,caro_win_x,clap,reo vui
 caro_win_o_1.mp3,Vòng tròn thắng rồi! Hoan hô!,caro_win_o,clap,reo vui
 caro_win_o_2.mp3,"Năm vòng tròn liền nhau, thắng rồi!",caro_win_o,clap,reo vui
 caro_win_o_3.mp3,Bạn vòng tròn giỏi quá!,caro_win_o,clap,reo vui
-welcome_ask_1.mp3,Xin chào! Mình là Kuromi. Bé tên là gì nhỉ?,welcome_ask,neutral,"thân thiện, tò mò"
-welcome_ask_2.mp3,Chào bạn nhỏ! Cho mình biết tên của bé nha!,welcome_ask,neutral,"thân thiện, tò mò"
-welcome_ask_3.mp3,Mình là Kuromi nè! Bé tên gì thế?,welcome_ask,neutral,"thân thiện, tò mò"
+welcome_ask_1.mp3,Xin chào! Mình là Kuromi. Bạn tên là gì nhỉ?,welcome_ask,neutral,"thân thiện, tò mò"
+welcome_ask_2.mp3,Chào bạn nhỏ! Cho mình biết tên của bạn nha!,welcome_ask,neutral,"thân thiện, tò mò"
+welcome_ask_3.mp3,Mình là Kuromi nè! Bạn tên gì thế?,welcome_ask,neutral,"thân thiện, tò mò"
 welcome_done_1.mp3,Tên đẹp quá! Mình chơi thôi!,welcome_done,happy,reo vui
-welcome_done_2.mp3,Rất vui được làm quen với bé!,welcome_done,happy,reo vui
+welcome_done_2.mp3,Rất vui được làm quen với bạn!,welcome_done,happy,reo vui
 welcome_done_3.mp3,Yeah! Mình bắt đầu nha!,welcome_done,happy,reo vui
 poke_1.mp3,"Hihi, nhột quá!",poke,happy,"tinh nghịch, cười khúc khích"
-poke_2.mp3,Bé chọc mình à? Hihi!,poke,happy,"tinh nghịch, cười khúc khích"
-poke_3.mp3,Mình thương bé lắm!,poke,happy,"tinh nghịch, cười khúc khích"
+poke_2.mp3,Bạn chọc mình à? Hihi!,poke,happy,"tinh nghịch, cười khúc khích"
+poke_3.mp3,Mình thương bạn lắm!,poke,happy,"tinh nghịch, cười khúc khích"
 poke_4.mp3,"Ê hê, mình ở đây nè!",poke,happy,"tinh nghịch, cười khúc khích"
 p_co_bao_nhieu.mp3,có bao nhiêu,ghep_de,neutral,"đọc trung tính, đều giọng, không lên giọng cuối"
 p_trong_hinh_nay.mp3,trong hình này,ghep_de,neutral,"đọc trung tính, đều giọng, không lên giọng cuối"

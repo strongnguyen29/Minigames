@@ -35,7 +35,7 @@ test('thiếu một mẩu thì đọc cả câu bằng giọng máy', async () =
   const { v, played, tts } = setup({ have: ['num_5','p_cong','p_bang_may'] });
   await v.text('5 cộng 7 bằng mấy?');
   assert.deepEqual(played, []); assert.equal(tts[0].text, '5 cộng 7 bằng mấy?');
-  assert.ok(tts[0].pitch === 1 && Math.abs(tts[0].rate - 1.14) < 1e-9 && tts[0].lang === 'vi-VN');
+  assert.ok(tts[0].pitch === 1.3 && Math.abs(tts[0].rate - 1.14) < 1e-9 && tts[0].lang === 'vi-VN');
 });
 test('file lỗi giữa chừng thì dừng phát mẩu và đọc cả câu bằng giọng máy', async () => {
   const { v, played, tts } = setup({ have: ALL, bad: ['audio/voice/p_cong.mp3'] });
@@ -107,4 +107,10 @@ test('máy không có giọng tiếng Việt thì không gán voice, vẫn đọ
   g.run(`speechSynthesis.getVoices=()=>[{name:'Samantha',lang:'en-US'}]`);
   await v.text('Bé ơi');
   assert.equal(tts[0].voice, undefined); assert.equal(tts[0].lang, 'vi-VN');
+});
+test('lời thoại xưng "bạn", không gọi "bé" (trừ "bé hơn" nghĩa là nhỏ hơn)', () => {
+  const { g } = setup(); const bad = [];
+  for (const arr of Object.values(g.get('LINES'))) for (const x of arr)
+    if (/(^|[^\p{L}])[Bb]é(?!\p{L})(?! hơn)/u.test(x.text)) bad.push(x.id + ': ' + x.text);
+  assert.deepEqual(bad, []);
 });

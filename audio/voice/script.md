@@ -6,7 +6,7 @@ Tổng cộng **287 file**. Đặt tên file đúng cột "File", bỏ vào `aud
 
 | File | Câu nói | Cảm xúc | Cách đọc |
 |---|---|---|---|
-| `splash_1.mp3` | Chào mừng bé đến Vương Quốc Vui Vẻ! | Vui sướng | reo vui, phấn khích |
+| `splash_1.mp3` | Chào mừng bạn đến Vương Quốc Vui Vẻ! | Vui sướng | reo vui, phấn khích |
 | `splash_2.mp3` | Yeah! Mình là Kuromi, mình chơi cùng nhau nha! | Vui sướng | reo vui, phấn khích |
 | `splash_3.mp3` | Vương Quốc Vui Vẻ mở cửa rồi, vào thôi nào! | Vui sướng | reo vui, phấn khích |
 
@@ -14,17 +14,17 @@ Tổng cộng **287 file**. Đặt tên file đúng cột "File", bỏ vào `aud
 
 | File | Câu nói | Cảm xúc | Cách đọc |
 |---|---|---|---|
-| `home_1.mp3` | Chào bé! Hôm nay mình chơi trò nào nè? | Trung tính | ấm áp, thân thiện |
-| `home_2.mp3` | Bé ơi, chọn một trò thật vui đi nào! | Trung tính | ấm áp, thân thiện |
-| `home_3.mp3` | Mình nhớ bé quá! Mình cùng học nha! | Trung tính | ấm áp, thân thiện |
-| `home_4.mp3` | Hôm nay bé muốn chơi gì nhỉ? | Trung tính | ấm áp, thân thiện |
+| `home_1.mp3` | Chào bạn! Hôm nay mình chơi trò nào nè? | Trung tính | ấm áp, thân thiện |
+| `home_2.mp3` | Bạn ơi, chọn một trò thật vui đi nào! | Trung tính | ấm áp, thân thiện |
+| `home_3.mp3` | Mình nhớ bạn quá! Mình cùng học nha! | Trung tính | ấm áp, thân thiện |
+| `home_4.mp3` | Hôm nay bạn muốn chơi gì nhỉ? | Trung tính | ấm áp, thân thiện |
 
 ## Điểm chạm: levels_count
 
 | File | Câu nói | Cảm xúc | Cách đọc |
 |---|---|---|---|
-| `levels_count_1.mp3` | Trò đếm hình nè! Bé đếm thật kỹ nha. | Trung tính | hào hứng, rõ ràng |
-| `levels_count_2.mp3` | Mình cùng đếm hình nhé, bé chọn mức đi nào! | Trung tính | hào hứng, rõ ràng |
+| `levels_count_1.mp3` | Trò đếm hình nè! Bạn đếm thật kỹ nha. | Trung tính | hào hứng, rõ ràng |
+| `levels_count_2.mp3` | Mình cùng đếm hình nhé, bạn chọn mức đi nào! | Trung tính | hào hứng, rõ ràng |
 | `levels_count_3.mp3` | Đếm hình vui lắm đó, bắt đầu thôi! | Trung tính | hào hứng, rõ ràng |
 
 ## Điểm chạm: levels_shape
@@ -32,23 +32,23 @@ Tổng cộng **287 file**. Đặt tên file đúng cột "File", bỏ vào `aud
 | File | Câu nói | Cảm xúc | Cách đọc |
 |---|---|---|---|
 | `levels_shape_1.mp3` | Trò nhận biết hình nè! Tròn, vuông, tam giác… | Trung tính | hào hứng, rõ ràng |
-| `levels_shape_2.mp3` | Mình cùng tìm các hình nhé, bé chọn mức đi! | Trung tính | hào hứng, rõ ràng |
-| `levels_shape_3.mp3` | Bé có biết hết các hình không nhỉ? Thử nào! | Trung tính | hào hứng, rõ ràng |
+| `levels_shape_2.mp3` | Mình cùng tìm các hình nhé, bạn chọn mức đi! | Trung tính | hào hứng, rõ ràng |
+| `levels_shape_3.mp3` | Bạn có biết hết các hình không nhỉ? Thử nào! | Trung tính | hào hứng, rõ ràng |
 
 ## Điểm chạm: levels_add
 
 | File | Câu nói | Cảm xúc | Cách đọc |
 |---|---|---|---|
 | `levels_add_1.mp3` | Trò gộp số nè! Gộp hai nhóm lại với nhau nha. | Trung tính | hào hứng, rõ ràng |
-| `levels_add_2.mp3` | Mình cùng làm phép cộng nhé, bé chọn mức đi! | Trung tính | hào hứng, rõ ràng |
-| `levels_add_3.mp3` | Gộp số dễ ợt, bé làm được mà! | Trung tính | hào hứng, rõ ràng |
+| `levels_add_2.mp3` | Mình cùng làm phép cộng nhé, bạn chọn mức đi! | Trung tính | hào hứng, rõ ràng |
+| `levels_add_3.mp3` | Gộp số dễ ợt, bạn làm được mà! | Trung tính | hào hứng, rõ ràng |
 
 ## Điểm chạm: levels_split
 
 | File | Câu nói | Cảm xúc | Cách đọc |
 |---|---|---|---|
 | `levels_split_1.mp3` | Trò tách số nè! Một số gồm mấy và mấy nhỉ? | Trung tính | hào hứng, rõ ràng |
-| `levels_split_2.mp3` | Mình cùng tách số nhé, bé chọn mức đi! | Trung tính | hào hứng, rõ ràng |
+| `levels_split_2.mp3` | Mình cùng tách số nhé, bạn chọn mức đi! | Trung tính | hào hứng, rõ ràng |
 | `levels_split_3.mp3` | Tách số thú vị lắm, thử nào! | Trung tính | hào hứng, rõ ràng |
 
 ## Điểm chạm: levels_cmp
@@ -57,32 +57,32 @@ Tổng cộng **287 file**. Đặt tên file đúng cột "File", bỏ vào `aud
 |---|---|---|---|
 | `levels_cmp_1.mp3` | Trò so sánh số nè! Số nào lớn hơn nhỉ? | Trung tính | hào hứng, rõ ràng |
 | `levels_cmp_2.mp3` | Lớn hơn, bé hơn hay bằng nhau? Mình thử nhé! | Trung tính | hào hứng, rõ ràng |
-| `levels_cmp_3.mp3` | Bé chọn mức đi, mình so sánh số nào! | Trung tính | hào hứng, rõ ràng |
+| `levels_cmp_3.mp3` | Bạn chọn mức đi, mình so sánh số nào! | Trung tính | hào hứng, rõ ràng |
 
 ## Điểm chạm: levels_pattern
 
 | File | Câu nói | Cảm xúc | Cách đọc |
 |---|---|---|---|
-| `levels_pattern_1.mp3` | Trò quy luật nè! Bé tìm xem cái gì đi tiếp nha. | Trung tính | hào hứng, bí ẩn |
-| `levels_pattern_2.mp3` | Nhìn kỹ dãy số, dãy hình nhé, bé chọn mức đi! | Trung tính | hào hứng, bí ẩn |
+| `levels_pattern_1.mp3` | Trò quy luật nè! Bạn tìm xem cái gì đi tiếp nha. | Trung tính | hào hứng, bí ẩn |
+| `levels_pattern_2.mp3` | Nhìn kỹ dãy số, dãy hình nhé, bạn chọn mức đi! | Trung tính | hào hứng, bí ẩn |
 | `levels_pattern_3.mp3` | Mình cùng làm thám tử quy luật nào! | Trung tính | hào hứng, bí ẩn |
 
 ## Điểm chạm: round_start
 
 | File | Câu nói | Cảm xúc | Cách đọc |
 |---|---|---|---|
-| `round_start_1.mp3` | Bắt đầu nha! Bé cố lên! | Trung tính | vui vẻ, khích lệ |
+| `round_start_1.mp3` | Bắt đầu nha! Bạn cố lên! | Trung tính | vui vẻ, khích lệ |
 | `round_start_2.mp3` | Sẵn sàng chưa? Mình chơi thôi! | Trung tính | vui vẻ, khích lệ |
-| `round_start_3.mp3` | Bé nghe kỹ câu hỏi nha! | Trung tính | vui vẻ, khích lệ |
-| `round_start_4.mp3` | Cố lên bé ơi, mình ở đây nè! | Trung tính | vui vẻ, khích lệ |
+| `round_start_3.mp3` | Bạn nghe kỹ câu hỏi nha! | Trung tính | vui vẻ, khích lệ |
+| `round_start_4.mp3` | Cố lên bạn ơi, mình ở đây nè! | Trung tính | vui vẻ, khích lệ |
 
 ## Điểm chạm: correct
 
 | File | Câu nói | Cảm xúc | Cách đọc |
 |---|---|---|---|
-| `correct_1.mp3` | Đúng rồi! Bé giỏi quá! | Vỗ tay | reo vui, ngắn gọn |
+| `correct_1.mp3` | Đúng rồi! Bạn giỏi quá! | Vỗ tay | reo vui, ngắn gọn |
 | `correct_2.mp3` | Chính xác luôn! | Vỗ tay | reo vui, ngắn gọn |
-| `correct_3.mp3` | Hoan hô bé! | Vỗ tay | reo vui, ngắn gọn |
+| `correct_3.mp3` | Hoan hô bạn! | Vỗ tay | reo vui, ngắn gọn |
 | `correct_4.mp3` | Tuyệt vời! | Vỗ tay | reo vui, ngắn gọn |
 | `correct_5.mp3` | Giỏi ghê đó! | Vỗ tay | reo vui, ngắn gọn |
 
@@ -90,25 +90,25 @@ Tổng cộng **287 file**. Đặt tên file đúng cột "File", bỏ vào `aud
 
 | File | Câu nói | Cảm xúc | Cách đọc |
 |---|---|---|---|
-| `combo_1.mp3` | Đúng liên tục luôn! Bé siêu quá! | Vỗ tay | phấn khích, reo to |
-| `combo_2.mp3` | Wow, bé không sai câu nào hết! | Vỗ tay | phấn khích, reo to |
-| `combo_3.mp3` | Bé đang cực kỳ xuất sắc đó! | Vỗ tay | phấn khích, reo to |
+| `combo_1.mp3` | Đúng liên tục luôn! Bạn siêu quá! | Vỗ tay | phấn khích, reo to |
+| `combo_2.mp3` | Wow, bạn không sai câu nào hết! | Vỗ tay | phấn khích, reo to |
+| `combo_3.mp3` | Bạn đang cực kỳ xuất sắc đó! | Vỗ tay | phấn khích, reo to |
 
 ## Điểm chạm: wrong
 
 | File | Câu nói | Cảm xúc | Cách đọc |
 |---|---|---|---|
-| `wrong_1.mp3` | Hmm… chưa đúng rồi, bé thử lại nha | Suy nghĩ | nhẹ nhàng, an ủi |
+| `wrong_1.mp3` | Hmm… chưa đúng rồi, bạn thử lại nha | Suy nghĩ | nhẹ nhàng, an ủi |
 | `wrong_2.mp3` | Không sao đâu, mình chọn lại nhé! | Suy nghĩ | nhẹ nhàng, an ủi |
-| `wrong_3.mp3` | Gần đúng rồi đó, bé nghĩ thêm chút nữa nha! | Suy nghĩ | nhẹ nhàng, an ủi |
-| `wrong_4.mp3` | Ơ, chưa phải rồi. Bé thử cái khác xem! | Suy nghĩ | nhẹ nhàng, an ủi |
+| `wrong_3.mp3` | Gần đúng rồi đó, bạn nghĩ thêm chút nữa nha! | Suy nghĩ | nhẹ nhàng, an ủi |
+| `wrong_4.mp3` | Ơ, chưa phải rồi. Bạn thử cái khác xem! | Suy nghĩ | nhẹ nhàng, an ủi |
 
 ## Điểm chạm: hint
 
 | File | Câu nói | Cảm xúc | Cách đọc |
 |---|---|---|---|
-| `hint_1.mp3` | Bé nhìn nút đang nhấp nháy kìa! | Suy nghĩ | thì thầm gợi ý |
-| `hint_2.mp3` | Mình gợi ý nè: bé xem nút đang sáng lên nha. | Suy nghĩ | thì thầm gợi ý |
+| `hint_1.mp3` | Bạn nhìn nút đang nhấp nháy kìa! | Suy nghĩ | thì thầm gợi ý |
+| `hint_2.mp3` | Mình gợi ý nè: bạn xem nút đang sáng lên nha. | Suy nghĩ | thì thầm gợi ý |
 | `hint_3.mp3` | Psst… đáp án đang nhấp nháy đó! | Suy nghĩ | thì thầm gợi ý |
 
 ## Điểm chạm: result3
@@ -116,79 +116,79 @@ Tổng cộng **287 file**. Đặt tên file đúng cột "File", bỏ vào `aud
 | File | Câu nói | Cảm xúc | Cách đọc |
 |---|---|---|---|
 | `result3_1.mp3` | Giỏi quá! Ba sao luôn! | Vỗ tay | reo vui, tự hào |
-| `result3_2.mp3` | Bé xuất sắc nhất luôn đó! | Vỗ tay | reo vui, tự hào |
-| `result3_3.mp3` | Tuyệt vời! Bé được ba ngôi sao rồi! | Vỗ tay | reo vui, tự hào |
+| `result3_2.mp3` | Bạn xuất sắc nhất luôn đó! | Vỗ tay | reo vui, tự hào |
+| `result3_3.mp3` | Tuyệt vời! Bạn được ba ngôi sao rồi! | Vỗ tay | reo vui, tự hào |
 
 ## Điểm chạm: result2
 
 | File | Câu nói | Cảm xúc | Cách đọc |
 |---|---|---|---|
-| `result2_1.mp3` | Giỏi lắm! Bé được hai sao nè! | Vỗ tay | vui vẻ, khích lệ |
+| `result2_1.mp3` | Giỏi lắm! Bạn được hai sao nè! | Vỗ tay | vui vẻ, khích lệ |
 | `result2_2.mp3` | Làm tốt lắm, cố thêm chút nữa là ba sao đó! | Vỗ tay | vui vẻ, khích lệ |
-| `result2_3.mp3` | Hoan hô! Bé có quà nữa nè! | Vỗ tay | vui vẻ, khích lệ |
+| `result2_3.mp3` | Hoan hô! Bạn có quà nữa nè! | Vỗ tay | vui vẻ, khích lệ |
 
 ## Điểm chạm: result1
 
 | File | Câu nói | Cảm xúc | Cách đọc |
 |---|---|---|---|
-| `result1_1.mp3` | Bé đã cố gắng rồi! Mình chơi lại nha | Suy nghĩ | dịu dàng, động viên |
-| `result1_2.mp3` | Không sao đâu, lần sau bé sẽ giỏi hơn! | Suy nghĩ | dịu dàng, động viên |
-| `result1_3.mp3` | Mình thử lại một lần nữa nhé, bé làm được mà! | Suy nghĩ | dịu dàng, động viên |
+| `result1_1.mp3` | Bạn đã cố gắng rồi! Mình chơi lại nha | Suy nghĩ | dịu dàng, động viên |
+| `result1_2.mp3` | Không sao đâu, lần sau bạn sẽ giỏi hơn! | Suy nghĩ | dịu dàng, động viên |
+| `result1_3.mp3` | Mình thử lại một lần nữa nhé, bạn làm được mà! | Suy nghĩ | dịu dàng, động viên |
 
 ## Điểm chạm: badge
 
 | File | Câu nói | Cảm xúc | Cách đọc |
 |---|---|---|---|
-| `badge_1.mp3` | Ôi! Bé có huy hiệu mới kìa! | Vỗ tay | phấn khích, bất ngờ |
-| `badge_2.mp3` | Huy hiệu mới nè! Bé giỏi quá! | Vỗ tay | phấn khích, bất ngờ |
-| `badge_3.mp3` | Wow, thêm một huy hiệu cho bé! | Vỗ tay | phấn khích, bất ngờ |
+| `badge_1.mp3` | Ôi! Bạn có huy hiệu mới kìa! | Vỗ tay | phấn khích, bất ngờ |
+| `badge_2.mp3` | Huy hiệu mới nè! Bạn giỏi quá! | Vỗ tay | phấn khích, bất ngờ |
+| `badge_3.mp3` | Wow, thêm một huy hiệu cho bạn! | Vỗ tay | phấn khích, bất ngờ |
 
 ## Điểm chạm: gift_open
 
 | File | Câu nói | Cảm xúc | Cách đọc |
 |---|---|---|---|
-| `gift_open_1.mp3` | Có quà nè! Bé chạm vào hộp quà đi! | Vui sướng | háo hức, tò mò |
+| `gift_open_1.mp3` | Có quà nè! Bạn chạm vào hộp quà đi! | Vui sướng | háo hức, tò mò |
 | `gift_open_2.mp3` | Trong hộp có gì nhỉ? Mở ra xem nào! | Vui sướng | háo hức, tò mò |
-| `gift_open_3.mp3` | Quà của bé đó, mở nhanh lên! | Vui sướng | háo hức, tò mò |
+| `gift_open_3.mp3` | Quà của bạn đó, mở nhanh lên! | Vui sướng | háo hức, tò mò |
 
 ## Điểm chạm: sticker_new
 
 | File | Câu nói | Cảm xúc | Cách đọc |
 |---|---|---|---|
-| `sticker_new_1.mp3` | Yeah! Hình dán mới của bé nè! | Vui sướng | reo vui |
+| `sticker_new_1.mp3` | Yeah! Hình dán mới của bạn nè! | Vui sướng | reo vui |
 | `sticker_new_2.mp3` | Xinh quá đi! Thêm vào bộ sưu tập nha! | Vui sướng | reo vui |
-| `sticker_new_3.mp3` | Bé có thêm một hình dán rồi! | Vui sướng | reo vui |
+| `sticker_new_3.mp3` | Bạn có thêm một hình dán rồi! | Vui sướng | reo vui |
 
 ## Điểm chạm: sticker_all
 
 | File | Câu nói | Cảm xúc | Cách đọc |
 |---|---|---|---|
-| `sticker_all_1.mp3` | Bé có đủ tất cả hình dán rồi! Thưởng thêm ba sao nè! | Vui sướng | phấn khích |
-| `sticker_all_2.mp3` | Bộ sưu tập đầy đủ luôn! Bé được thêm sao nha! | Vui sướng | phấn khích |
-| `sticker_all_3.mp3` | Giỏi quá, đủ hết hình dán rồi! Tặng bé ba sao! | Vui sướng | phấn khích |
+| `sticker_all_1.mp3` | Bạn có đủ tất cả hình dán rồi! Thưởng thêm ba sao nè! | Vui sướng | phấn khích |
+| `sticker_all_2.mp3` | Bộ sưu tập đầy đủ luôn! Bạn được thêm sao nha! | Vui sướng | phấn khích |
+| `sticker_all_3.mp3` | Giỏi quá, đủ hết hình dán rồi! Tặng bạn ba sao! | Vui sướng | phấn khích |
 
 ## Điểm chạm: locked
 
 | File | Câu nói | Cảm xúc | Cách đọc |
 |---|---|---|---|
-| `locked_1.mp3` | Mức này còn khoá. Bé đạt hai sao ở mức trước để mở nha | Suy nghĩ | nhẹ nhàng, giải thích |
-| `locked_2.mp3` | Chưa mở được đâu, bé qua mức trước với hai sao nhé! | Suy nghĩ | nhẹ nhàng, giải thích |
+| `locked_1.mp3` | Mức này còn khoá. Bạn đạt hai sao ở mức trước để mở nha | Suy nghĩ | nhẹ nhàng, giải thích |
+| `locked_2.mp3` | Chưa mở được đâu, bạn qua mức trước với hai sao nhé! | Suy nghĩ | nhẹ nhàng, giải thích |
 | `locked_3.mp3` | Hmm… cần hai sao ở mức trước mới mở được đó! | Suy nghĩ | nhẹ nhàng, giải thích |
 
 ## Điểm chạm: shop_hello
 
 | File | Câu nói | Cảm xúc | Cách đọc |
 |---|---|---|---|
-| `shop_hello_1.mp3` | Chào mừng bé đến tiệm công chúa! | Trung tính | thích thú, mơ mộng |
-| `shop_hello_2.mp3` | Váy nào cũng xinh hết, bé thích cái nào? | Trung tính | thích thú, mơ mộng |
+| `shop_hello_1.mp3` | Chào mừng bạn đến tiệm công chúa! | Trung tính | thích thú, mơ mộng |
+| `shop_hello_2.mp3` | Váy nào cũng xinh hết, bạn thích cái nào? | Trung tính | thích thú, mơ mộng |
 | `shop_hello_3.mp3` | Mình cùng thay đồ cho bạn nhỏ nhé! | Trung tính | thích thú, mơ mộng |
 
 ## Điểm chạm: shop_buy
 
 | File | Câu nói | Cảm xúc | Cách đọc |
 |---|---|---|---|
-| `shop_buy_1.mp3` | Yeah! Váy mới của bé nè! | Vui sướng | reo vui |
-| `shop_buy_2.mp3` | Đẹp quá đi! Bé mua được rồi! | Vui sướng | reo vui |
+| `shop_buy_1.mp3` | Yeah! Váy mới của bạn nè! | Vui sướng | reo vui |
+| `shop_buy_2.mp3` | Đẹp quá đi! Bạn mua được rồi! | Vui sướng | reo vui |
 | `shop_buy_3.mp3` | Váy này hợp với bạn nhỏ lắm đó! | Vui sướng | reo vui |
 
 ## Điểm chạm: shop_poor
@@ -196,14 +196,14 @@ Tổng cộng **287 file**. Đặt tên file đúng cột "File", bỏ vào `aud
 | File | Câu nói | Cảm xúc | Cách đọc |
 |---|---|---|---|
 | `shop_poor_1.mp3` | Chưa đủ sao rồi, mình học thêm để có sao nha! | Suy nghĩ | nhẹ nhàng, khích lệ |
-| `shop_poor_2.mp3` | Bé chơi thêm vài màn nữa là mua được đó! | Suy nghĩ | nhẹ nhàng, khích lệ |
+| `shop_poor_2.mp3` | Bạn chơi thêm vài màn nữa là mua được đó! | Suy nghĩ | nhẹ nhàng, khích lệ |
 | `shop_poor_3.mp3` | Cần thêm sao nữa, mình cùng cố gắng nhé! | Suy nghĩ | nhẹ nhàng, khích lệ |
 
 ## Điểm chạm: shop_drag
 
 | File | Câu nói | Cảm xúc | Cách đọc |
 |---|---|---|---|
-| `shop_drag_1.mp3` | Bé kéo váy thả vào bạn nhỏ để thay đồ nha! | Trung tính | hướng dẫn, vui |
+| `shop_drag_1.mp3` | Bạn kéo váy thả vào bạn nhỏ để thay đồ nha! | Trung tính | hướng dẫn, vui |
 | `shop_drag_2.mp3` | Giữ váy rồi kéo vào giữa nhé! | Trung tính | hướng dẫn, vui |
 | `shop_drag_3.mp3` | Kéo váy vào bạn nhỏ thử xem nào! | Trung tính | hướng dẫn, vui |
 
@@ -219,24 +219,24 @@ Tổng cộng **287 file**. Đặt tên file đúng cột "File", bỏ vào `aud
 
 | File | Câu nói | Cảm xúc | Cách đọc |
 |---|---|---|---|
-| `album_stickers_1.mp3` | Bộ sưu tập hình dán của bé nè! | Vui sướng | tự hào |
-| `album_stickers_2.mp3` | Bé sưu tầm thêm hình dán nha! | Vui sướng | tự hào |
+| `album_stickers_1.mp3` | Bộ sưu tập hình dán của bạn nè! | Vui sướng | tự hào |
+| `album_stickers_2.mp3` | Bạn sưu tầm thêm hình dán nha! | Vui sướng | tự hào |
 | `album_stickers_3.mp3` | Nhiều hình dán xinh quá! | Vui sướng | tự hào |
 
 ## Điểm chạm: album_wardrobe
 
 | File | Câu nói | Cảm xúc | Cách đọc |
 |---|---|---|---|
-| `album_wardrobe_1.mp3` | Tủ váy của bé xinh quá đi! | Vui sướng | trầm trồ |
-| `album_wardrobe_2.mp3` | Bé có nhiều váy đẹp ghê! | Vui sướng | trầm trồ |
+| `album_wardrobe_1.mp3` | Tủ váy của bạn xinh quá đi! | Vui sướng | trầm trồ |
+| `album_wardrobe_2.mp3` | Bạn có nhiều váy đẹp ghê! | Vui sướng | trầm trồ |
 | `album_wardrobe_3.mp3` | Mình mua thêm váy mới nha! | Vui sướng | trầm trồ |
 
 ## Điểm chạm: album_badges
 
 | File | Câu nói | Cảm xúc | Cách đọc |
 |---|---|---|---|
-| `album_badges_1.mp3` | Huy hiệu của bé nè, giỏi ghê! | Vui sướng | tự hào |
-| `album_badges_2.mp3` | Bé chăm chỉ quá, nhiều huy hiệu ghê! | Vui sướng | tự hào |
+| `album_badges_1.mp3` | Huy hiệu của bạn nè, giỏi ghê! | Vui sướng | tự hào |
+| `album_badges_2.mp3` | Bạn chăm chỉ quá, nhiều huy hiệu ghê! | Vui sướng | tự hào |
 | `album_badges_3.mp3` | Cố gắng để có thêm huy hiệu nha! | Vui sướng | tự hào |
 
 ## Điểm chạm: caro_turn_x
@@ -275,16 +275,16 @@ Tổng cộng **287 file**. Đặt tên file đúng cột "File", bỏ vào `aud
 
 | File | Câu nói | Cảm xúc | Cách đọc |
 |---|---|---|---|
-| `welcome_ask_1.mp3` | Xin chào! Mình là Kuromi. Bé tên là gì nhỉ? | Trung tính | thân thiện, tò mò |
-| `welcome_ask_2.mp3` | Chào bạn nhỏ! Cho mình biết tên của bé nha! | Trung tính | thân thiện, tò mò |
-| `welcome_ask_3.mp3` | Mình là Kuromi nè! Bé tên gì thế? | Trung tính | thân thiện, tò mò |
+| `welcome_ask_1.mp3` | Xin chào! Mình là Kuromi. Bạn tên là gì nhỉ? | Trung tính | thân thiện, tò mò |
+| `welcome_ask_2.mp3` | Chào bạn nhỏ! Cho mình biết tên của bạn nha! | Trung tính | thân thiện, tò mò |
+| `welcome_ask_3.mp3` | Mình là Kuromi nè! Bạn tên gì thế? | Trung tính | thân thiện, tò mò |
 
 ## Điểm chạm: welcome_done
 
 | File | Câu nói | Cảm xúc | Cách đọc |
 |---|---|---|---|
 | `welcome_done_1.mp3` | Tên đẹp quá! Mình chơi thôi! | Vui sướng | reo vui |
-| `welcome_done_2.mp3` | Rất vui được làm quen với bé! | Vui sướng | reo vui |
+| `welcome_done_2.mp3` | Rất vui được làm quen với bạn! | Vui sướng | reo vui |
 | `welcome_done_3.mp3` | Yeah! Mình bắt đầu nha! | Vui sướng | reo vui |
 
 ## Điểm chạm: poke
@@ -292,8 +292,8 @@ Tổng cộng **287 file**. Đặt tên file đúng cột "File", bỏ vào `aud
 | File | Câu nói | Cảm xúc | Cách đọc |
 |---|---|---|---|
 | `poke_1.mp3` | Hihi, nhột quá! | Vui sướng | tinh nghịch, cười khúc khích |
-| `poke_2.mp3` | Bé chọc mình à? Hihi! | Vui sướng | tinh nghịch, cười khúc khích |
-| `poke_3.mp3` | Mình thương bé lắm! | Vui sướng | tinh nghịch, cười khúc khích |
+| `poke_2.mp3` | Bạn chọc mình à? Hihi! | Vui sướng | tinh nghịch, cười khúc khích |
+| `poke_3.mp3` | Mình thương bạn lắm! | Vui sướng | tinh nghịch, cười khúc khích |
 | `poke_4.mp3` | Ê hê, mình ở đây nè! | Vui sướng | tinh nghịch, cười khúc khích |
 
 ## Mẩu ghép đề bài

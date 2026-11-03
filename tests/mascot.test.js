@@ -52,13 +52,13 @@ test('screenHTML: có mascot thì có cột trái, không có thì không', () =
   assert.match(g.run("screenHTML({mascot:{emo:'neutral'},top:'T',body:'B',cls:'x'})"), /class="scr x"[\s\S]*class="mcol[ "][^>]*>[\s\S]*class="mainc">TB/);
   assert.doesNotMatch(g.run("screenHTML({top:'T',body:'B'})"), /mcol/);
 });
-test('withName thay chữ "bé" đầu tiên bằng tên bé, giữ nguyên phần còn lại', () => {
+test('withName thay chữ "bạn" đầu tiên bằng tên bé, giữ nguyên phần còn lại', () => {
   const { g } = setup(); g.run("S.name='Mai'"); const w = g.get('withName');
-  assert.equal(w('Chào bé! Hôm nay mình chơi trò nào nè? 💜'), 'Chào Mai! Hôm nay mình chơi trò nào nè? 💜');
-  assert.equal(w('Bé ơi, chọn một trò đi nào!'), 'Mai ơi, chọn một trò đi nào!');
-  assert.equal(w('Mình nhớ bé quá! bé ơi'), 'Mình nhớ Mai quá! bé ơi');
+  assert.equal(w('Chào bạn! Hôm nay mình chơi trò nào nè? 💜'), 'Chào Mai! Hôm nay mình chơi trò nào nè? 💜');
+  assert.equal(w('Bạn ơi, chọn một trò đi nào!'), 'Mai ơi, chọn một trò đi nào!');
+  assert.equal(w('Mình nhớ bạn quá! bạn ơi'), 'Mình nhớ Mai quá! bạn ơi');
   assert.equal(w('Không có chữ đó'), 'Không có chữ đó');
-  assert.equal(w('Bên bếp'), 'Bên bếp');
+  assert.equal(w('Bánh bạnh'), 'Bánh bạnh');
 });
 test('mascotSay format: bong bóng dùng chữ đã định dạng', async () => {
   const { g, dom } = setup(); g.run("S.name='Mai'");

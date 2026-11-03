@@ -128,7 +128,7 @@ Phụ huynh tạo giọng bằng **ElevenLabs**. Builder **viết sẵn** 2 th�
 File âm thanh đặt ở `audio/voice/<tên>.mp3`. Builder chọn quy ước đặt tên (ví dụ `praise_03.mp3`, `num_17.mp3`).
 
 ### 6.2 Câu cố định theo điểm chạm
-Mỗi điểm chạm có **3–5 câu khác nhau**, chọn ngẫu nhiên và không lặp lại câu vừa nói. Câu gọi bé là "bé" hoặc "bạn nhỏ", **không đọc tên bé** (vì tên do bé tự nhập). Bong bóng chữ có thể chèn tên bé.
+Mỗi điểm chạm có **3–5 câu khác nhau**, chọn ngẫu nhiên và không lặp lại câu vừa nói. Kuromi xưng "mình" và gọi bé là **"bạn"** (phụ huynh đổi từ "bé" sang "bạn" ngày 2026-11-03), **không đọc tên bé** (vì tên do bé tự nhập). Bong bóng chữ có thể chèn tên bé.
 
 Các điểm chạm tối thiểu:
 - Màn mở đầu và chào khi vào trang chủ.

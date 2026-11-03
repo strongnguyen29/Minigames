@@ -51,7 +51,7 @@ function segment(text){
    Promise của mỗi câu resolve true nếu nói xong, false nếu bị ngắt ---- */
 const VOICE_DIR='audio/voice/';
 /* Tốc độ giọng máy dự phòng (phụ huynh chọn) */
-const TTS_RATE=1.14;
+const TTS_RATE=1.14,TTS_PITCH=1.3;
 const SILENT_WAV='data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
 const voice=(()=>{
   let token=0,cur=null,el=null;const last={};
@@ -76,8 +76,8 @@ const voice=(()=>{
     if(!window.speechSynthesis){done();return}
     try{
       const u=new SpeechSynthesisUtterance(plain(text));u.lang='vi-VN';u.rate=TTS_RATE;
-      /* giữ cao độ tự nhiên: tiếng Việt phân biệt dấu thanh bằng cao độ, ép giọng cao làm "bé" nghe thành "bớ" */
-      u.pitch=1;
+      /* cao độ giọng máy (phụ huynh chọn); lưu ý ép quá cao dễ làm sai dấu thanh tiếng Việt */
+      u.pitch=TTS_PITCH;
       const vi=viVoice();if(vi)u.voice=vi;
       u.onend=u.onerror=done;speechSynthesis.speak(u);
     }catch(e){done()}

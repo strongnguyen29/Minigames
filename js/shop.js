@@ -160,8 +160,8 @@ function lockedItem(id){
   if(!ok)mascotSay('shop_poor',{format:t=>`Cần ${it.price} ⭐ nha! ${t}`});
   const m=modalBox(`<img class="shopimg big locked-preview" src="${it.thumb}" alt="${esc(it.name)}">
     <h2 style="margin:6px 0">${esc(it.name)}</h2>
-    <p class="sub">Giá: <b>${it.price} ⭐</b> · Bé đang có <b>${balance()} ⭐</b></p>
-    ${ok?'':`<div class="toast">Bé cần thêm ${need} ⭐ nữa! Chơi game để kiếm sao nhé 🎮</div>`}
+    <p class="sub">Giá: <b>${it.price} ⭐</b> · Bạn đang có <b>${balance()} ⭐</b></p>
+    ${ok?'':`<div class="toast">Bạn cần thêm ${need} ⭐ nữa! Chơi game để kiếm sao nhé 🎮</div>`}
     <div class="row">${ok?`<button class="btn p-pink gloss" id="buy">🛍️ Đổi ngay</button>`:`<button class="btn p-blue" id="play">🎮 Chơi game kiếm sao</button>`}<button class="btn p-gray" id="cl">Để sau</button></div>`);
   $('#cl').onclick=()=>m.remove();
   const b=$('#buy');if(b)b.onclick=()=>buyItem(id);
@@ -192,7 +192,7 @@ function shop(quiet){
   const cur=SHOP_ITEMS.find(x=>x.id===shopSel);
   const catTabs=SHOP.length>1?`<div class="atabs stabs">${SHOP.map(c=>`<button class="atab ${c.id===cat.id?'sel':''}" onclick="setShopTab('${c.id}')">${c.icon} ${c.name}</button>`).join('')}</div>`:'';
   const ownedList=mine.length?mine.map(it=>`<button class="thumb drag ${it.id===shopSel?'sel':''}" data-id="${it.id}" onpointerdown="dragDress(event,'${it.id}')"><img src="${it.thumb}" alt="${esc(it.name)}" loading="lazy" draggable="false"></button>`).join(''):`<p class="hint">Chưa có bộ nào</p>`;
-  const lockList=locked.length?locked.map(it=>`<button class="thumb lockd" onclick="lockedItem('${it.id}')"><img src="${it.thumb}" alt="${esc(it.name)}" loading="lazy"><span class="tem">🔒</span><span class="price">${it.price} ⭐</span></button>`).join(''):`<p class="hint">Bé đã có hết rồi! 🎉</p>`;
+  const lockList=locked.length?locked.map(it=>`<button class="thumb lockd" onclick="lockedItem('${it.id}')"><img src="${it.thumb}" alt="${esc(it.name)}" loading="lazy"><span class="tem">🔒</span><span class="price">${it.price} ⭐</span></button>`).join(''):`<p class="hint">Bạn đã có hết rồi! 🎉</p>`;
   const prev=[...document.querySelectorAll('.shopbg')].pop();
   app.innerHTML=`<div class="shopbg" data-bg="${cat.bg}" style="background-image:url('${SHOP_BG}${cat.bg}.jpg')"></div>
   <div class="scr shop nomascot"><main class="mainc">

@@ -16,13 +16,13 @@ const enter=i=>`style="--d:${(i*.05).toFixed(2)}s"`;
 function welcome(){
   let av=S.avatar;
   app.innerHTML=screenHTML({mascot:{emo:'neutral',size:'lg'},cls:'welcome',
-    body:`<div class="wel"><h1 class="hero-t">Chào mừng bé!</h1>
-    <input class="inp" id="nm" maxlength="14" placeholder="Nhập tên bé" value="${esc(S.name)}">
+    body:`<div class="wel"><h1 class="hero-t">Chào mừng bạn!</h1>
+    <input class="inp" id="nm" maxlength="14" placeholder="Nhập tên của bạn" value="${esc(S.name)}">
     <div class="avs2">${AVATARS.map((a,i)=>`<button class="av2 enter ${a===av?'sel':''}" ${enter(i)} data-a="${a}">${a}</button>`).join('')}</div>
     <button class="btn p-pink gloss big-go" id="go">Bắt đầu!</button></div>`});
   mascotSay('welcome_ask',{ifIdle:true});
   app.querySelectorAll('.av2').forEach(b=>b.onclick=()=>{av=b.dataset.a;app.querySelectorAll('.av2').forEach(x=>x.classList.toggle('sel',x===b));sfx.click()});
-  $('#go').onclick=()=>{S.name=$('#nm').value.trim()||'Bé';S.avatar=av;save();sfx.ok();voice.line('welcome_done');mascotReset();touchStreak();home()};
+  $('#go').onclick=()=>{S.name=$('#nm').value.trim()||'Bạn';S.avatar=av;save();sfx.ok();voice.line('welcome_done');mascotReset();touchStreak();home()};
 }
 function settings(){
   sfx.click();
@@ -143,7 +143,7 @@ function finish(){
   let gift=false;if(stars>=2){S.gifts++;gift=true}
   const newB=checkBadges();save();P=null;
   sfx.win();
-  const msg=stars===3?'Giỏi quá! Tuyệt vời! 🎉':stars===2?'Giỏi lắm! 👏':'Bé đã cố gắng rồi! 💪';
+  const msg=stars===3?'Giỏi quá! Tuyệt vời! 🎉':stars===2?'Giỏi lắm! 👏':'Bạn đã cố gắng rồi! 💪';
   const nextOk=l<GAMES[g].levels.length-1&&(S.best[g+'-'+l]||0)>=2;
   const emo=stars>=2?'clap':'think';
   app.innerHTML=screenHTML({mascot:{emo,size:'lg'},cls:'result',
@@ -177,7 +177,7 @@ function openGift(done){
     let pic,title;
     S.gifts--;
     if(left.length){pic=pick(left);S.stickers.push(pic);title='Hình dán mới!'}
-    else{S.stars+=3;pic='🌟';title='Bé đã có tất cả hình dán! +3 ⭐'}
+    else{S.stars+=3;pic='🌟';title='Bạn đã có tất cả hình dán! +3 ⭐'}
     const gained=checkBadges();save();sfx.win();confetti(40);
     voice.line(left.length?'sticker_new':'sticker_all');
     m.querySelector('.gbox').innerHTML=`<img class="gmas" src="${MASCOT_IMG.happy}" alt="" draggable="false"><div class="halo"></div>
@@ -198,10 +198,10 @@ function album(tab){
     :albumTab==='wardrobe'?wardrobe()
     :`<div class="bdgs">${BADGES.map((b,i)=>`<div class="bdg enter ${S.badges.includes(b.id)?'':'lk'}" style="--d:${(i*.03).toFixed(2)}s"><span>${b.icon}</span><div>${esc(b.name)}<small>${esc(b.desc)}</small></div></div>`).join('')}</div>`;
   app.innerHTML=screenHTML({mascot:{emo:'happy',size:'md'},cls:'album',
-    top:`<div class="ttl"><button class="back" onclick="goTap(this,home)">⬅️</button>🎁 Bộ sưu tập của ${esc(S.name||'bé')}<span class="coin">⭐ ${balance()}</span></div>`,
-    body:`<div class="giftbar">${S.gifts>0?`<span><b>🎁</b> Bé có ${S.gifts} hộp quà chưa mở!</span><button class="btn p-pink gloss" onclick="openGift()">Mở quà</button>`:`<span>Đạt từ 2 ⭐ trở lên để nhận hộp quà mới nhé!</span>`}</div>
+    top:`<div class="ttl"><button class="back" onclick="goTap(this,home)">⬅️</button>🎁 Bộ sưu tập của ${esc(S.name||'bạn')}<span class="coin">⭐ ${balance()}</span></div>`,
+    body:`<div class="giftbar">${S.gifts>0?`<span><b>🎁</b> Bạn có ${S.gifts} hộp quà chưa mở!</span><button class="btn p-pink gloss" onclick="openGift()">Mở quà</button>`:`<span>Đạt từ 2 ⭐ trở lên để nhận hộp quà mới nhé!</span>`}</div>
     <div class="atabs">${tabs.map(([k,n,c])=>`<button class="atab ${k===albumTab?'sel':''}" onclick="sfx.click();voice.stop();album('${k}')">${n} <i>${c}</i></button>`).join('')}</div>
     <div class="acard card3d">${body}</div>`});
-  const say={stickers:`Bé có ${S.stickers.length} hình dán rồi!`,wardrobe:`Bé có ${mineN} bộ váy xinh!`,badges:`Bé có ${S.badges.length} huy hiệu rồi!`}[albumTab];
+  const say={stickers:`Bạn có ${S.stickers.length} hình dán rồi!`,wardrobe:`Bạn có ${mineN} bộ váy xinh!`,badges:`Bạn có ${S.badges.length} huy hiệu rồi!`}[albumTab];
   mascotSay('album_'+albumTab,{emo:'happy',hold:true,format:t=>say+' '+t});
 }
