@@ -50,8 +50,8 @@ function segment(text){
 /* ---- Phát giọng: một câu một lúc; câu mới hoặc stop() dừng câu cũ.
    Promise của mỗi câu resolve true nếu nói xong, false nếu bị ngắt ---- */
 const VOICE_DIR='audio/voice/';
-/* Tốc độ giọng máy dự phòng (0,8 × 1,3 × 1,3 theo yêu cầu phụ huynh) */
-const TTS_RATE=1.352;
+/* Tốc độ giọng máy dự phòng (phụ huynh chọn) */
+const TTS_RATE=1.18;
 const SILENT_WAV='data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
 const voice=(()=>{
   let token=0,cur=null,el=null;const last={};
