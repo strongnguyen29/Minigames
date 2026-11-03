@@ -2,6 +2,7 @@
 const $=s=>document.querySelector(s);
 const R=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
 const pick=a=>a[R(0,a.length-1)];
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=R(0,i);[a[i],a[j]]=[a[j],a[i]]}return a};
 
 /* ============ Lưu trữ (localStorage) ============ */
@@ -58,11 +59,11 @@ function toggleAllSound(){
 /* Đọc một câu bằng giọng Kuromi (xem js/voice.js) */
 function say(text){return voice.text(text)}
 function confetti(n=26){
-  const em=['⭐','🎉','✨','🎈','🌟'];
+  const cols=['#ffa6d2','#c79bff','#9fe3ff','#ffd54f','#b7f5c9'];
   for(let i=0;i<n;i++){
-    const e=document.createElement('div');e.className='fall';e.textContent=pick(em);
-    e.style.left=R(0,95)+'vw';e.style.animationDelay=(Math.random()*.6)+'s';e.style.animationDuration=(1.6+Math.random())+'s';
-    document.body.appendChild(e);setTimeout(()=>e.remove(),3000);
+    const e=document.createElement('i');e.className='cf';e.style.background=cols[i%cols.length];
+    e.style.left=R(0,98)+'vw';e.style.animationDelay=(Math.random()*.6).toFixed(2)+'s';e.style.animationDuration=(1.6+Math.random()*1.2).toFixed(2)+'s';
+    document.body.appendChild(e);setTimeout(()=>e.remove(),3500);
   }
 }
 

@@ -1,0 +1,31 @@
+/* ============ Chuyển động dùng chung ============ */
+@keyframes bob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(calc(var(--u)*-0.6)) rotate(-1deg)}}
+@keyframes twinkle{0%,100%{opacity:.2;transform:scale(.6) rotate(0)}50%{opacity:1;transform:scale(1.2) rotate(45deg)}}
+@keyframes drift{from{transform:translateX(calc(var(--u)*-3))}to{transform:translateX(calc(var(--u)*3))}}
+@keyframes pedglow{0%,100%{opacity:.7;transform:scale(1)}50%{opacity:1;transform:scale(1.08)}}
+@keyframes popin{0%{transform:scale(0) rotate(-8deg);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(calc(var(--u)*-0.3))}}
+@keyframes jelly{0%{transform:scale(1)}30%{transform:scale(1.15,.85)}50%{transform:scale(.9,1.1)}70%{transform:scale(1.05,.95)}100%{transform:scale(1)}}
+@keyframes wiggle{0%,100%{transform:rotate(0)}25%{transform:rotate(-12deg)}75%{transform:rotate(12deg)}}
+@keyframes clapb{0%,100%{transform:translateY(0) scale(1)}25%,75%{transform:translateY(calc(var(--u)*-0.6)) scale(1.04)}50%{transform:translateY(0) scale(.98)}}
+@keyframes jump{0%,100%{transform:translateY(0)}40%,60%{transform:translateY(-6%)}}
+@keyframes tilt{0%,100%{transform:rotate(0)}30%{transform:rotate(-5deg)}70%{transform:rotate(3deg)}}
+@keyframes shake{25%{transform:translateX(calc(var(--u)*-0.8))}75%{transform:translateX(calc(var(--u)*0.8))}}
+@keyframes rise{0%{transform:translateY(0) scale(.5);opacity:0}20%{opacity:1}100%{transform:translateY(calc(var(--u)*-9)) scale(1.1);opacity:0}}
+@keyframes fall{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(105vh) rotate(720deg)}}
+@keyframes wob{0%,100%{transform:rotate(0)}25%{transform:rotate(-10deg)}75%{transform:rotate(10deg)}}
+@keyframes beat{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+@keyframes starin{0%{opacity:0;transform:scale(3) rotate(-90deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
+@keyframes letter{0%{opacity:0;transform:translateY(calc(var(--u)*-6)) scale(.4) rotate(-20deg)}100%{opacity:1;transform:translateY(0) scale(1) rotate(0)}}
+@keyframes fadeup{from{opacity:0;transform:translateY(calc(var(--u)*2))}to{opacity:1;transform:none}}
+@keyframes rays{from{transform:translate(-50%,-50%) rotate(0)}to{transform:translate(-50%,-50%) rotate(360deg)}}
+
+/* Kuromi theo cảm xúc */
+.emo-neutral{animation:bob 3.2s ease-in-out infinite}
+.emo-think{animation:tilt 1.6s ease-in-out 2}
+.emo-clap{animation:clapb .5s ease-in-out 4}
+.emo-happy{animation:jump .8s ease-in-out 3}
+.bub.bpop{animation:popin .5s cubic-bezier(.3,1.6,.5,1) both}
+/* Hiện dần lần lượt (dùng biến --d cho độ trễ) */
+.enter{animation:popin .5s cubic-bezier(.3,1.6,.5,1) both;animation-delay:var(--d,0s)}
+.tap{animation:jelly .45s!important}
