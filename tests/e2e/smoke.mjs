@@ -27,6 +27,15 @@ const mascotIs = async (pg, emo, tag, sel = '#mimg') => {
   const src = await pg.locator(sel).first().getAttribute('src');
   check(src && src.includes(emo), `${tag}: Kuromi phải là ${emo}, đang là ${src}`);
 };
+/* tâm mỗi nút phải bấm trúng chính nút đó (không bị Kuromi hay thứ khác che) */
+const notCovered = async (pg, sel, tag) => {
+  const bad = await pg.$$eval(sel, els => els.filter(el => {
+    el.scrollIntoView({ block: 'nearest' });
+    const r = el.getBoundingClientRect(), hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+    return !(hit && (el === hit || el.contains(hit)));
+  }).length);
+  check(bad === 0, `${tag}: ${bad} nút bị che`);
+};
 const shot = (pg, name) => pg.screenshot({ path: path.join(SHOTS, name + '.png') });
 const tap = async (pg, sel) => { await pg.locator(sel).first().click(); await pg.waitForTimeout(350); };
 
@@ -57,6 +66,7 @@ async function run(browser, url, [name, w, h]) {
     await pg.waitForSelector('.lvn'); await pg.waitForTimeout(600);
     await tap(pg, '.lvn[data-i="0"]');
     await pg.waitForSelector('.ch'); await pg.waitForTimeout(500);
+    await notCovered(pg, '.ch', `${name} nút đáp án`);
     const hs = await pg.$$eval('.ch', bs => bs.map(b => b.getBoundingClientRect().height));
     check(hs.every(x => x >= 80), `${name}: nút đáp án thấp hơn 80px (${hs.join(',')})`);
     await noHScroll(pg, `${name} màn chơi`); await shot(pg, `${name}-04-play`);
@@ -93,6 +103,10 @@ async function run(browser, url, [name, w, h]) {
   await step('tiệm', async () => {
     await pg.waitForSelector('.hgrid'); await pg.locator('.hgrid .gc').nth(-2).click();
     await pg.waitForSelector('.shopl'); await pg.waitForTimeout(800);
+    /* cho bé sẵn vài váy (6 váy dạ hội) để kiểm tra cột "Kéo để mặc" không bị Kuromi che */
+    await pg.evaluate(() => { S.owned = SHOP_ITEMS.filter(x => x.cat === 'gown').map(x => x.id); save(); shop(true); });
+    await pg.waitForTimeout(400);
+    await notCovered(pg, '.thumb.drag', `${name} váy của bé`);
     await noHScroll(pg, `${name} tiệm`); await shot(pg, `${name}-09-shop`);
     await tap(pg, '.ttl .back');
   });

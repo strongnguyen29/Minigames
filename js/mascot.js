@@ -19,9 +19,11 @@ function mascot(emo,text,{hold=false}={}){
   if(text!==undefined&&text!==null){const b=$('#mbub');if(b){b.textContent=text;b.classList.remove('bpop');void b.offsetWidth;b.classList.add('bpop')}}
   if(!hold&&emo!==mascotBase)mascotTimer=setTimeout(()=>{mascotTimer=null;mascot(mascotBase)},MASCOT_BACK_MS);
 }
-/* Kuromi nói một câu của nhóm: đổi cảm xúc theo câu, bong bóng hiện chữ (bubble ghi đè chữ hiển thị) */
+/* Kuromi nói một câu của nhóm: đổi cảm xúc theo câu, bong bóng hiện chữ (bubble ghi đè chữ hiển thị).
+   ifIdle: nếu đang có câu khác phát (ví dụ lời chào ở màn mở đầu) thì chỉ đổi bong bóng, không cắt ngang */
 function mascotSay(group,opts={}){
-  const {line,done}=voice.line(group);
+  const quiet=opts.ifIdle&&voice.busy();
+  const {line,done}=quiet?{line:voice.pick(group),done:Promise.resolve(true)}:voice.line(group);
   const txt=opts.bubble!==undefined?opts.bubble:opts.format?opts.format(line.text):line.text;
   mascot(opts.emo||line.emo,txt,opts);
   return done;

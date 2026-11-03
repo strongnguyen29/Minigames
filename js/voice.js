@@ -47,7 +47,8 @@ function segment(text){
   return out.length?out:null;
 }
 
-/* ---- Phát giọng: một câu một lúc; câu mới hoặc stop() dừng câu cũ và resolve promise của nó ---- */
+/* ---- Phát giọng: một câu một lúc; câu mới hoặc stop() dừng câu cũ.
+   Promise của mỗi câu resolve true nếu nói xong, false nếu bị ngắt ---- */
 const VOICE_DIR='audio/voice/';
 /* Tốc độ giọng máy dự phòng (0,8 × 1,3 theo yêu cầu phụ huynh) */
 const TTS_RATE=1.04;
@@ -57,10 +58,12 @@ const voice=(()=>{
   /* iOS chỉ cho phát phần tử Audio đã được "mở khoá" bằng một lần chạm → dùng lại một phần tử duy nhất */
   const audio=()=>el||(el=new Audio());
   const have=id=>VOICE_FILES.includes(id);
-  const plain=t=>String(t).replace(/[\p{Extended_Pictographic}‍️]/gu,'').replace(/\s+/g,' ').trim();
-  function finish(){if(!cur)return;const c=cur;cur=null;c.resolve()}
+  /* emoji có tên (🍎 → quả táo) được đọc thành chữ, emoji trang trí thì bỏ */
+  const words=t=>{let s=String(t);for(const [e,w] of Object.entries(EMOJI_WORDS))s=s.split(e).join(' '+w+' ');return s};
+  const plain=t=>words(t).replace(/[\p{Extended_Pictographic}‍️]/gu,'').replace(/\s+/g,' ').trim();
+  function finish(ok){if(!cur)return;const c=cur;cur=null;c.resolve(ok)}
   function stop(){
-    token++;finish();
+    token++;finish(false);
     if(el){el.onended=el.onerror=null;try{el.pause()}catch(e){}}
     try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){}
   }
@@ -73,8 +76,8 @@ const voice=(()=>{
     stop();const my=token;
     return new Promise(resolve=>{
       cur={resolve};
-      if(S.voice===false){finish();return}
-      const done=()=>{if(my===token)finish()};
+      if(S.voice===false){finish(true);return}
+      const done=()=>{if(my===token)finish(true)};
       if(!ids||!ids.length||!ids.every(have)){tts(text,done);return}
       const a=audio();let i=0,failed=false;
       const fail=()=>{if(my!==token||failed)return;failed=true;a.onended=a.onerror=null;tts(text,done)};
@@ -92,15 +95,20 @@ const voice=(()=>{
       try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();ac.resume&&ac.resume()}catch(e){}
       try{const a=audio();a.src=SILENT_WAV;const p=a.play();p&&p.catch&&p.catch(()=>{})}catch(e){}
     },
-    /* chọn ngẫu nhiên một câu của nhóm, không lặp câu vừa nói */
-    line(group){
+    /* chọn ngẫu nhiên một câu của nhóm, không lặp câu vừa nói (không phát) */
+    pick(group){
       const arr=LINES[group]||[];
       const pool=arr.length>1?arr.filter(x=>x.id!==last[group]):arr;
       const line=pool[Math.floor(Math.random()*pool.length)];
-      if(!line)return{line:{id:'',text:'',emo:'neutral'},done:Promise.resolve()};
+      if(!line)return{id:'',text:'',emo:'neutral'};
       last[group]=line.id;
-      return{line,done:play([line.id],line.text)};
+      return line;
     },
+    line(group){
+      const line=this.pick(group);
+      return{line,done:line.id?play([line.id],line.text):Promise.resolve(true)};
+    },
+    busy(){return !!cur},
     text(t){return play(segment(t),t)},
     stop
   };

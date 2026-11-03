@@ -65,3 +65,10 @@ test('mascotSay format: bong bóng dùng chữ đã định dạng', async () =>
   await g.run("mascotSay('home',{format:t=>'['+t+']'})");
   assert.match(dom.bub.textContent, /^\[.+\]$/);
 });
+test('mascotSay ifIdle: đang có câu khác phát thì chỉ đổi bong bóng, không phát giọng', async () => {
+  const { g, dom } = setup();
+  g.run("voice.busy=()=>true;__said=[];const _l=voice.line;voice.line=grp=>{__said.push(grp);return _l(grp)}");
+  await g.run("mascotSay('home',{ifIdle:true})");
+  assert.equal(g.get('__said.length'), 0);
+  assert.ok(g.get('LINES.home').some(x => x.text === dom.bub.textContent));
+});

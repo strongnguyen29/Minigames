@@ -20,7 +20,7 @@ function welcome(){
     <input class="inp" id="nm" maxlength="14" placeholder="Nhập tên bé" value="${esc(S.name)}">
     <div class="avs2">${AVATARS.map((a,i)=>`<button class="av2 enter ${a===av?'sel':''}" ${enter(i)} data-a="${a}">${a}</button>`).join('')}</div>
     <button class="btn p-pink gloss big-go" id="go">Bắt đầu!</button></div>`});
-  mascotSay('welcome_ask');
+  mascotSay('welcome_ask',{ifIdle:true});
   app.querySelectorAll('.av2').forEach(b=>b.onclick=()=>{av=b.dataset.a;app.querySelectorAll('.av2').forEach(x=>x.classList.toggle('sel',x===b));sfx.click()});
   $('#go').onclick=()=>{S.name=$('#nm').value.trim()||'Bé';S.avatar=av;save();sfx.ok();voice.line('welcome_done');mascotReset();touchStreak();home()};
 }
@@ -55,7 +55,7 @@ function home(){
     card(n+2,'p-purple','🎁','Bộ sưu tập',`${S.stickers.length}/${STICKERS.length}`,'album'));
   app.innerHTML=screenHTML({mascot:{emo:'neutral',size:'lg'},top:topbar(),cls:'home',body:`<div class="hgrid">${cards.join('')}</div>`});
   const fire=S.streak>1?` 🔥 ${S.streak} ngày liên tiếp!`:'';
-  mascotSay('home',{format:t=>withName(t)+fire});
+  mascotSay('home',{format:t=>withName(t)+fire,ifIdle:true});
 }
 /* Chọn mức: các mức nằm trên con đường chấm trắng uốn lượn trên mây (toạ độ % trong khung) */
 const LEVEL_PATH=[[12,85],[30,55],[60,45],[85,38],[62,14],[34,24]];
@@ -100,13 +100,14 @@ async function nextQ(first){
   P.seen.add(q.key);P.q=q;P.wrong=0;P.locked=false;
   const R=P,my=++P.token;
   app.innerHTML=screenHTML({mascot:{emo:'neutral',size:'md'},cls:'play',
-    top:`<div class="ttl"><button class="back" onclick="goTap(this,()=>{const g=P&&P.g;P=null;levels(g)})">⬅️</button>
+    top:`<div class="ttl"><button class="back" onclick="goTap(this,()=>{P=null;levels('${P.g}')})">⬅️</button>
       <div class="prog">${Array.from({length:P.total},(_,i)=>`<i class="${i<P.i?'d':i===P.i?'cur':''}"></i>`).join('')}</div></div>`,
     body:`<div class="qc card3d"><button class="spk" onclick="say(P.q.say||P.q.prompt)">🔊</button>
       <div class="prompt">${q.prompt}</div><div class="visual">${q.visual}</div></div>
       <div class="chs n${q.choices.length}">${q.choices.map((c,i)=>`<button class="ch enter" style="--d:${(i*.05).toFixed(2)}s" data-i="${i}">${c.html}</button>`).join('')}</div>`});
   app.querySelectorAll('.ch').forEach(b=>b.onclick=()=>answer(b));
-  if(first){await voiceWait(mascotSay('round_start'),0,3000);if(!alive(R,my))return}
+  /* bé đã bấm đáp án trong lúc Kuromi nói câu mở màn thì không đọc đề nữa */
+  if(first){await voiceWait(mascotSay('round_start'),0,3000);if(!alive(R,my)||R.locked||R.wrong)return}
   else{await new Promise(r=>setTimeout(r,300));if(!alive(R,my))return}
   say(q.say||q.prompt);
 }
@@ -121,7 +122,7 @@ async function answer(btn){
     const img=$('#mimg');burst(img&&img.parentNode,8);
     if(q.explain){
       const qc=$('.qc');qc&&qc.insertAdjacentHTML('beforeend',`<div class="explain enter">💡 ${q.explain}</div>`);
-      chain=chain.then(()=>alive(R,my)?voice.text(q.explain):null);
+      chain=chain.then(ok=>ok&&alive(R,my)?voice.text(q.explain):null);
     }
     await voiceWait(chain,950,q.explain?6000:3000);
     if(alive(R,my))nextQ();
@@ -156,7 +157,8 @@ function finish(){
     <button class="btn p-white" onclick="goTap(this,home)" aria-label="Về nhà">🏠</button></div></div>`});
   [400,900,1400].slice(0,stars).forEach(t=>setTimeout(()=>sfx.click(),t));
   if(stars>=2)setTimeout(()=>confetti(30),1500);
-  mascotSay('result'+stars,{hold:true}).then(()=>{if(newB.length&&$('.res'))mascotSay('badge',{hold:true})});
+  /* câu huy hiệu chỉ phát khi câu kết quả nói xong (không phát nếu bé đã mở quà / chuyển màn) */
+  mascotSay('result'+stars,{hold:true}).then(ok=>{if(ok&&newB.length)mascotSay('badge',{hold:true})});
   window.result_btns=()=>{const b=$('#rgift');if(b&&S.gifts<1)b.remove()};
 }
 /* Mở quà: lớp phủ tím mờ, hộp quà lắc lư, Kuromi nhảy bên cạnh; chạm hộp thì hình dán bung ra */

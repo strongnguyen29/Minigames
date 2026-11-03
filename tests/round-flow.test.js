@@ -12,10 +12,12 @@ function setup({ voiceMs = 100 } = {}) {
   const g = loadGame(FILES, { setTimeout: st, clearTimeout: ct, storage: { be_vui_hoc_toan_v1: JSON.stringify({ name: 'Mai' }) } });
   const calls = [];
   g.ctx.__calls = calls;
-  const delay = () => voiceMs === Infinity ? new Promise(() => {}) : new Promise(r => st(r, voiceMs));
+  let pending = null;
+  const delay = () => { pending && pending(false); return new Promise(r => { pending = r; if (voiceMs !== Infinity) st(() => { if (pending === r) { pending = null; r(true); } }, voiceMs); }); };
   g.ctx.__delay = delay;
+  g.ctx.__stop = () => { const p = pending; pending = null; p && p(false); };
   g.run(`voice.line=grp=>{__calls.push(['line',grp]);const l=LINES[grp][0];return{line:l,done:__delay()}};
-         voice.text=t=>{__calls.push(['text',t]);return __delay()};voice.stop=()=>__calls.push(['stop']);`);
+         voice.text=t=>{__calls.push(['text',t]);return __delay()};voice.stop=()=>{__calls.push(['stop']);__stop()};voice.busy=()=>false;`);
   /* nút đáp án giả, tạo lại cho mỗi câu hỏi */
   let btns = [], forQ = null;
   const app = g.get('app');
@@ -84,4 +86,31 @@ test('rời màn (P=null) trong lúc chờ thì câu cũ không vẽ lại màn 
   s.g.run('P=null'); const html = s.g.get('app.innerHTML');
   await s.tick(7000);
   assert.equal(s.g.get('P'), null); assert.equal(s.g.get('app.innerHTML'), html);
+});
+
+test('bấm đáp án trong lúc Kuromi nói câu mở màn thì không đọc lại đề đã trả lời', async () => {
+  const s = setup({ voiceMs: 2000 }); s.g.run("start('add',0)"); await s.tick(500);
+  const q0 = s.q(); s.correctBtn().onclick(); await s.tick(100);
+  assert.ok(!s.calls.some(c => c[0] === 'text' && c[1] === (q0.say || q0.prompt)), 'đề đã trả lời bị đọc lại');
+});
+test('câu khen bị ngắt (bấm 🔊) thì không đọc tiếp dòng giải thích', async () => {
+  const s = setup({ voiceMs: 500 }); s.g.run("start('count',1)"); await s.tick(4000);
+  const q0 = s.q(); s.correctBtn().onclick(); await s.tick(100);
+  s.g.run("say(P.q.say||P.q.prompt)"); await s.tick(100);
+  assert.ok(!s.calls.some(c => c[0] === 'text' && c[1] === q0.explain));
+});
+test('kết quả: mở quà ngắt câu kết quả thì không phát câu huy hiệu đè lên', async () => {
+  const s = setup({ voiceMs: 500 });
+  s.g.run("P={g:'add',l:0,i:8,total:8,mistakes:0,seen:new Set(),token:0};S.badges=[];finish()"); await s.tick(100);
+  s.g.run("openGift(()=>{})"); await s.tick(2000);
+  assert.ok(!s.calls.some(c => c[0] === 'line' && c[1] === 'badge'));
+});
+test('kết quả: câu kết quả xong tự nhiên thì có huy hiệu mới được đọc', async () => {
+  const s = setup({ voiceMs: 500 });
+  s.g.run("P={g:'add',l:0,i:8,total:8,mistakes:0,seen:new Set(),token:0};S.badges=[];finish()"); await s.tick(2000);
+  assert.ok(s.calls.some(c => c[0] === 'line' && c[1] === 'badge'));
+});
+test('nút ⬅️ của màn chơi ghi sẵn mã trò, không phụ thuộc P lúc bấm', async () => {
+  const s = setup(); s.g.run("start('add',0)"); await s.tick(100);
+  assert.match(s.g.get('app.innerHTML'), /levels\('add'\)/);
 });

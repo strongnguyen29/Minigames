@@ -401,6 +401,8 @@ h2{text-align:center;margin:8px 0 14px}
 
 .stabs .atab.sel{background:linear-gradient(#c79bff,#8a4fe0);color:#fff}
 .scr.shop .kuromi.corner{z-index:55}
+/* cột "Kéo để mặc" dừng phía trên Kuromi ở góc, để Kuromi không che váy của bé */
+.shopl .side.mine{margin-bottom:calc(var(--u)*21)}
 
 /* ============ Cờ caro ============ */
 .turn{display:flex;gap:calc(var(--u)*1.2);font-weight:800;font-size:calc(var(--u)*2.6)}
@@ -433,7 +435,8 @@ h2{text-align:center;margin:8px 0 14px}
   .atabs{flex-wrap:wrap}
   .shopl{grid-template-columns:1fr 1fr;grid-template-areas:"stage stage" "mine lock"}
   .shopl .stage{grid-area:stage;height:calc(var(--u)*60)}.shopl .side.mine{grid-area:mine}.shopl .side:not(.mine){grid-area:lock}
-  .scr.shop .kuromi.corner{position:fixed;width:calc(var(--u)*16)}
+  .scr.shop .kuromi.corner{position:relative;left:auto;bottom:auto;align-self:flex-start;margin:calc(var(--u)*8) 0 0 calc(var(--u)*2)}
+  .shopl .side.mine{margin-bottom:0}
   .board{min-height:60dvh}
   .avs2{grid-template-columns:repeat(4,minmax(0,1fr))}
   .inp{width:100%}

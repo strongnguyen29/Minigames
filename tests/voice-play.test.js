@@ -78,3 +78,21 @@ test('voiceWait tôn trọng min và max', async () => {
   const t0 = Date.now(); await voiceWait(new Promise(() => {}), 10, 60); assert.ok(Date.now() - t0 >= 55);
   const t1 = Date.now(); await voiceWait(Promise.resolve(), 40, 1000); assert.ok(Date.now() - t1 >= 35);
 });
+test('promise của câu: xong tự nhiên → true, bị ngắt → false', async () => {
+  const { v } = setup({ have: ALL });
+  const a = v.text('5 cộng 7 bằng mấy?'); v.stop();
+  assert.equal(await a, false);
+  assert.equal(await v.text('5 cộng 7 bằng mấy?'), true);
+  assert.equal(await v.line('correct').done, true);
+});
+test('voice.busy() đúng khi đang có câu phát', async () => {
+  const { v } = setup({ have: ALL });
+  assert.equal(v.busy(), false);
+  const a = v.text('5 cộng 7 bằng mấy?'); assert.equal(v.busy(), true);
+  await a; assert.equal(v.busy(), false);
+});
+test('giọng máy đọc emoji thành chữ (không bỏ mất từ)', async () => {
+  const { v, tts } = setup();
+  await v.text('Có bao nhiêu 🍎 ?');
+  assert.match(tts[0].text, /quả táo/);
+});
