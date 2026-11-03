@@ -51,7 +51,7 @@ function segment(text){
    Promise của mỗi câu resolve true nếu nói xong, false nếu bị ngắt ---- */
 const VOICE_DIR='audio/voice/';
 /* Tốc độ giọng máy dự phòng (phụ huynh chọn) */
-const TTS_RATE=1.18;
+const TTS_RATE=1.14;
 const SILENT_WAV='data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
 const voice=(()=>{
   let token=0,cur=null,el=null;const last={};
