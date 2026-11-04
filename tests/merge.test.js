@@ -77,3 +77,22 @@ test('reset: freshSave có earned riêng, foldEarned không làm bẩn DEF', () 
   assert.deepEqual(plain(g.get('DEF.earned')), {});
   assert.equal(g.get('S.earned.Y.stars'), 5);
 });
+const merge4 = (a, b, base) => { const g = load(); g.ctx.__a = a; g.ctx.__b = b; g.ctx.__c = base; return plain(g.get('mergeSave(__a,__b,()=>0,__c)')); };
+test('gộp 3 chiều cho quà: chỉ local đổi thì lấy local (mở quà không bị trả lại)', () => {
+  const r = merge4({ gifts:1, luckyGifts:[2] }, { gifts:2, luckyGifts:[1,2] }, { gifts:2, luckyGifts:[1,2] });
+  assert.equal(r.gifts, 1); assert.deepEqual(r.luckyGifts, [2]);
+});
+test('gộp 3 chiều cho quà: chỉ remote đổi thì lấy remote, dù ít hơn', () => {
+  const r = merge4({ gifts:2, luckyGifts:[1,2] }, { gifts:0, luckyGifts:[] }, { gifts:2, luckyGifts:[1,2] });
+  assert.equal(r.gifts, 0); assert.deepEqual(r.luckyGifts, []);
+});
+test('gộp 3 chiều cho quà: cả hai đổi hoặc không có base thì bên nhiều hơn thắng', () => {
+  const r = merge4({ gifts:1, luckyGifts:[2] }, { gifts:3, luckyGifts:[1,2,5] }, { gifts:2, luckyGifts:[1,2] });
+  assert.equal(r.gifts, 3); assert.deepEqual(r.luckyGifts, [1,2,5]);
+  const n = merge4({ gifts:1, luckyGifts:[2] }, { gifts:2, luckyGifts:[1,2] }, null);
+  assert.equal(n.gifts, 2);
+});
+test('earned trên mây có mục null thì không ném lỗi', () => {
+  const r = merge({ stars:3, earned:{ A:{ stars:3 } } }, { earned:{ B:null } });
+  assert.equal(r.stars, 3);
+});

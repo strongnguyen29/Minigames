@@ -240,3 +240,71 @@ test('prepare nuốt lỗi nạp adapter', async () => {
   g.run('cloud.loadAdapter=()=>Promise.reject(new Error("offline"));var console={warn(){}}');
   await g.get('cloud.prepare()');
 });
+
+test('một máy mở quà: lần đẩy sau không trả lại quà (cả máy lẫn mây)', async () => {
+  const g = setup({ local: { name: 'Mai', stars: 10, gifts: 2, luckyGifts: [1, 2] } });
+  await g.signIn();
+  assert.equal(g.ctx.__db.u1.gifts, 2);
+  g.run('S.gifts--;S.luckyGifts.shift();save()');
+  await g.tick();
+  assert.equal(g.get('S.gifts'), 1); assert.deepEqual(plain(g.get('S.luckyGifts')), [2]);
+  assert.equal(g.ctx.__db.u1.gifts, 1); assert.deepEqual(plain(g.ctx.__db.u1.luckyGifts), [2]);
+  /* mở tiếp hộp cuối, đẩy lần nữa */
+  g.run('S.gifts--;S.luckyGifts.shift();save()');
+  await g.tick();
+  assert.equal(g.get('S.gifts'), 0); assert.equal(g.ctx.__db.u1.gifts, 0);
+});
+
+test('hai máy: chỉ máy kia mở quà thì số quà ít hơn của mây thắng', async () => {
+  const g = setup({ local: { name: 'Mai', stars: 10, gifts: 2, luckyGifts: [1, 2] } });
+  await g.signIn();
+  /* máy B mở cả hai hộp */
+  g.run('__db.u1.gifts=0;__db.u1.luckyGifts=[]');
+  g.run('S.stars=11;save()');
+  await g.tick();
+  assert.equal(g.get('S.gifts'), 0); assert.deepEqual(plain(g.get('S.luckyGifts')), []);
+  assert.equal(g.ctx.__db.u1.gifts, 0);
+});
+
+test('đổi tài khoản lúc đang chờ ghi: không đánh dấu tài khoản mới đã đồng bộ, không ghi vào đó khi chưa hỏi', async () => {
+  const g = setup({ local: { name: 'Mai', stars: 10 }, cloudKey: { used: true, uid: 'u1' }, confirm: false });
+  /* set treo cho tới khi gọi __release() */
+  g.run(`var __pend=[];CLOUD_ADAPTER.set=(uid,d)=>new Promise(r=>__pend.push(()=>{__sets.push(Object.assign({uid},__copy(d)));__db[uid]=__copy(d);r()}));
+    var __release=()=>{const p=__pend;__pend=[];p.forEach(f=>f())}`);
+  const warn = console.warn; console.warn = () => {};
+  try {
+    await g.signIn();
+    assert.equal(g.get('__pend.length'), 1, 'đang chờ ghi cho u1');
+    /* chuyển sang u2 trong lúc chờ; lần kéo của u2 sẽ lỗi mạng */
+    g.run("__fail=true;__uid='u2';__user={uid:'u2',email:'u2@mail.com'};__authCb(__user)");
+    g.run('__release()'); await flush();
+    assert.equal(g.get('cloud.state().error'), true);
+    g.run('__fail=false;S.stars=11;save()');
+    await g.tick(); g.run('__release()'); await flush();
+    g.run('cloud.push()'); await flush(); g.run('__release()'); await flush();
+  } finally { console.warn = warn; }
+  assert.ok(!g.sets().some(s => s.uid === 'u2'), 'không ghi gì vào u2');
+  assert.ok(!('u2' in g.ctx.__db));
+  assert.equal(g.get('__asked'), 1, 'lần thử lại vẫn hỏi đổi tài khoản');
+  assert.notEqual(g.cloudKey().uid, 'u2');
+});
+
+test('ẩn ứng dụng khi chưa kéo xong thì không kéo (không bật confirm lúc trang bị ẩn)', async () => {
+  const g = setup({ local: { name: 'Mai', stars: 10 }, cloudKey: { used: true, uid: 'old' }, confirm: false,
+    db: { u1: { name: 'Lan', stars: 50, earned: { B: { stars: 50 } }, deviceId: 'B', schema: 1 } } });
+  const warn = console.warn; console.warn = () => {};
+  try {
+    g.run('__fail=true'); await g.signIn();
+    g.run('__fail=false');
+    g.run("document.visibilityState='hidden';__vis.forEach(f=>f())");
+    await flush();
+  } finally { console.warn = warn; }
+  assert.equal(g.get('__asked'), 0);
+  assert.equal(g.sets().length, 0);
+  assert.equal(g.get('cloud.state().signedIn'), true);
+});
+
+test('firebase-config.js không tải được thì sync.js vẫn nạp, cloud.available=false', () => {
+  const g = loadGame(['js/core.js','js/merge.js','js/shop.js','js/sync.js']);
+  assert.equal(g.get('cloud.available'), false);
+});

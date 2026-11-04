@@ -43,10 +43,13 @@ const cloud=(()=>{
   /* thay nội dung S tại chỗ, giữ cài đặt âm thanh của máy */
   const replace=next=>{const keep={};LOCAL_ONLY.forEach(k=>{if(k in S)keep[k]=S[k]});
     for(const k in S)delete S[k];Object.assign(S,freshSave(),JSON.parse(JSON.stringify(next)),keep)};
-  const merged=remote=>mergeSave(foldEarned(S,deviceId()),remote,priceOf);
+  /* base: cặp quà đã đồng bộ lần trước của đúng tài khoản này, để mở quà không bị lần gộp sau trả lại */
+  const baseOf=(u,s)=>({base:{uid:u.uid,gifts:s.gifts||0,luckyGifts:[...(s.luckyGifts||[])]}});
+  const merged=(u,remote)=>{const b=rd().base;return mergeSave(foldEarned(S,deviceId()),remote,priceOf,b&&b.uid===u.uid?b:null)};
   /* ghi local mà không hẹn thêm một lần đẩy */
   const writeLocal=()=>{quiet=true;try{save()}finally{quiet=false}};
-  const put=u=>adapter.set(u.uid,toCloud(foldEarned(S,deviceId())));
+  /* trả về đúng bản đã ghi (S có thể đổi trong lúc chờ mạng) */
+  const put=u=>{const d=toCloud(foldEarned(S,deviceId()));return adapter.set(u.uid,d).then(()=>d)};
   /* chạy lần lượt để kéo và đẩy không chen nhau */
   const run=fn=>(chain=chain.then(fn,fn));
   function onAuth(u){
@@ -63,14 +66,16 @@ const cloud=(()=>{
     try{
       const remote=fromCloud(await adapter.get(u.uid));
       if(user!==u)return;
-      const c=rd(),prev=c.uid||c.lastUid,hadName=!isEmptySave(S);
+      const c=rd(),prev=c.uid||c.lastUid,hadName=!isEmptySave(S);let sent=null;
       if(prev&&prev!==u.uid&&hadName){
         if(!(typeof confirm==='function'&&confirm(SWITCH_MSG))){await cloud.signOut();return}
-        if(remote){replace(remote);writeLocal()}else await put(u);
-      }else if(!remote){if(hadName)await put(u)}
+        if(remote){replace(remote);writeLocal()}else sent=await put(u);
+      }else if(!remote){if(hadName)sent=await put(u)}
       else if(!hadName){replace(remote);writeLocal()}
-      else{replace(merged(remote));writeLocal();await put(u)}
-      wr({uid:u.uid,email:u.email,lastSync:Date.now(),lastUid:undefined,error:undefined});
+      else{replace(merged(u,remote));writeLocal();sent=await put(u)}
+      /* trong lúc chờ ghi đã đổi tài khoản: không đánh dấu tài khoản mới là đã đồng bộ */
+      if(user!==u)return;
+      wr(Object.assign({uid:u.uid,email:u.email,lastSync:Date.now(),lastUid:undefined,error:undefined},baseOf(u,sent||S)));
       synced=true;
       cloud.onChange(hadName);
     }catch(e){fail(e)}
@@ -80,19 +85,21 @@ const cloud=(()=>{
     try{
       const remote=fromCloud(await adapter.get(u.uid));
       if(user!==u)return;
-      if(remote){replace(merged(remote));writeLocal()}
+      if(remote){replace(merged(u,remote));writeLocal()}
       else if(isEmptySave(S))return;
-      await put(u);
-      wr({lastSync:Date.now(),error:undefined});
+      const sent=await put(u);
+      if(user!==u)return;
+      wr(Object.assign({lastSync:Date.now(),error:undefined},baseOf(u,sent)));
     }catch(e){fail(e)}
   }
   /* chưa kéo thành công thì thử kéo lại (để bước hỏi đổi tài khoản chạy), không đẩy */
-  const flush=()=>{clearTimeout(timer);timer=null;return run(synced?push:pull)};
+  const flush=()=>{clearTimeout(timer);timer=null;return run(()=>synced?push():pull())};
+  /* ẩn ứng dụng: chỉ đẩy khi đã kéo xong; không kéo vì kéo có thể hỏi confirm trên trang đang ẩn */
   document.addEventListener('visibilitychange',()=>{
-    if(document.visibilityState==='hidden'&&user&&(timer||rd().error))flush();
+    if(document.visibilityState==='hidden'&&user&&synced&&(timer||rd().error)){clearTimeout(timer);timer=null;run(push)}
   });
   return {
-    available:!!FIREBASE_CONFIG||!!window.CLOUD_ADAPTER,
+    available:(typeof FIREBASE_CONFIG!=='undefined'&&!!FIREBASE_CONFIG)||!!window.CLOUD_ADAPTER,
     loadAdapter:()=>window.CLOUD_ADAPTER?Promise.resolve(window.CLOUD_ADAPTER):firebaseAdapter(),
     onChange(hadName){},
     state(){const c=rd();return {signedIn:!!user,email:user?user.email:'',lastSync:c.lastSync||0,error:!!c.error}},

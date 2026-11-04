@@ -22,7 +22,8 @@ function foldEarned(s,dev){
 }
 const dayNum=s=>{const m=/^(\d+)-(\d+)-(\d+)$/.exec(s||'');return m?Date.UTC(+m[1],m[2]-1,+m[3])/864e5:-1};
 const union=(a,b)=>{const r=[...(a||[])];(b||[]).forEach(x=>{if(!r.includes(x))r.push(x)});return r};
-function mergeSave(local,remote,priceOf){
+/* base: cặp {gifts,luckyGifts} của lần đồng bộ trước (tuỳ chọn), để gộp quà 3 chiều */
+function mergeSave(local,remote,priceOf,base){
   /* trường lạ: lấy cả bản của bên có savedAt lớn hơn, rồi ghi đè các trường có luật riêng */
   const newer=(remote.savedAt||0)>(local.savedAt||0)?remote:local;
   const out=JSON.parse(JSON.stringify(newer));
@@ -30,7 +31,7 @@ function mergeSave(local,remote,priceOf){
   const earned={};
   [local.earned,remote.earned].forEach(src=>{for(const d in src||{}){
     const t=earned[d]=earned[d]||{};
-    COUNTERS.forEach(k=>{t[k]=Math.max(t[k]||0,src[d][k]||0)});
+    COUNTERS.forEach(k=>{t[k]=Math.max(t[k]||0,(src[d]||{})[k]||0)});
   }});
   out.earned=earned;
   COUNTERS.forEach(k=>{out[k]=Object.values(earned).reduce((n,e)=>n+(e[k]||0),0)});
@@ -39,7 +40,9 @@ function mergeSave(local,remote,priceOf){
   out.best=best;
   ['stickers','badges','owned','giftOwned'].forEach(k=>{out[k]=union(local[k],remote[k])});
   out.spent=out.owned.filter(id=>!out.giftOwned.includes(id)).reduce((n,id)=>n+(priceOf(id)||0),0);
-  const g=(remote.gifts||0)>(local.gifts||0)?remote:local;
+  /* quà chưa mở: bên nào còn giống base thì chưa đổi, lấy bên kia; cả hai đổi (hoặc không có base) thì bên nhiều hơn thắng */
+  const same=x=>!!base&&(x.gifts||0)===(base.gifts||0)&&JSON.stringify(x.luckyGifts||[])===JSON.stringify(base.luckyGifts||[]);
+  const g=same(remote)?local:same(local)?remote:(remote.gifts||0)>(local.gifts||0)?remote:local;
   out.gifts=g.gifts||0;out.luckyGifts=[...(g.luckyGifts||[])];
   const dl=dayNum(local.lastDay),dr=dayNum(remote.lastDay);
   if(dl===dr){out.lastDay=local.lastDay||'';out.streak=Math.max(local.streak||0,remote.streak||0)}
