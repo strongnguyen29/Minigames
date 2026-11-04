@@ -52,6 +52,8 @@ function segment(text){
 const VOICE_DIR='audio/voice/';
 /* Tốc độ giọng máy dự phòng (phụ huynh chọn) */
 const TTS_RATE=1.14,TTS_PITCH=1.3;
+/* Tốc độ phát file mp3 khi đọc câu hỏi (ghép mẩu); câu thoại cố định giữ tốc độ gốc */
+const Q_FILE_RATE=1.2;
 const SILENT_WAV='data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
 const voice=(()=>{
   let token=0,cur=null,el=null;const last={};
@@ -83,7 +85,7 @@ const voice=(()=>{
     }catch(e){done()}
   }
   /* ids: các mẩu cần phát nối tiếp; thiếu bất kỳ mẩu nào (hoặc file lỗi) → đọc cả câu bằng giọng máy */
-  function play(ids,text){
+  function play(ids,text,rate=1){
     stop();const my=token;
     return new Promise(resolve=>{
       cur={resolve};
@@ -96,6 +98,8 @@ const voice=(()=>{
         if(my!==token||failed)return;
         if(i>=ids.length){a.onended=a.onerror=null;done();return}
         a.onended=next;a.onerror=fail;a.src=VOICE_DIR+ids[i++]+'.mp3';
+        /* đổi src làm trình duyệt đặt lại playbackRate về defaultPlaybackRate → đặt cả hai */
+        a.defaultPlaybackRate=a.playbackRate=rate;
         try{const p=a.play();p&&p.catch&&p.catch(fail)}catch(e){fail()}
       };
       next();
@@ -120,7 +124,7 @@ const voice=(()=>{
       return{line,done:line.id?play([line.id],line.text):Promise.resolve(true)};
     },
     busy(){return !!cur},
-    text(t){return play(segment(t),t)},
+    text(t){return play(segment(t),t,Q_FILE_RATE)},
     stop
   };
 })();

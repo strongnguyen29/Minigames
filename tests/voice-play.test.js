@@ -4,15 +4,15 @@ const FILES = ['js/core.js','js/questions.js','js/rewards.js','js/pattern.js','j
 
 /* Audio giả (một phần tử dùng lại): ghi lại src khi play, gọi onended sau 1ms (hoặc onerror nếu src nằm trong bad) */
 function setup({ have = [], bad = [], noTTS = false, voiceOn = true } = {}) {
-  const played = [];
+  const played = [], rates = [];
   class FakeAudio {
     constructor(src) { this.src = src || ''; }
-    play() { const src = this.src; played.push(src); setTimeout(() => { if (this.src === src) (bad.includes(src) ? this.onerror : this.onended)?.(); }, 1); return Promise.resolve(); }
+    play() { const src = this.src; played.push(src); rates.push(this.playbackRate); setTimeout(() => { if (this.src === src) (bad.includes(src) ? this.onerror : this.onended)?.(); }, 1); return Promise.resolve(); }
     pause() {}
   }
   const g = loadGame(FILES, { Audio: FakeAudio, noTTS });
   g.run(`VOICE_FILES.length=0;VOICE_FILES.push(...${JSON.stringify(have)});S.voice=${voiceOn};`);
-  return { g, v: g.get('voice'), played, tts: g.ctx.__tts };
+  return { g, v: g.get('voice'), played, rates, tts: g.ctx.__tts };
 }
 const ALL = ['num_5','p_cong','num_7','p_bang_may'];
 
@@ -30,6 +30,14 @@ test('voice.text phát đủ mẩu khi có file', async () => {
   await v.text('5 cộng 7 bằng mấy?');
   assert.deepEqual(played, ALL.map(i => `audio/voice/${i}.mp3`));
   assert.equal(tts.length, 0);
+});
+test('câu hỏi phát file nhanh 1.2 lần, câu thoại cố định giữ tốc độ gốc', async () => {
+  const { g, v, rates } = setup({ have: ALL });
+  await v.text('5 cộng 7 bằng mấy?');
+  assert.deepEqual(rates, ALL.map(() => 1.2));
+  g.run(`VOICE_FILES.push(...LINES.correct.map(x=>x.id))`);
+  await v.line('correct').done;
+  assert.equal(rates.at(-1), 1);
 });
 test('thiếu một mẩu thì đọc cả câu bằng giọng máy', async () => {
   const { v, played, tts } = setup({ have: ['num_5','p_cong','p_bang_may'] });
