@@ -31,13 +31,15 @@ function settings(){
   <div class="stat"><div><b>${S.rounds}</b>màn đã học</div><div><b>${S.streak} 🔥</b>ngày liên tiếp</div><div><b>${S.perfect}</b>lần không sai</div></div>
   <div class="sw">🗣️ Giọng Kuromi<button class="tg ${S.voice?'':'off'}" id="tv" aria-label="Giọng Kuromi"></button></div>
   <div class="sw">🎵 Âm thanh hiệu ứng<button class="tg ${S.sfx?'':'off'}" id="ts" aria-label="Âm thanh hiệu ứng"></button></div>
+  <div class="sw">🎶 Nhạc nền<button class="tg ${S.music?'':'off'}" id="tm" aria-label="Nhạc nền"></button></div>
   <div class="row"><button class="btn p-purple" id="chg">✏️ Đổi tên / hình</button><button class="btn p-gray small" id="rst">Xoá dữ liệu</button></div>
   <div class="row"><button class="btn p-pink gloss" id="cl">Đóng</button></div>
   <img class="mm" src="${MASCOT_IMG.neutral}" alt="" draggable="false"></div>`;
   document.body.appendChild(m);
-  const snd=()=>{const b=$('.top .snd');if(b)b.textContent=S.voice||S.sfx?'🔊':'🔇'};
+  const snd=()=>{const b=$('.top .snd');if(b)b.textContent=anySound()?'🔊':'🔇'};
   $('#tv').onclick=e=>{S.voice=!S.voice;if(!S.voice)voice.stop();e.currentTarget.classList.toggle('off',!S.voice);save();snd()};
   $('#ts').onclick=e=>{S.sfx=!S.sfx;e.currentTarget.classList.toggle('off',!S.sfx);save();sfx.click();snd()};
+  $('#tm').onclick=e=>{S.music=!S.music;e.currentTarget.classList.toggle('off',!S.music);save();music.sync();snd()};
   $('#cl').onclick=()=>m.remove();
   $('#chg').onclick=()=>{m.remove();go(welcome)};
   $('#rst').onclick=()=>{if(confirm('Xoá hết sao, hình dán và tên của bé?')){try{localStorage.removeItem(KEY)}catch(e){}memFallback=null;S=Object.assign({},DEF,{stickers:[],best:{},badges:[],owned:[],luckyGifts:[],giftOwned:[]});m.remove();go(welcome)}};

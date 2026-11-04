@@ -139,7 +139,7 @@ async function oldData(browser, url) {
     await pg.waitForSelector('.splash.ready .start', { timeout: 10000 }); await pg.locator('.splash .start').click();
     await pg.waitForSelector('.hgrid'); await tap(pg, '.top .me');
     const off = await pg.$$eval('.tg', ts => ts.map(t => t.classList.contains('off')));
-    check(off.length === 2 && off.every(Boolean), `dữ liệu cũ: công tắc phải tắt cả hai (${off})`);
+    check(off.length === 3 && off.every(Boolean), `dữ liệu cũ: công tắc phải tắt cả ba (${off})`);
     const s = await pg.evaluate(() => [balance(), S.owned.join(), S.stickers.join()]);
     check(s[0] === 25 && s[1] === 'fashion/pink-dress' && s[2] === '🐶', `dữ liệu cũ bị thay đổi: ${s}`);
   } catch (e) { fails.push('dữ liệu cũ: ' + e.message.split('\n')[0]); }
