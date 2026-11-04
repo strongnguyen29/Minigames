@@ -22,7 +22,7 @@ function welcome(){
     <button class="btn p-pink gloss big-go" id="go">Bắt đầu!</button></div>`});
   mascotSay('welcome_ask',{ifIdle:true});
   app.querySelectorAll('.av2').forEach(b=>b.onclick=()=>{av=b.dataset.a;app.querySelectorAll('.av2').forEach(x=>x.classList.toggle('sel',x===b));sfx.click()});
-  $('#go').onclick=()=>{S.name=$('#nm').value.trim()||'Bạn';S.avatar=av;save();sfx.ok();voice.line('welcome_done');mascotReset();touchStreak();home()};
+  $('#go').onclick=()=>{S.name=$('#nm').value.trim()||'Bạn';S.avatar=av;S.profileUpdatedAt=Date.now();save();sfx.ok();voice.line('welcome_done');mascotReset();touchStreak();home()};
 }
 function settings(){
   sfx.click();
