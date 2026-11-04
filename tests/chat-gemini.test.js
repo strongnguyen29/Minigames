@@ -5,6 +5,7 @@ function setup({ key = 'AIza-test', local = {} } = {}) {
   const storage = { [DEVICE_KEY]: 'A', [KEY]: JSON.stringify(Object.assign({ name: 'Mai' }, local)) };
   const g = loadGame(['js/core.js', 'js/merge.js', 'js/chat.js'], { storage });
   if (key) g.run(`setGeminiKey(${JSON.stringify(key)})`);
+  g.run('CHAT_RETRY_MS=0');
   return g;
 }
 const text = o => ({ candidates: [{ content: { parts: [{ text: JSON.stringify(o) }] } }] });
@@ -91,6 +92,49 @@ test('hết câu: limit và không gọi fetch', async () => {
   const f = fakeFetch();
   assert.equal(await kindOf(ask(g, f)), 'limit');
   assert.equal(f.calls.length, 0);
+});
+
+/* fetch giả trả lần lượt các mã trạng thái cho cuộc gọi chat */
+function seqFetch(statuses) {
+  const calls = []; let i = 0;
+  const f = async (url, init) => {
+    calls.push(url);
+    if (/tts/.test(url)) return { ok: true, status: 200, json: async () => audio(PCM_B64) };
+    const status = statuses[Math.min(i++, statuses.length - 1)];
+    return { ok: status < 400, status, json: async () => text(GOOD) };
+  };
+  f.calls = calls; return f;
+}
+test('503 quá tải: thử lại rồi thành công, chỉ trừ một câu', async () => {
+  const g = setup(); g.run('CHAT_RETRY_MS=0');
+  const f = seqFetch([503, 503, 200]);
+  const r = await ask(g, f);
+  assert.equal(r.reply, 'Bằng hai nha!');
+  assert.equal(f.calls.filter(u => !/tts/.test(u)).length, 3);
+  assert.equal(g.get('talkLeft()'), 9);
+});
+test('503 liên tục: thử tối đa 3 lần rồi báo net, không trừ câu', async () => {
+  const g = setup(); g.run('CHAT_RETRY_MS=0');
+  const f = seqFetch([503]);
+  assert.equal(await kindOf(ask(g, f)), 'net');
+  assert.equal(f.calls.length, 3);
+  assert.equal(g.get('talkLeft()'), 10);
+});
+test('Gemini phản hồi quá chậm: huỷ sau thời gian chờ và báo net, không trừ câu', { timeout: 3000 }, async () => {
+  const g = setup(); g.run('CHAT_TIMEOUT_MS=20');
+  g.ctx.AbortController = AbortController;
+  /* treo mãi, chỉ dừng khi bị huỷ bằng signal */
+  const f = (url, init) => new Promise((_, rej) => { if (init.signal) init.signal.addEventListener('abort', () => rej(new Error('aborted'))); });
+  assert.equal(await kindOf(ask(g, f)), 'net');
+  assert.equal(g.get('talkLeft()'), 10);
+});
+test('429 và 403 không thử lại', async () => {
+  for (const s of [429, 403]) {
+    const g = setup(); g.run('CHAT_RETRY_MS=0');
+    const f = seqFetch([s]);
+    await kindOf(ask(g, f));
+    assert.equal(f.calls.length, 1);
+  }
 });
 
 test('key lưu riêng, đọc lại được, xoá được và không nằm trong S', () => {

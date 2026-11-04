@@ -63,9 +63,10 @@ function talkBuy(pack){
 }
 
 /* ---- Gemini ----
-   Tên model/giọng kiểm tra theo tài liệu Gemini ngày 2026-11-04: hội thoại nhận âm thanh = gemini-3.8-flash,
-   giọng đọc = gemini-3.8-flash-lite-tts (rẻ, dùng hằng ngày), giọng Leda (trẻ trung). Đổi ở đây nếu Google đổi tên */
-const CHAT_MODEL='gemini-3.8-flash',TTS_MODEL='gemini-3.8-flash-lite-tts',TTS_VOICE='Leda';
+   Đã chạy thật với key miễn phí ngày 2026-11-04: hội thoại nhận âm thanh WAV = gemini-3.1-flash-lite (~4 giây; các bản
+   flash lớn đang báo 503 quá tải, gemini-2.5-flash đã đóng với tài khoản mới), giọng đọc = gemini-3.8-flash-lite-tts
+   giọng Leda (~2 giây). Đổi ở đây nếu Google đổi tên */
+const CHAT_MODEL='gemini-3.1-flash-lite',TTS_MODEL='gemini-3.8-flash-lite-tts',TTS_VOICE='Leda';
 const GEMINI_URL='https://generativelanguage.googleapis.com/v1beta/models/';
 const TALK_HISTORY=6;
 const CHAT_PROMPT=`Bạn là Kuromi, người bạn học tập đáng yêu dành cho trẻ em từ 5 đến 8 tuổi. Giọng điệu ấm áp, thân thiện như một bé gái 7 tuổi.
@@ -101,12 +102,23 @@ function setGeminiKey(k){
   try{k?localStorage.setItem(GEMINI_KEY_STORE,String(k).trim()):localStorage.removeItem(GEMINI_KEY_STORE)}catch(e){}
 }
 
+/* Gemini hay báo 503 "đang quá tải" thoáng qua: thử lại tối đa CHAT_TRIES lần, cách nhau CHAT_RETRY_MS, rồi mới báo lỗi */
+const CHAT_TRIES=3,RETRY_CODES=[500,502,503,504];
+let CHAT_RETRY_MS=700;
+/* Mỗi lần gọi chờ tối đa CHAT_TIMEOUT_MS: Gemini miễn phí lúc đông có thể mất cả phút, bé không chờ nổi */
+let CHAT_TIMEOUT_MS=20000;
 async function geminiCall(model,body,key,fetchFn){
   let res;
-  try{
-    res=await fetchFn(GEMINI_URL+model+':generateContent',{method:'POST',
-      headers:{'Content-Type':'application/json','x-goog-api-key':key},body:JSON.stringify(body)});
-  }catch(e){throw new ChatError('net')}
+  for(let i=1;;i++){
+    const ctl=typeof AbortController!=='undefined'?new AbortController():null;
+    const timer=ctl&&setTimeout(()=>ctl.abort(),CHAT_TIMEOUT_MS);
+    try{
+      res=await fetchFn(GEMINI_URL+model+':generateContent',{method:'POST',
+        headers:{'Content-Type':'application/json','x-goog-api-key':key},body:JSON.stringify(body),...(ctl?{signal:ctl.signal}:{})});
+    }catch(e){throw new ChatError('net')}finally{timer&&clearTimeout(timer)}
+    if(res.ok||i>=CHAT_TRIES||!RETRY_CODES.includes(res.status))break;
+    await new Promise(r=>setTimeout(r,CHAT_RETRY_MS*i));
+  }
   if(!res.ok)throw new ChatError(res.status===429?'quota':[400,401,403].includes(res.status)?'key':'net');
   try{return await res.json()}catch(e){throw new ChatError('format')}
 }
