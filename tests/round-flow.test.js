@@ -116,15 +116,15 @@ test('nút ⬅️ của màn chơi ghi sẵn mã trò, không phụ thuộc P l�
 });
 /* lớp phủ mở quà cần querySelector('.gbox') trả về phần tử */
 const GIFT_DOM = "document.createElement=t=>{const e=fakeEl(t);e.querySelector=()=>fakeEl();return e}";
-test('lần đầu 3 sao: hộp quà may mắn, 30% ra váy chưa có (không trừ sao)', async () => {
+test('lần đầu 3 sao: hộp quà may mắn, màn 1 có 30% ra váy chưa có (không trừ sao)', async () => {
   const s = setup(); s.g.run(GIFT_DOM);
   s.g.run("P={g:'add',l:0,i:8,total:8,mistakes:0,seen:new Set(),token:0};finish()");
-  assert.equal(s.g.get('S.luckyGifts'), 1);
+  assert.deepEqual([...s.g.get('S.luckyGifts')], [0]);
   s.g.run("P={g:'add',l:0,i:8,total:8,mistakes:0,seen:new Set(),token:0};finish()");
-  assert.equal(s.g.get('S.luckyGifts'), 1, 'lần 3 sao thứ hai của cùng màn không thêm');
+  assert.deepEqual([...s.g.get('S.luckyGifts')], [0], 'lần 3 sao thứ hai của cùng màn không thêm');
   s.g.run("Math.random=()=>0.1;openGift(()=>{});$('#gb').onclick()");
   assert.equal(s.g.get('S.owned.length'), 1); assert.equal(s.g.get('S.giftOwned.length'), 1);
-  assert.equal(s.g.get('S.luckyGifts'), 0); assert.equal(s.g.get('balance()'), s.g.get('S.stars'));
+  assert.equal(s.g.get('S.luckyGifts.length'), 0); assert.equal(s.g.get('balance()'), s.g.get('S.stars'));
   assert.ok(s.calls.some(c => c[0] === 'line' && c[1] === 'gift_dress'));
   s.g.run("openGift(()=>{});$('#gb').onclick()");
   assert.equal(s.g.get('S.owned.length'), 1, 'quà thường không ra váy');
@@ -132,5 +132,16 @@ test('lần đầu 3 sao: hộp quà may mắn, 30% ra váy chưa có (không tr
 test('hộp quà may mắn trượt 30% thì ra hình dán', async () => {
   const s = setup(); s.g.run(GIFT_DOM);
   s.g.run("P={g:'add',l:0,i:8,total:8,mistakes:0,seen:new Set(),token:0};finish();Math.random=()=>0.5;openGift(()=>{});$('#gb').onclick()");
-  assert.equal(s.g.get('S.owned.length'), 0); assert.equal(s.g.get('S.stickers.length'), 1); assert.equal(s.g.get('S.luckyGifts'), 0);
+  assert.equal(s.g.get('S.owned.length'), 0); assert.equal(s.g.get('S.stickers.length'), 1); assert.equal(s.g.get('S.luckyGifts.length'), 0);
+});
+test('tỷ lệ ra váy theo màn: màn 1 30%, mỗi màn sau +10%', async () => {
+  const s = setup(); s.g.run(GIFT_DOM);
+  assert.deepEqual([0, 1, 5].map(l => Math.round(s.g.get(`dressChance(${l})`) * 100)), [30, 40, 80]);
+  s.g.run("P={g:'add',l:2,i:8,total:8,mistakes:0,seen:new Set(),token:0};finish();Math.random=()=>0.45;openGift(()=>{});$('#gb').onclick()");
+  assert.equal(s.g.get('S.owned.length'), 1, 'màn 3 (50%) trúng với 0.45');
+});
+test('dữ liệu cũ luckyGifts dạng số được đổi thành danh sách màn 1', () => {
+  const { loadGame } = require('./helpers/load');
+  const g = loadGame(['js/core.js'], { storage: { be_vui_hoc_toan_v1: JSON.stringify({ name: 'Mai', luckyGifts: 2 }) } });
+  assert.deepEqual([...g.get('S.luckyGifts')], [0, 0]);
 });

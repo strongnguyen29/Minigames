@@ -40,7 +40,7 @@ function settings(){
   $('#ts').onclick=e=>{S.sfx=!S.sfx;e.currentTarget.classList.toggle('off',!S.sfx);save();sfx.click();snd()};
   $('#cl').onclick=()=>m.remove();
   $('#chg').onclick=()=>{m.remove();go(welcome)};
-  $('#rst').onclick=()=>{if(confirm('Xoá hết sao, hình dán và tên của bé?')){try{localStorage.removeItem(KEY)}catch(e){}memFallback=null;S=Object.assign({},DEF,{stickers:[],best:{},badges:[],owned:[],giftOwned:[]});m.remove();go(welcome)}};
+  $('#rst').onclick=()=>{if(confirm('Xoá hết sao, hình dán và tên của bé?')){try{localStorage.removeItem(KEY)}catch(e){}memFallback=null;S=Object.assign({},DEF,{stickers:[],best:{},badges:[],owned:[],luckyGifts:[],giftOwned:[]});m.remove();go(welcome)}};
 }
 /* Trang chủ: 6 trò học + cờ caro, tiệm công chúa, bộ sưu tập */
 const HOME_ORDER=['count','shape','add','split','cmp','pattern'];
@@ -142,7 +142,7 @@ function finish(){
   S.stars+=stars;S.rounds++;
   if(m===0)S.perfect++;
   let gift=false;if(stars>=2){S.gifts++;gift=true}
-  if(first3)S.luckyGifts=(S.luckyGifts||0)+1; // quà lần đầu 3 sao: có cơ hội ra váy
+  if(first3)S.luckyGifts=[...(S.luckyGifts||[]),l]; // quà lần đầu 3 sao: có cơ hội ra váy, nhớ màn để tính tỷ lệ
   const newB=checkBadges();save();P=null;
   sfx.win();
   const msg=stars===3?'Giỏi quá! Tuyệt vời! 🎉':stars===2?'Giỏi lắm! 👏':'Bạn đã cố gắng rồi! 💪';
@@ -163,6 +163,7 @@ function finish(){
   mascotSay('result'+stars,{hold:true}).then(ok=>{if(ok&&newB.length)mascotSay('badge',{hold:true})});
   window.result_btns=()=>{const b=$('#rgift');if(b&&S.gifts<1)b.remove()};
 }
+const dressChance=l=>Math.min(1,.3+.1*l); // l: chỉ số màn (0 = màn 1)
 /* Mở quà: lớp phủ tím mờ, hộp quà lắc lư, Kuromi nhảy bên cạnh; chạm hộp thì hình dán bung ra */
 function openGift(done){
   if(S.gifts<1)return;
@@ -178,10 +179,10 @@ function openGift(done){
     const left=STICKERS.filter(s=>!S.stickers.includes(s));
     let pic,title,line;
     S.gifts--;
-    /* hộp quà lần đầu 3 sao (mở trước): 30% ra một váy chưa có, không thì như quà thường */
-    const lucky=(S.luckyGifts||0)>0;if(lucky)S.luckyGifts--;
+    /* hộp quà lần đầu 3 sao (mở trước): màn 1 có 30% ra một váy chưa có, mỗi màn sau +10%; trượt thì như quà thường */
+    const lv=(S.luckyGifts||[]).length?S.luckyGifts.shift():-1;
     const dresses=SHOP_ITEMS.filter(x=>!owns(x.id));
-    const dress=lucky&&dresses.length&&Math.random()<.3?pick(dresses):null;
+    const dress=lv>=0&&dresses.length&&Math.random()<dressChance(lv)?pick(dresses):null;
     if(dress){S.owned=[...(S.owned||[]),dress.id];S.giftOwned=[...(S.giftOwned||[]),dress.id];
       pic=`<img class="gdress" src="${dress.thumb}" alt="${esc(dress.name)}" draggable="false">`;title=`Váy mới: ${esc(dress.name)}!`;line='gift_dress'}
     else if(left.length){pic=pick(left);S.stickers.push(pic);title='Hình dán mới!';line='sticker_new'}
