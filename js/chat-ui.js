@@ -29,7 +29,7 @@ async function chatRecStart(){
   if(!md||!md.getUserMedia)throw new ChatError('mic');
   let stream;
   try{stream=await md.getUserMedia({audio:true})}catch(e){throw new ChatError('mic')}
-  if(my!==recSeq){stream.getTracks().forEach(t=>t.stop());return}
+  if(my!==recSeq){stream.getTracks().forEach(t=>t.stop());return false}
   const AC=window.AudioContext||window.webkitAudioContext;
   try{
     const ctx=new AC();ctx.resume&&ctx.resume();
@@ -37,6 +37,7 @@ async function chatRecStart(){
     proc.onaudioprocess=e=>chunks.push(new Float32Array(e.inputBuffer.getChannelData(0)));
     src.connect(proc);proc.connect(ctx.destination);
     rec={stream,ctx,src,proc,chunks,t0:Date.now()};
+    return true;
   }catch(e){stream.getTracks().forEach(t=>t.stop());throw new ChatError('mic')}
 }
 /* dừng thu: {samples,rate,ms}, null nếu chưa thu được gì */

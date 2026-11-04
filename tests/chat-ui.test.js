@@ -41,6 +41,34 @@ test('holdGesture: down hai lần liên tiếp không tạo hai hẹn giờ', ()
   assert.deepEqual(log, ['hold']);
 });
 
+/* micro + AudioContext giả: getUserMedia trả luồng khi gọi release() (hoặc ngay nếu không đợi) */
+function micGame({ wait = false } = {}) {
+  const g = loadGame(['js/core.js', 'js/chat.js', 'js/chat-ui.js']);
+  g.run(`var __stopped=0,__release;
+    class FakeAC{constructor(){this.sampleRate=16000;this.destination={}}resume(){}close(){}
+      createMediaStreamSource(){return{connect(){},disconnect(){}}}
+      createScriptProcessor(){return{connect(){},disconnect(){}}}}
+    window.AudioContext=FakeAC;
+    navigator.mediaDevices={getUserMedia:()=>new Promise(r=>{const s={getTracks:()=>[{stop(){__stopped++}}]};
+      ${wait ? '__release=()=>r(s)' : 'r(s)'}})};`);
+  return g;
+}
+test('chatRecStart: thu được thì trả true và chatRecStop trả mẫu âm thanh', async () => {
+  const g = micGame();
+  assert.equal(await g.get('chatRecStart()'), true);
+  const r = g.get('chatRecStop()');
+  assert.equal(r.rate, 16000); assert.ok(r.ms >= 0 && r.samples.length === 0);
+  assert.equal(g.get('__stopped'), 1);
+});
+test('chatRecStart: bé thả tay trước khi có quyền micro thì trả false và đóng luồng đến muộn', async () => {
+  const g = micGame({ wait: true });
+  const p = g.get('chatRecStart()');
+  g.run('chatRecStop()'); g.run('__release()');
+  assert.equal(await p, false);
+  assert.equal(g.get('__stopped'), 1);
+  assert.equal(g.get('chatRecStop()'), null);
+});
+
 test('chatRecStart: máy không có micro thì ném ChatError mic; chatRecStop khi chưa thu trả null', async () => {
   const g = loadGame(['js/core.js', 'js/chat.js', 'js/chat-ui.js']);
   const kind = await g.get('chatRecStart()').then(() => null, e => e.kind);
