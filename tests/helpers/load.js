@@ -38,7 +38,7 @@ function loadGame(files, opts = {}) {
   const ctx = {
     console, Math, Date, JSON, Promise, Object, Array, Set, Map, String, Number, Error,
     setTimeout: opts.setTimeout || setTimeout, clearTimeout: opts.clearTimeout || clearTimeout,
-    setInterval, clearInterval, document, fakeEl,
+    setInterval, clearInterval, document, fakeEl, btoa, atob,
     localStorage: {
       getItem: k => (store.has(k) ? store.get(k) : null), setItem: (k, v) => store.set(k, String(v)), removeItem: k => store.delete(k)
     },
