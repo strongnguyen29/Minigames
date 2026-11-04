@@ -107,20 +107,32 @@ const CHAT_TRIES=3,RETRY_CODES=[500,502,503,504];
 let CHAT_RETRY_MS=700;
 /* Mỗi lần gọi chờ tối đa CHAT_TIMEOUT_MS: Gemini miễn phí lúc đông có thể mất cả phút, bé không chờ nổi */
 let CHAT_TIMEOUT_MS=20000;
-async function geminiCall(model,body,key,fetchFn){
+/* Giọng đọc chỉ thử một lần và chờ ngắn: TTS chậm thì để chữ trả lời hiện trước, đọc bằng giọng máy */
+const TTS_TIMEOUT_MS=8000;
+async function geminiCall(model,body,key,fetchFn,{tries=CHAT_TRIES,timeout=null}={}){
   let res;
   for(let i=1;;i++){
     const ctl=typeof AbortController!=='undefined'?new AbortController():null;
-    const timer=ctl&&setTimeout(()=>ctl.abort(),CHAT_TIMEOUT_MS);
+    const timer=ctl&&setTimeout(()=>ctl.abort(),timeout||CHAT_TIMEOUT_MS);
     try{
       res=await fetchFn(GEMINI_URL+model+':generateContent',{method:'POST',
         headers:{'Content-Type':'application/json','x-goog-api-key':key},body:JSON.stringify(body),...(ctl?{signal:ctl.signal}:{})});
     }catch(e){throw new ChatError('net')}finally{timer&&clearTimeout(timer)}
-    if(res.ok||i>=CHAT_TRIES||!RETRY_CODES.includes(res.status))break;
+    if(res.ok||i>=tries||!RETRY_CODES.includes(res.status))break;
     await new Promise(r=>setTimeout(r,CHAT_RETRY_MS*i));
   }
-  if(!res.ok)throw new ChatError(res.status===429?'quota':[400,401,403].includes(res.status)?'key':'net');
+  if(!res.ok)throw new ChatError(await geminiErrKind(res));
   try{return await res.json()}catch(e){throw new ChatError('format')}
+}
+/* 429 = hết hạn mức; 401/403 = khoá bị từ chối; 400 chỉ là khoá sai khi Gemini nói rõ khoá không hợp lệ
+   (400 còn có thể là âm thanh quá lớn hay Gemini đổi định dạng — đừng bắt ba mẹ nhập lại khoá) */
+async function geminiErrKind(res){
+  if(res.status===429)return'quota';
+  if(res.status===401||res.status===403)return'key';
+  if(res.status===400){
+    try{const j=await res.json();if(/api key/i.test((j&&j.error&&j.error.message)||''))return'key'}catch(e){}
+  }
+  return'net';
 }
 const geminiParts=r=>((r&&r.candidates&&r.candidates[0]&&r.candidates[0].content&&r.candidates[0].content.parts)||[]);
 
@@ -142,7 +154,7 @@ async function geminiTts({key,text,fetch:fetchFn}){
   const r=await geminiCall(TTS_MODEL,{
     contents:[{parts:[{text}]}],
     generationConfig:{responseModalities:['AUDIO'],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:TTS_VOICE}}}}
-  },key,fetchFn);
+  },key,fetchFn,{tries:1,timeout:TTS_TIMEOUT_MS});
   const p=geminiParts(r).find(x=>x.inlineData&&x.inlineData.data);
   if(!p)throw new ChatError('format');
   const bytes=chatFromB64(p.inlineData.data);
@@ -150,7 +162,7 @@ async function geminiTts({key,text,fetch:fetchFn}){
   return String.fromCharCode(...bytes.slice(0,4))==='RIFF'?bytes:chatPcmToWav(bytes,m?+m[1]:24000);
 }
 
-/* Một lượt hỏi: chỉ trừ câu sau khi Gemini hội thoại trả lời thành công; TTS lỗi thì wav=null (đọc bằng giọng máy) */
+/* Một lượt hỏi: chỉ trừ câu khi Gemini hội thoại trả lời thành công và bé còn ở trang chủ; TTS lỗi thì wav=null (đọc bằng giọng máy) */
 async function chatAsk({wavB64,history=[],alive=()=>true,fetch:fetchFn=window.fetch.bind(window)}){
   const key=geminiKey();
   if(!key)throw new ChatError('nokey');
@@ -158,8 +170,10 @@ async function chatAsk({wavB64,history=[],alive=()=>true,fetch:fetchFn=window.fe
   const a=await geminiChat({key,wavB64,history,fetch:fetchFn});
   if(!a.heard)throw new ChatError('format');
   if(!alive())throw new ChatError('cancelled');
-  talkUse();
   let wav=null;
   try{wav=await geminiTts({key,text:a.reply,fetch:fetchFn})}catch(e){}
+  /* trừ câu chỉ khi câu trả lời thật sự tới tay bé: rời trang trong lúc chờ giọng thì không mất câu */
+  if(!alive())throw new ChatError('cancelled');
+  talkUse();
   return{...a,wav};
 }

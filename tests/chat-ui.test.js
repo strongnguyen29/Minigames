@@ -60,6 +60,24 @@ test('chatRecStart: thu được thì trả true và chatRecStop trả mẫu âm
   assert.equal(r.rate, 16000); assert.ok(r.ms >= 0 && r.samples.length === 0);
   assert.equal(g.get('__stopped'), 1);
 });
+test('chatRecording() đúng khi đang thu: để nhạc nền biết mà hạ âm lượng', async () => {
+  const g = micGame();
+  assert.equal(g.get('chatRecording()'), false);
+  await g.get('chatRecStart()');
+  assert.equal(g.get('chatRecording()'), true);
+  g.run('chatRecStop()');
+  assert.equal(g.get('chatRecording()'), false);
+});
+test('thu âm bị giới hạn độ dài: mẫu vượt TALK_MAX_S giây bị bỏ', async () => {
+  const g = micGame();
+  g.run('TALK_MAX_S=1');
+  g.run(`var __procs=[];AudioContext.prototype.createScriptProcessor=function(){const p={connect(){},disconnect(){}};__procs.push(p);return p}`);
+  await g.get('chatRecStart()');
+  const chunk = () => ({ inputBuffer: { getChannelData: () => new Float32Array(16000) } });
+  g.ctx.__c = chunk();
+  g.run('__procs[0].onaudioprocess(__c);__procs[0].onaudioprocess(__c);__procs[0].onaudioprocess(__c)');
+  assert.equal(g.get('chatRecStop().samples.length'), 16000);
+});
 test('chatRecStart: bé thả tay trước khi có quyền micro thì trả false và đóng luồng đến muộn', async () => {
   const g = micGame({ wait: true });
   const p = g.get('chatRecStart()');

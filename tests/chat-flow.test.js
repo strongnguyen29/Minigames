@@ -9,7 +9,7 @@ const TTS_OK = { candidates: [{ content: { parts: [{ inlineData: { mimeType: 'au
 const okFetch = async url => ({ ok: true, status: 200, json: async () => (/tts/.test(url) ? TTS_OK : gem(GOOD)) });
 
 /* Dựng game với micro, mascotSay, voice.clip và thu âm giả; ms = thời lượng "thu" */
-function chat({ key = 'AIza-test', local = {}, fetchImpl = okFetch, ms = 2000 } = {}) {
+function chat({ key = 'AIza-test', local = {}, fetchImpl = okFetch, ms = 2000, samples = 32000 } = {}) {
   const storage = { [DEVICE_KEY]: 'A', [KEY]: JSON.stringify(Object.assign({ name: 'Mai', voice: false }, local)) };
   const kuromi = { classList: { _s: new Set(), toggle(c, on) { on ? this._s.add(c) : this._s.delete(c); }, contains(c) { return this._s.has(c); } } };
   const img = { parentNode: kuromi, classList: kuromi.classList, onclick: () => {}, setPointerCapture() {}, style: {} };
@@ -18,7 +18,7 @@ function chat({ key = 'AIza-test', local = {}, fetchImpl = okFetch, ms = 2000 } 
   g.run(`navigator.mediaDevices={getUserMedia(){}};CHAT_HEARD_MS=0;CHAT_RETRY_MS=0;
     var __rec=[],__said=[],__pokes=0,__clips=[];
     chatRecStart=async()=>{__rec.push('start');return true};
-    chatRecStop=()=>({samples:new Float32Array(100),rate:16000,ms:${ms}});
+    chatRecStop=()=>({samples:new Float32Array(${samples}),rate:16000,ms:${ms}});
     chatRecCancel=()=>{__rec.push('cancel')};
     mascotSay=(gr,o)=>{__said.push(gr);return Promise.resolve(true)};
     mascotPoke=()=>{__pokes++};
@@ -61,7 +61,7 @@ test('chatAttach tắt onclick mặc định và chặn menu chuột phải', ()
 });
 test('thu quá ngắn: không gửi Gemini, không trừ câu', async () => {
   let calls = 0;
-  const g = chat({ ms: 100, fetchImpl: async () => { calls++; throw new Error('x'); } });
+  const g = chat({ ms: 100, samples: 1600, fetchImpl: async () => { calls++; throw new Error('x'); } });
   await g.get('chatBegin()'); await g.get('chatEnd()');
   assert.equal(calls, 0); assert.equal(g.get('talkLeft()'), 10);
 });
@@ -152,4 +152,26 @@ test('cài đặt có dòng Khoá Gemini và số câu còn lại hôm nay', () 
   g.run('settings()');
   const html = g.modals().join('');
   assert.ok(html.includes('Khoá Gemini') && html.includes('Còn 10 câu'));
+});
+
+test('ghi âm trống dù giữ lâu (micro không gửi mẫu, hay gặp trên iPhone): nói talk_nomic, không gửi, không trừ', async () => {
+  let calls = 0;
+  const g = chat({ samples: 0, fetchImpl: async () => { calls++; throw new Error('x'); } });
+  await g.get('chatBegin()'); await g.get('chatEnd()');
+  assert.equal(calls, 0);
+  assert.ok(g.get('__said').includes('talk_nomic'));
+  assert.equal(g.get('talkLeft()'), 10);
+});
+test('độ dài kiểm tra theo mẫu âm thanh thật, không theo đồng hồ: mẫu quá ngắn thì không gửi', async () => {
+  let calls = 0;
+  const g = chat({ ms: 3000, samples: 800, fetchImpl: async () => { calls++; throw new Error('x'); } });
+  await g.get('chatBegin()'); await g.get('chatEnd()');
+  assert.equal(calls, 0);
+});
+test('nhấn xuống Kuromi là mở khoá âm thanh ngay (cử chỉ thật, cần cho iPhone)', () => {
+  const g = chat();
+  g.run('var __unl=0;voice.unlock=()=>{__unl++};chatAttach()');
+  g.img.onpointerdown({ preventDefault() {}, pointerId: 1 });
+  assert.equal(g.get('__unl'), 1);
+  g.img.onpointerup({});
 });

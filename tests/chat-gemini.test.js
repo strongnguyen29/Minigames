@@ -65,7 +65,7 @@ test('TTS trả sẵn WAV (RIFF) thì dùng nguyên, không bọc thêm', async 
 });
 
 test('lỗi: 429 là quota, 403 là key, mạng đứt là net; đều không trừ câu', async () => {
-  for (const [opt, kind] of [[{ chatStatus: 429 }, 'quota'], [{ chatStatus: 403 }, 'key'], [{ chatStatus: 400 }, 'key'], [{ netFail: true }, 'net'], [{ chatStatus: 500 }, 'net']]) {
+  for (const [opt, kind] of [[{ chatStatus: 429 }, 'quota'], [{ chatStatus: 403 }, 'key'], [{ chatStatus: 400 }, 'net'], [{ netFail: true }, 'net'], [{ chatStatus: 500 }, 'net']]) {
     const g = setup();
     assert.equal(await kindOf(ask(g, fakeFetch(opt))), kind);
     assert.equal(g.get('talkLeft()'), 10);
@@ -127,6 +127,33 @@ test('Gemini phản hồi quá chậm: huỷ sau thời gian chờ và báo net,
   const f = (url, init) => new Promise((_, rej) => { if (init.signal) init.signal.addEventListener('abort', () => rej(new Error('aborted'))); });
   assert.equal(await kindOf(ask(g, f)), 'net');
   assert.equal(g.get('talkLeft()'), 10);
+});
+test('TTS lỗi 503: chỉ thử một lần (không để chữ trả lời chờ lâu), wav null, vẫn trừ một câu', async () => {
+  const g = setup(); let tts = 0;
+  const f = async url => {
+    if (/tts/.test(url)) { tts++; return { ok: false, status: 503, json: async () => ({}) }; }
+    return { ok: true, status: 200, json: async () => text(GOOD) };
+  };
+  const r = await ask(g, f);
+  assert.equal(r.wav, null); assert.equal(tts, 1);
+  assert.equal(g.get('talkLeft()'), 9);
+});
+test('rời trang trong lúc chờ TTS: không trừ câu', async () => {
+  const g = setup(); let alive = true;
+  g.ctx.__alive = () => alive;
+  const f = async url => {
+    if (/tts/.test(url)) alive = false;
+    return { ok: true, status: 200, json: async () => (/tts/.test(url) ? audio(PCM_B64) : text(GOOD)) };
+  };
+  g.ctx.__f = f; g.ctx.__h = [];
+  assert.equal(await kindOf(g.get('chatAsk({wavB64:"AAAA",history:__h,alive:__alive,fetch:__f})')), 'cancelled');
+  assert.equal(g.get('talkLeft()'), 10);
+});
+test('400 chỉ là key sai khi Gemini nói khoá không hợp lệ; 400 khác là net', async () => {
+  const mk = msg => async () => ({ ok: false, status: 400, json: async () => ({ error: { message: msg, status: 'INVALID_ARGUMENT' } }) });
+  assert.equal(await kindOf(ask(setup(), mk('API key not valid. Please pass a valid API key.'))), 'key');
+  assert.equal(await kindOf(ask(setup(), mk('Request payload size exceeds the limit: 20971520 bytes.'))), 'net');
+  assert.equal(await kindOf(ask(setup(), async () => ({ ok: false, status: 400, json: async () => { throw new Error('x'); } }))), 'net');
 });
 test('429 và 403 không thử lại', async () => {
   for (const s of [429, 403]) {

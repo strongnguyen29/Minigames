@@ -1,6 +1,8 @@
 /* ============ Nói chuyện với Kuromi: nhấn giữ, thu âm, hộp thoại, nối vào trang chủ ============ */
 /* Thu ngắn hơn chừng này (ms) thì coi như bé không nói */
 const TALK_MIN_MS=600;
+/* Thu tối đa chừng này giây (giữ lâu hơn thì phần sau bị bỏ): giữ yêu cầu gửi Gemini nhỏ, không vượt giới hạn 20 MB */
+let TALK_MAX_S=20;
 
 /* Phân biệt chạm nhanh (onTap) với nhấn giữ (onHold…onRelease). setT/clearT tiêm vào để test */
 function holdGesture({holdMs=350,onHold,onRelease,onTap,setT=setTimeout,clearT=clearTimeout}){
@@ -34,7 +36,11 @@ async function chatRecStart(){
   try{
     const ctx=new AC();ctx.resume&&ctx.resume();
     const src=ctx.createMediaStreamSource(stream),proc=ctx.createScriptProcessor(4096,1,1),chunks=[];
-    proc.onaudioprocess=e=>chunks.push(new Float32Array(e.inputBuffer.getChannelData(0)));
+    let total=0;
+    proc.onaudioprocess=e=>{
+      if(total>=ctx.sampleRate*TALK_MAX_S)return;
+      const c=new Float32Array(e.inputBuffer.getChannelData(0));total+=c.length;chunks.push(c);
+    };
     src.connect(proc);proc.connect(ctx.destination);
     rec={stream,ctx,src,proc,chunks,t0:Date.now()};
     return true;
@@ -49,6 +55,8 @@ function chatRecStop(){
   let o=0;r.chunks.forEach(c=>{samples.set(c,o);o+=c.length});
   return{samples,rate:r.ctx.sampleRate,ms:Date.now()-r.t0};
 }
+/* đang thu âm (nhạc nền dùng để hạ âm lượng, khỏi lọt vào micro) */
+const chatRecording=()=>!!rec;
 function chatRecCancel(){
   recSeq++;
   if(rec){chatRecRelease(rec);rec=null}
@@ -81,6 +89,9 @@ async function chatEnd(){
   chatListen(false);
   const r=chatRecStop();
   if(!r||r.ms<TALK_MIN_MS)return;
+  /* giữ lâu mà không có mẫu nào = micro không gửi dữ liệu (hay gặp trên iPhone): báo ba mẹ, đừng gửi âm thanh trống */
+  if(!r.samples.length){mascotSay('talk_nomic');return}
+  if(r.samples.length/r.rate*1000<TALK_MIN_MS)return;
   const my=chatEpoch,alive=()=>my===chatEpoch;
   chatBusy=true;
   mascot('think','…',{hold:true});
@@ -115,7 +126,7 @@ function chatAttach(){
   if(!img||!chatMicOK())return;
   const h=holdGesture({onTap:()=>mascotPoke(),onHold:()=>{chatBegin()},onRelease:()=>{chatEnd()}});
   img.onclick=null;
-  img.onpointerdown=e=>{e.preventDefault&&e.preventDefault();try{img.setPointerCapture(e.pointerId)}catch(x){}h.down()};
+  img.onpointerdown=e=>{e.preventDefault&&e.preventDefault();voice.unlock();try{img.setPointerCapture(e.pointerId)}catch(x){}h.down()};
   img.onpointerup=()=>h.up();
   img.onpointercancel=()=>h.cancel();
   img.oncontextmenu=e=>{e.preventDefault();return false};
