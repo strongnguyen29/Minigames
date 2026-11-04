@@ -10,17 +10,19 @@ const KEY = 'be_vui_hoc_toan_v1';
 const fails = [];
 const check = (ok, msg) => { if (!ok) fails.push(msg); };
 
-async function open(browser, url, w, h, saved) {
+async function open(browser, url, w, h, saved, pre) {
   /* reducedMotion: các nút bồng bềnh vô hạn thì Playwright không bao giờ thấy nút "đứng yên" để bấm;
      đồng thời kiểm tra luôn chế độ giảm chuyển động */
   const pg = await browser.newPage({ viewport: { width: w, height: h }, hasTouch: true, reducedMotion: 'reduce' });
   pg.setDefaultTimeout(8000);
-  const errs = [];
+  const errs = [], reqs = [];
+  pg.on('request', r => reqs.push(r.url()));
   pg.on('pageerror', e => errs.push(e.message));
   pg.on('console', m => { if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) errs.push(m.text()); });
   if (saved) await pg.addInitScript(([k, v]) => { if (!sessionStorage.getItem('seeded')) { localStorage.setItem(k, v); sessionStorage.setItem('seeded', 1); } }, [KEY, JSON.stringify(saved)]);
+  if (pre) await pg.addInitScript(pre);
   await pg.goto(url);
-  return { pg, errs };
+  return { pg, errs, reqs };
 }
 const noHScroll = async (pg, tag) => check(await pg.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `${tag}: cuộn ngang`);
 const mascotIs = async (pg, emo, tag, sel = '#mimg') => {
@@ -40,7 +42,7 @@ const shot = (pg, name) => pg.screenshot({ path: path.join(SHOTS, name + '.png')
 const tap = async (pg, sel) => { await pg.locator(sel).first().click(); await pg.waitForTimeout(350); };
 
 async function run(browser, url, [name, w, h]) {
-  const { pg, errs } = await open(browser, url, w, h);
+  const { pg, errs, reqs } = await open(browser, url, w, h);
   const step = async (label, fn) => { try { await fn(); } catch (e) { fails.push(`${name} ${label}: ${e.message.split('\n')[0]}`); } };
 
   await step('mở đầu', async () => {
@@ -128,6 +130,66 @@ async function run(browser, url, [name, w, h]) {
     await noHScroll(pg, `${name} chọn mức`); await shot(pg, `${name}-12-levels`);
   });
   errs.forEach(e => fails.push(`${name} lỗi console: ${e}`));
+  const ext = reqs.filter(u => /gstatic\.com|googleapis\.com/.test(u));
+  check(ext.length === 0, `${name}: không đặt adapter mà vẫn gọi ra ngoài: ${ext.join(', ')}`);
+  await pg.close();
+}
+
+/* Adapter giả cho trình duyệt: đăng nhập là thành công ngay; fail=true thì get/set luôn lỗi */
+const fakeAdapter = (db, fail, signed) => `(() => {
+  let cb, user = ${signed} ? { uid: 'u1', email: 'mai@mail.com' } : null; const db = ${JSON.stringify(db)};
+  window.CLOUD_ADAPTER = {
+    onAuth(c) { cb = c; c(user); },
+    signIn() { user = { uid: 'u1', email: 'mai@mail.com' }; cb && cb(user); return Promise.resolve(); },
+    signOut() { user = null; cb && cb(null); return Promise.resolve(); },
+    get() { return ${fail} ? Promise.reject(new Error('mất mạng')) : Promise.resolve(db); },
+    set() { return ${fail} ? Promise.reject(new Error('mất mạng')) : Promise.resolve(); }
+  };
+  if (${fail}) localStorage.getItem('be_vui_cloud_v1') || localStorage.setItem('be_vui_cloud_v1', '{"used":true}');
+})();`;
+
+/* Máy mới, mây đã có tiến độ: màn nhập tên → "Đã có tiến độ?" → thẳng trang chủ */
+async function restore(browser, url, [name, w, h]) {
+  const cloudSave = { name: 'Mai', avatar: '🐱', stars: 40, schema: 1, deviceId: 'khac' };
+  const { pg, errs } = await open(browser, url, w, h, null, fakeAdapter(cloudSave, false));
+  const tag = `lấy lại ${name}`;
+  try {
+    await pg.waitForSelector('.splash.ready .start', { timeout: 10000 }); await pg.locator('.splash .start').click();
+    await pg.waitForSelector('#cget'); await pg.waitForSelector('.splash', { state: 'detached' }); await pg.waitForTimeout(900);
+    check(await pg.locator('#cget').innerText() === 'Đã có tiến độ? Đăng nhập để lấy lại', `${tag}: chữ nút`);
+    await noHScroll(pg, `${tag} nhập tên`); await notCovered(pg, '#cget, #go', `${tag} nhập tên`);
+    await shot(pg, `${name}-09-welcome-cloud`);
+    await pg.locator('#cget').click();
+    await pg.waitForSelector('.hgrid');
+    const top = await pg.locator('.top').innerText();
+    check(/40/.test(top), `${tag}: thanh trên phải có 40 sao, đang là "${top.replace(/\n/g, ' ')}"`);
+    await pg.waitForTimeout(500); await tap(pg, '.top .me'); await pg.waitForSelector('#csy');
+    const box = await pg.locator('#cloud').innerText();
+    check(/Đã sao lưu lúc \d\d:\d\d/.test(box) && box.includes('Đồng bộ ngay') && box.includes('Đăng xuất'), `${tag}: khối Sao lưu "${box}"`);
+    await noHScroll(pg, `${tag} cài đặt`); await notCovered(pg, '#cloud .btn, #chg, #rst, #cl', `${tag} cài đặt`);
+    await shot(pg, `${name}-09-settings-cloud`);
+  } catch (e) { fails.push(`${tag}: ` + e.message.split('\n')[0]); }
+  errs.forEach(e => fails.push(`${tag} lỗi console: ${e}`));
+  await pg.close();
+}
+
+/* Mây lỗi (get/set luôn reject): chơi bình thường, không lỗi console, Cài đặt báo chưa sao lưu được */
+async function cloudDown(browser, url) {
+  const saved = { name: 'Mai', avatar: '🐱', stars: 3 };
+  const { pg, errs } = await open(browser, url, 1024, 768, saved, fakeAdapter({}, true, true));
+  try {
+    await pg.waitForSelector('.splash.ready .start', { timeout: 10000 }); await pg.locator('.splash .start').click();
+    await pg.waitForSelector('.hgrid'); await pg.evaluate(() => { S.voice = false; save(); });
+    await pg.locator('.hgrid .gc').nth(2).click(); await pg.waitForSelector('.lvn'); await pg.waitForTimeout(600);
+    await tap(pg, '.lvn[data-i="0"]'); await pg.waitForSelector('.ch'); await pg.waitForTimeout(400);
+    const k = await pg.evaluate(() => P.q.choices.findIndex(c => c.key === P.q.correct));
+    await pg.locator('.ch').nth(k).click(); await pg.waitForTimeout(3600);
+    await pg.evaluate(() => go(home)); await pg.waitForSelector('.hgrid'); await tap(pg, '.top .me');
+    await pg.waitForSelector('#cloud');
+    const box = await pg.locator('#cloud').innerText();
+    check(box.includes('Chưa sao lưu được, sẽ thử lại khi có mạng'), `mây lỗi: Cài đặt phải báo lỗi, đang là "${box}"`);
+  } catch (e) { fails.push('mây lỗi: ' + e.message.split('\n')[0]); }
+  errs.forEach(e => fails.push(`mây lỗi, lỗi console: ${e}`));
   await pg.close();
 }
 
@@ -151,6 +213,8 @@ const { srv, url } = await serve();
 const browser = await chromium.launch({ channel: 'chrome' });
 for (const v of VIEWS) await run(browser, url, v);
 await oldData(browser, url);
+for (const v of [VIEWS[0], VIEWS[2]]) await restore(browser, url, v);
+await cloudDown(browser, url);
 await browser.close(); srv.close();
 if (fails.length) { console.log('THẤT BẠI:\n- ' + fails.join('\n- ')); process.exit(1); }
 console.log(`ĐẠT: ${VIEWS.length} khung màn hình + dữ liệu cũ, ảnh ở tests/e2e/shots/`);

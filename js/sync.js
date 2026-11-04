@@ -100,8 +100,17 @@ const cloud=(()=>{
       if(!cloud.available||!rd().used)return Promise.resolve();
       return ensure().then(()=>{},fail);
     },
+    /* nạp sẵn adapter khi nút đăng nhập hiện ra, để signIn mở popup ngay trong lần chạm */
+    prepare(){
+      if(!cloud.available)return Promise.resolve();
+      return ensure().then(()=>{},e=>console.warn('[cloud]',(e&&e.message)||e));
+    },
     signIn(){
-      return ensure().then(a=>{wr({used:true});return a.signIn()}).catch(fail);
+      const go=a=>{wr({used:true});return a.signIn()};
+      if(adapter){
+        try{return Promise.resolve(go(adapter)).catch(fail)}catch(e){fail(e);return Promise.resolve()}
+      }
+      return ensure().then(go).catch(fail);
     },
     signOut(){
       clearTimeout(timer);timer=null;user=null;synced=false;

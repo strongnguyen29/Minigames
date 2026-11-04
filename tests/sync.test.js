@@ -224,3 +224,19 @@ test('kéo lỗi khi đổi tài khoản thì không đẩy vào tài khoản m�
   assert.equal(g.get('cloud.state().signedIn'), false);
   assert.equal(g.get('S.name'), 'Mai'); assert.equal(g.get('S.stars'), 11);
 });
+
+test('prepare nạp sẵn adapter; signIn sau đó gọi adapter.signIn đồng bộ (không bị chặn popup)', async () => {
+  const g = setup({ local: { name: 'Mai', stars: 10 } });
+  g.run('var __called=false; var __orig=CLOUD_ADAPTER.signIn; CLOUD_ADAPTER.signIn=function(){__called=true;return __orig.apply(this,arguments)}');
+  await g.get('cloud.prepare()'); await flush();
+  const p = g.get('(()=>{const p=cloud.signIn();return [__called,p]})()');
+  assert.equal(p[0], true);
+  await p[1]; await flush();
+  assert.equal(g.get('cloud.state().signedIn'), true);
+});
+
+test('prepare nuốt lỗi nạp adapter', async () => {
+  const g = setup({ local: { name: 'Mai', stars: 10 } });
+  g.run('cloud.loadAdapter=()=>Promise.reject(new Error("offline"));var console={warn(){}}');
+  await g.get('cloud.prepare()');
+});

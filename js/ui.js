@@ -19,11 +19,37 @@ function welcome(){
     body:`<div class="wel"><h1 class="hero-t">Chào mừng bạn!</h1>
     <input class="inp" id="nm" maxlength="14" placeholder="Nhập tên của bạn" value="${esc(S.name)}">
     <div class="avs2">${AVATARS.map((a,i)=>`<button class="av2 enter ${a===av?'sel':''}" ${enter(i)} data-a="${a}">${a}</button>`).join('')}</div>
-    <button class="btn p-pink gloss big-go" id="go">Bắt đầu!</button></div>`});
+    <button class="btn p-pink gloss big-go" id="go">Bắt đầu!</button>
+    ${cloud.available?'<button class="btn p-gray small" id="cget">Đã có tiến độ? Đăng nhập để lấy lại</button>':''}</div>`});
+  if(cloud.available){cloud.prepare();$('#cget').onclick=()=>{sfx.click();cloud.signIn()}}
   mascotSay('welcome_ask',{ifIdle:true});
   app.querySelectorAll('.av2').forEach(b=>b.onclick=()=>{av=b.dataset.a;app.querySelectorAll('.av2').forEach(x=>x.classList.toggle('sel',x===b));sfx.click()});
   $('#go').onclick=()=>{S.name=$('#nm').value.trim()||'Bạn';S.avatar=av;S.profileUpdatedAt=Date.now();save();sfx.ok();voice.line('welcome_done');mascotReset();touchStreak();home()};
 }
+const RESET_CLOUD_MSG='Xoá tiến độ trên máy này? (Bản sao lưu trên mây vẫn còn)';
+let setM=null; // hộp Cài đặt đang mở (để vẽ lại khối Sao lưu khi trạng thái đổi)
+const hhmm=t=>{const d=new Date(t);return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')};
+function cloudDraw(){
+  const box=$('#cloud');if(!box)return;
+  if(!cloud.available){box.innerHTML='';box.style.display='none';return}
+  const c=cloud.state();
+  box.style.display='';
+  box.innerHTML=`<div class="ct">☁️ Sao lưu</div>`+(c.signedIn
+    ?`<div class="cmail">${esc(c.email)}</div>
+      ${c.error?'<div class="cst bad">Chưa sao lưu được, sẽ thử lại khi có mạng</div>':c.lastSync?`<div class="cst">Đã sao lưu lúc ${hhmm(c.lastSync)}</div>`:''}
+      <div class="row"><button class="btn p-blue small" id="csy">Đồng bộ ngay</button><button class="btn p-gray small" id="cout">Đăng xuất</button></div>`
+    :`<button class="btn p-blue small" id="cin">Đăng nhập Google để sao lưu</button><div class="cst">Giữ sao và quà của bé, chơi tiếp trên máy khác</div>`);
+  const on=(id,fn)=>{const b=$(id);if(b)b.onclick=fn};
+  on('#cin',()=>{sfx.click();cloud.signIn().then(cloudDraw)});
+  on('#csy',()=>{sfx.click();cloud.pull().then(cloudDraw)});
+  on('#cout',()=>{sfx.click();cloud.signOut().then(cloudDraw);cloudDraw()});
+  if(!c.signedIn)cloud.prepare();
+}
+cloud.onChange=hadName=>{
+  if(!hadName&&S.name){touchStreak();go(home)}
+  else if(app.querySelector('.hgrid'))go(home);
+  if(setM&&setM.isConnected)cloudDraw();
+};
 function settings(){
   sfx.click();
   const m=document.createElement('div');m.className='modal';
@@ -32,17 +58,20 @@ function settings(){
   <div class="sw">🗣️ Giọng Kuromi<button class="tg ${S.voice?'':'off'}" id="tv" aria-label="Giọng Kuromi"></button></div>
   <div class="sw">🎵 Âm thanh hiệu ứng<button class="tg ${S.sfx?'':'off'}" id="ts" aria-label="Âm thanh hiệu ứng"></button></div>
   <div class="sw">🎶 Nhạc nền<button class="tg ${S.music?'':'off'}" id="tm" aria-label="Nhạc nền"></button></div>
+  <div class="cloudbox" id="cloud"></div>
   <div class="row"><button class="btn p-purple" id="chg">✏️ Đổi tên / hình</button><button class="btn p-gray small" id="rst">Xoá dữ liệu</button></div>
   <div class="row"><button class="btn p-pink gloss" id="cl">Đóng</button></div>
   <img class="mm" src="${MASCOT_IMG.neutral}" alt="" draggable="false"></div>`;
   document.body.appendChild(m);
+  setM=m;cloudDraw();
   const snd=()=>{const b=$('.top .snd');if(b)b.textContent=anySound()?'🔊':'🔇'};
   $('#tv').onclick=e=>{S.voice=!S.voice;if(!S.voice)voice.stop();e.currentTarget.classList.toggle('off',!S.voice);save();snd()};
   $('#ts').onclick=e=>{S.sfx=!S.sfx;e.currentTarget.classList.toggle('off',!S.sfx);save();sfx.click();snd()};
   $('#tm').onclick=e=>{S.music=!S.music;e.currentTarget.classList.toggle('off',!S.music);save();music.sync();snd()};
   $('#cl').onclick=()=>m.remove();
   $('#chg').onclick=()=>{m.remove();go(welcome)};
-  $('#rst').onclick=()=>{if(confirm('Xoá hết sao, hình dán và tên của bé?')){try{localStorage.removeItem(KEY)}catch(e){}memFallback=null;S=freshSave();m.remove();go(welcome)}};
+  $('#rst').onclick=()=>{const inn=cloud.state().signedIn;
+    if(confirm(inn?RESET_CLOUD_MSG:'Xoá hết sao, hình dán và tên của bé?')){if(inn)cloud.signOut();try{localStorage.removeItem(KEY)}catch(e){}memFallback=null;S=freshSave();m.remove();go(welcome)}};
 }
 /* Trang chủ: 6 trò học + cờ caro, tiệm công chúa, bộ sưu tập */
 const HOME_ORDER=['count','shape','add','split','cmp','pattern'];
