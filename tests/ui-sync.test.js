@@ -6,14 +6,15 @@ const KEY = 'be_vui_hoc_toan_v1';
 const flush = async () => { for (let i = 0; i < 20; i++) await new Promise(r => setImmediate(r)); };
 
 const ADAPTER = `
-var __db={}, __user=null, __authCb=null, __asked=[], __confirm=true, __signedOut=0;
-var confirm=m=>{__asked.push(m);return __confirm};
+var __db={}, __user=null, __authCb=null, __asked=[], __confirm=true, __signedOut=0, __fail=false;
+/* __confirm là mảng thì trả lời lần lượt */
+var confirm=m=>{__asked.push(m);return Array.isArray(__confirm)?__confirm.shift():__confirm};
 window.CLOUD_ADAPTER={
   onAuth(cb){__authCb=cb;cb(__user)},
   signIn(){__user={uid:'u1',email:'mai@mail.com'};__authCb&&__authCb(__user);return Promise.resolve()},
   signOut(){__signedOut++;__user=null;__authCb&&__authCb(null);return Promise.resolve()},
   get(uid){return Promise.resolve(__db[uid]?JSON.parse(JSON.stringify(__db[uid])):null)},
-  set(uid,d){__db[uid]=JSON.parse(JSON.stringify(d));return Promise.resolve()}
+  set(uid,d){if(__fail)return Promise.reject(new Error('mất mạng'));__db[uid]=JSON.parse(JSON.stringify(d));return Promise.resolve()}
 };`;
 
 function setup({ local, withAdapter = true, db } = {}) {
@@ -51,7 +52,7 @@ test('Xoá dữ liệu khi đang đăng nhập: đăng xuất và câu hỏi nh�
   const g = setup({ local: { name: 'Mai', stars: 5 } });
   await g.get('cloud.signIn()'); await flush();
   g.run('settings()');
-  g.run("$('#rst').onclick()");
+  g.run("$('#rst').onclick()"); await flush();
   assert.equal(g.get('JSON.stringify(__asked)'), JSON.stringify(['Xoá tiến độ trên máy này? (Bản sao lưu trên mây vẫn còn)']));
   assert.equal(g.get('__signedOut'), 1);
   assert.equal(g.get('S.name'), '');
@@ -73,4 +74,69 @@ test('màn nhập tên + đăng nhập lấy được dữ liệu thì chuyển 
   g.run("$('#cget').onclick()"); await flush();
   assert.equal(g.get('S.name'), 'Mai');
   assert.ok(g.get('app.innerHTML').includes('hgrid'));
+});
+
+const RESET_MSG = 'Xoá tiến độ trên máy này? (Bản sao lưu trên mây vẫn còn)';
+const UNSYNCED_MSG = 'Chưa sao lưu được tiến độ mới nhất. Vẫn xoá? (Phần chưa sao lưu sẽ mất)';
+test('Xoá dữ liệu khi đang đăng nhập: đẩy phần chưa sao lưu lên mây trước khi xoá', async () => {
+  const g = setup({ local: { name: 'Mai', stars: 5 } });
+  await g.get('cloud.signIn()'); await flush();
+  g.run('S.stars=7;save()');
+  g.run('settings()');
+  g.run("$('#rst').onclick()"); await flush();
+  assert.equal(g.ctx.__db.u1.stars, 7);
+  assert.equal(g.get('JSON.stringify(__asked)'), JSON.stringify([RESET_MSG]));
+  assert.equal(g.get('S.name'), '');
+  assert.equal(g.get('cloud.state().signedIn'), false);
+});
+
+test('Xoá dữ liệu khi đẩy lỗi: hỏi lần hai; huỷ thì không xoá, đồng ý thì xoá', async () => {
+  const warn = console.warn; console.warn = () => {};
+  try {
+    const no = setup({ local: { name: 'Mai', stars: 5 } });
+    await no.get('cloud.signIn()'); await flush();
+    no.run('__fail=true;S.stars=7;save();__confirm=[true,false]');
+    no.run('settings()');
+    no.run("$('#rst').onclick()"); await flush();
+    assert.equal(no.get('JSON.stringify(__asked)'), JSON.stringify([RESET_MSG, UNSYNCED_MSG]));
+    assert.equal(no.get('S.name'), 'Mai'); assert.equal(no.get('S.stars'), 7);
+    assert.equal(no.get('cloud.state().signedIn'), true);
+    assert.equal(no.get('__signedOut'), 0);
+
+    const yes = setup({ local: { name: 'Mai', stars: 5 } });
+    await yes.get('cloud.signIn()'); await flush();
+    yes.run('__fail=true;S.stars=7;save();__confirm=[true,true]');
+    yes.run('settings()');
+    yes.run("$('#rst').onclick()"); await flush();
+    assert.equal(yes.get('JSON.stringify(__asked)'), JSON.stringify([RESET_MSG, UNSYNCED_MSG]));
+    assert.equal(yes.get('S.name'), '');
+    assert.equal(yes.get('cloud.state().signedIn'), false);
+  } finally { console.warn = warn; }
+});
+
+test('Xoá dữ liệu đổi deviceId: sao kiếm sau khi xoá được cộng thêm khi đồng bộ lại', async () => {
+  const g = setup({ local: { name: 'Mai', stars: 100 } });
+  const dev0 = g.get('deviceId()');
+  await g.get('cloud.signIn()'); await flush();
+  assert.equal(g.ctx.__db.u1.earned[dev0].stars, 100);
+  g.run('settings()');
+  g.run("$('#rst').onclick()"); await flush();
+  assert.notEqual(g.get('deviceId()'), dev0);
+  g.run("S.name='Mai';S.stars=5;save()");
+  await g.get('cloud.signIn()'); await flush();
+  assert.equal(g.get('S.stars'), 105);
+  assert.equal(g.ctx.__db.u1.stars, 105);
+});
+
+test('lối "Đăng nhập để lấy lại" chỉ hiện khi chưa có tên và chưa đăng nhập', async () => {
+  const named = setup({ local: { name: 'Mai' } });
+  named.run('welcome()');
+  assert.ok(!named.get('app.innerHTML').includes('Đăng nhập để lấy lại'), 'vào từ Đổi tên / hình');
+  const inn = setup({ db: {} });
+  await inn.get('cloud.signIn()'); await flush();
+  inn.run('welcome()');
+  assert.ok(!inn.get('app.innerHTML').includes('Đăng nhập để lấy lại'), 'đã đăng nhập');
+  const fresh = setup({});
+  fresh.run('welcome()');
+  assert.ok(fresh.get('app.innerHTML').includes('Đăng nhập để lấy lại'));
 });

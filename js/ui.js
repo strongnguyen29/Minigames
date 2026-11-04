@@ -15,18 +15,21 @@ const enter=i=>`style="--d:${(i*.05).toFixed(2)}s"`;
 
 function welcome(){
   let av=S.avatar;
+  /* lối lấy lại tiến độ: chỉ cho máy chưa có tên và chưa đăng nhập (không hiện khi vào từ Đổi tên / hình) */
+  const cget=cloud.available&&!S.name&&!cloud.state().signedIn;
   app.innerHTML=screenHTML({mascot:{emo:'neutral',size:'lg'},cls:'welcome',
     body:`<div class="wel"><h1 class="hero-t">Chào mừng bạn!</h1>
     <input class="inp" id="nm" maxlength="14" placeholder="Nhập tên của bạn" value="${esc(S.name)}">
     <div class="avs2">${AVATARS.map((a,i)=>`<button class="av2 enter ${a===av?'sel':''}" ${enter(i)} data-a="${a}">${a}</button>`).join('')}</div>
     <button class="btn p-pink gloss big-go" id="go">Bắt đầu!</button>
-    ${cloud.available?'<button class="btn p-gray small" id="cget">Đã có tiến độ? Đăng nhập để lấy lại</button>':''}</div>`});
-  if(cloud.available){cloud.prepare();$('#cget').onclick=()=>{sfx.click();cloud.signIn()}}
+    ${cget?'<button class="btn p-gray small" id="cget">Đã có tiến độ? Đăng nhập để lấy lại</button>':''}</div>`});
+  if(cget){cloud.prepare();$('#cget').onclick=()=>{sfx.click();cloud.signIn()}}
   mascotSay('welcome_ask',{ifIdle:true});
   app.querySelectorAll('.av2').forEach(b=>b.onclick=()=>{av=b.dataset.a;app.querySelectorAll('.av2').forEach(x=>x.classList.toggle('sel',x===b));sfx.click()});
   $('#go').onclick=()=>{S.name=$('#nm').value.trim()||'Bạn';S.avatar=av;S.profileUpdatedAt=Date.now();save();sfx.ok();voice.line('welcome_done');mascotReset();touchStreak();home()};
 }
 const RESET_CLOUD_MSG='Xoá tiến độ trên máy này? (Bản sao lưu trên mây vẫn còn)';
+const RESET_UNSYNCED_MSG='Chưa sao lưu được tiến độ mới nhất. Vẫn xoá? (Phần chưa sao lưu sẽ mất)';
 let setM=null; // hộp Cài đặt đang mở (để vẽ lại khối Sao lưu khi trạng thái đổi)
 const hhmm=t=>{const d=new Date(t);return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')};
 function cloudDraw(){
@@ -70,8 +73,11 @@ function settings(){
   $('#tm').onclick=e=>{S.music=!S.music;e.currentTarget.classList.toggle('off',!S.music);save();music.sync();snd()};
   $('#cl').onclick=()=>m.remove();
   $('#chg').onclick=()=>{m.remove();go(welcome)};
-  $('#rst').onclick=()=>{const inn=cloud.state().signedIn;
-    if(confirm(inn?RESET_CLOUD_MSG:'Xoá hết sao, hình dán và tên của bé?')){if(inn)cloud.signOut();try{localStorage.removeItem(KEY)}catch(e){}memFallback=null;S=freshSave();m.remove();go(welcome)}};
+  $('#rst').onclick=async()=>{const inn=cloud.state().signedIn;
+    if(!confirm(inn?RESET_CLOUD_MSG:'Xoá hết sao, hình dán và tên của bé?'))return;
+    /* đang đăng nhập: đẩy phần chưa sao lưu lên trước; đẩy không được thì hỏi lại */
+    if(inn){if(!(await cloud.flushNow())&&!confirm(RESET_UNSYNCED_MSG))return;cloud.signOut()}
+    try{localStorage.removeItem(KEY)}catch(e){}newDevice();memFallback=null;S=freshSave();m.remove();go(welcome)};
 }
 /* Trang chủ: 6 trò học + cờ caro, tiệm công chúa, bộ sưu tập */
 const HOME_ORDER=['count','shape','add','split','cmp','pattern'];

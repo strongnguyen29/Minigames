@@ -308,3 +308,17 @@ test('firebase-config.js không tải được thì sync.js vẫn nạp, cloud.a
   const g = loadGame(['js/core.js','js/merge.js','js/shop.js','js/sync.js']);
   assert.equal(g.get('cloud.available'), false);
 });
+
+test('flushNow: đẩy được thì true; ghi treo quá lâu thì false (không chặn mãi nút Xoá dữ liệu)', async () => {
+  const g = setup({ local: { name: 'Mai', stars: 10 } });
+  await g.signIn();
+  g.run('S.stars=12;save()');
+  assert.equal(await g.get('cloud.flushNow()'), true);
+  assert.equal(g.ctx.__db.u1.stars, 12);
+  g.run('CLOUD_ADAPTER.set=()=>new Promise(()=>{});S.stars=13;save()');
+  const p = g.get('cloud.flushNow()'); await flush();
+  const w = g.pending().find(t => t.ms === 8000);
+  assert.ok(w, 'có hẹn giờ chờ 8 giây');
+  w.f(); w.f = null;
+  assert.equal(await p, false);
+});

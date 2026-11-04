@@ -1,6 +1,6 @@
 /* ============ Đồng bộ tiến độ lên mây (sao lưu; localStorage vẫn là nơi lưu chính) ============ */
 const CLOUD_KEY='be_vui_cloud_v1';
-const PUSH_DELAY=3000;
+const PUSH_DELAY=3000,FLUSH_WAIT=8000;
 const SWITCH_MSG='Máy này đang có tiến độ của tài khoản khác. Dùng dữ liệu của tài khoản mới (tiến độ trên máy sẽ được thay)?';
 /* adapter Firebase thật: nạp SDK từ gstatic, Auth Google, Firestore (chỉ khi FIREBASE_CONFIG đã điền) */
 function firebaseAdapter(){
@@ -80,17 +80,19 @@ const cloud=(()=>{
       cloud.onChange(hadName);
     }catch(e){fail(e)}
   }
+  /* true: mây đã có bản mới nhất của máy */
   async function push(){
-    const u=user;if(!u||!adapter||!synced)return;
+    const u=user;if(!u||!adapter||!synced)return false;
     try{
       const remote=fromCloud(await adapter.get(u.uid));
       if(user!==u)return;
       if(remote){replace(merged(u,remote));writeLocal()}
-      else if(isEmptySave(S))return;
+      else if(isEmptySave(S))return true;
       const sent=await put(u);
-      if(user!==u)return;
+      if(user!==u)return false;
       wr(Object.assign({lastSync:Date.now(),error:undefined},baseOf(u,sent)));
-    }catch(e){fail(e)}
+      return true;
+    }catch(e){fail(e);return false}
   }
   /* chưa kéo thành công thì thử kéo lại (để bước hỏi đổi tài khoản chạy), không đẩy */
   const flush=()=>{clearTimeout(timer);timer=null;return run(()=>synced?push():pull())};
@@ -127,6 +129,11 @@ const cloud=(()=>{
     },
     pull:()=>run(pull),
     push:()=>run(push),
+    /* đẩy ngay (bỏ hẹn giờ), trả về true nếu đẩy được; dùng trước khi Xoá dữ liệu */
+    flushNow(){clearTimeout(timer);timer=null;
+      /* Firestore có thể treo lúc mất mạng: chờ tối đa FLUSH_WAIT rồi coi như chưa đẩy được */
+      let w;const t=new Promise(r=>{w=setTimeout(()=>r(false),FLUSH_WAIT)});
+      return Promise.race([run(push).then(r=>r===true),t]).then(r=>{clearTimeout(w);return r})},
     pushSoon(){
       if(!user||quiet||timer)return;
       timer=setTimeout(flush,PUSH_DELAY);

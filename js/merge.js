@@ -8,6 +8,8 @@ function deviceId(){
     if(!d){d=Date.now().toString(36)+Math.random().toString(36).slice(2,10);localStorage.setItem(DEVICE_KEY,d)}
     return d}catch(e){return memDevice||(memDevice=Date.now().toString(36)+Math.random().toString(36).slice(2,10))}
 }
+/* Xoá dữ liệu: máy nhận id mới, để sao kiếm sau đó không bị gộp max vào phần cũ của máy */
+function newDevice(){try{localStorage.removeItem(DEVICE_KEY)}catch(e){}memDevice=null}
 const isEmptySave=s=>!s||!s.name;
 /* phần của máy dev = tổng hiện có trừ phần các máy khác đã ghi (không âm) */
 function foldEarned(s,dev){
