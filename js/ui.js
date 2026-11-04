@@ -42,7 +42,7 @@ function settings(){
   $('#tm').onclick=e=>{S.music=!S.music;e.currentTarget.classList.toggle('off',!S.music);save();music.sync();snd()};
   $('#cl').onclick=()=>m.remove();
   $('#chg').onclick=()=>{m.remove();go(welcome)};
-  $('#rst').onclick=()=>{if(confirm('Xoá hết sao, hình dán và tên của bé?')){try{localStorage.removeItem(KEY)}catch(e){}memFallback=null;S=Object.assign({},DEF,{stickers:[],best:{},badges:[],owned:[],luckyGifts:[],giftOwned:[]});m.remove();go(welcome)}};
+  $('#rst').onclick=()=>{if(confirm('Xoá hết sao, hình dán và tên của bé?')){try{localStorage.removeItem(KEY)}catch(e){}memFallback=null;S=freshSave();m.remove();go(welcome)}};
 }
 /* Trang chủ: 6 trò học + cờ caro, tiệm công chúa, bộ sưu tập */
 const HOME_ORDER=['count','shape','add','split','cmp','pattern'];

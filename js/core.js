@@ -8,6 +8,8 @@ const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=R(0,i);[a[i]
 /* ============ Lưu trữ (localStorage) ============ */
 const KEY='be_vui_hoc_toan_v1';
 const DEF={name:'',avatar:'🐱',stars:0,gifts:0,stickers:[],best:{},rounds:0,perfect:0,streak:0,lastDay:'',sound:true,voice:true,sfx:true,music:true,badges:[],spent:0,owned:[],luckyGifts:[],giftOwned:[],earned:{},profileUpdatedAt:0,savedAt:0};
+/* bản mặc định mới: các mảng/object không dùng chung với DEF */
+const freshSave=()=>Object.assign({},DEF,{stickers:[],best:{},badges:[],owned:[],luckyGifts:[],giftOwned:[],earned:{}});
 let memFallback=null;
 function load(){
   try{const s=JSON.parse(localStorage.getItem(KEY));if(s){
@@ -16,7 +18,7 @@ function load(){
     /* bản đầu lưu luckyGifts là số đếm: coi như các hộp đó từ màn 1 */
     if(typeof s.luckyGifts==='number')s.luckyGifts=Array(s.luckyGifts).fill(0);
     return Object.assign({},DEF,{earned:{}},s)}}catch(e){if(memFallback)return memFallback}
-  return Object.assign({},DEF,{stickers:[],best:{},badges:[],owned:[],luckyGifts:[],giftOwned:[],earned:{}});
+  return freshSave();
 }
 function save(){S.savedAt=Date.now();try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){memFallback=S}}
 let S=load();

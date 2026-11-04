@@ -44,7 +44,8 @@ function mergeSave(local,remote,priceOf){
   const dl=dayNum(local.lastDay),dr=dayNum(remote.lastDay);
   if(dl===dr){out.lastDay=local.lastDay||'';out.streak=Math.max(local.streak||0,remote.streak||0)}
   else{const d=dr>dl?remote:local;out.lastDay=d.lastDay||'';out.streak=d.streak||0}
-  const p=(remote.profileUpdatedAt||0)>(local.profileUpdatedAt||0)?remote:local;
+  /* bên chưa có tên luôn thua; còn lại bên mới hơn thắng, bằng thì local */
+  const p=!remote.name?local:!local.name?remote:(remote.profileUpdatedAt||0)>(local.profileUpdatedAt||0)?remote:local;
   out.name=p.name;out.avatar=p.avatar;out.profileUpdatedAt=p.profileUpdatedAt||0;
   LOCAL_ONLY.forEach(k=>{if(k in local)out[k]=local[k];else delete out[k]});
   out.savedAt=Math.max(local.savedAt||0,remote.savedAt||0);

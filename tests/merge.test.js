@@ -65,3 +65,15 @@ test('save() đặt savedAt; dữ liệu cũ nạp vào có earned={} và không
   g.run('save()');
   assert.ok(JSON.parse(g.ctx.__store.get('be_vui_hoc_toan_v1')).savedAt > 0);
 });
+test('máy mới (tên rỗng) gộp với bản có tên thì giữ tên, dù profileUpdatedAt bằng nhau', () => {
+  const r = merge({ name:'', avatar:'🐱', profileUpdatedAt:0 }, { name:'Mai', avatar:'🐶', profileUpdatedAt:0 });
+  assert.equal(r.name, 'Mai'); assert.equal(r.avatar, '🐶');
+  const r2 = merge({ name:'Mai', avatar:'🐶', profileUpdatedAt:0 }, { name:'', avatar:'🐱', profileUpdatedAt:9 });
+  assert.equal(r2.name, 'Mai');
+});
+test('reset: freshSave có earned riêng, foldEarned không làm bẩn DEF', () => {
+  const g = load();
+  g.run("S=freshSave();S.stars=5;foldEarned(S,'Y')");
+  assert.deepEqual(plain(g.get('DEF.earned')), {});
+  assert.equal(g.get('S.earned.Y.stars'), 5);
+});
