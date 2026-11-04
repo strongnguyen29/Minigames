@@ -372,3 +372,28 @@ test('Live: Kuromi vui khi nói (nét mặt happy trong lúc trả lời)', asyn
   g.run('__live.opts.onText("Meo meo!")');
   assert.match(g.get('$("#mimg").src'), /happy/);
 });
+
+test('chạm liên tục lúc đang xin quyền micro: chatBegin cũ trả về muộn không đóng phiên Live mới và không bật hiệu ứng nghe nhầm', async () => {
+  const g = liveChat();
+  let resolveA;
+  g.ctx.__pendingA = new Promise(r => { resolveA = r; });
+  g.run(`var __n=0;chatRecStart=async(o)=>{__n++;__opts=o;if(__n===1)return __pendingA;return true};chatRecStop=()=>null`);
+  const p1 = g.get('chatToggle()');            // chatBegin A đang chờ micro
+  await waitTick();
+  await g.get('chatToggle()');                 // chạm lần 2: chatEnd, chưa thu được gì → idle, đóng phiên A
+  assert.equal(g.get('chatState'), 'idle');
+  const p3 = g.get('chatToggle()');            // chạm lần 3: chatBegin B
+  await p3;
+  assert.equal(g.get('chatState'), 'listening');
+  const closedBefore = g.get('__live.closed');
+  resolveA(false); await p1;                   // A trả về muộn
+  assert.equal(g.get('chatState'), 'listening');
+  assert.equal(g.get('__live.closed'), closedBefore, 'không được đóng phiên của B');
+});
+test('Live đã nói thì nét mặt vui không bị đổi lại thành "đang nghĩ"', async () => {
+  const g = liveChat();
+  await g.get('chatToggle()');
+  g.run('__live.opts.onAudioStart()');
+  await waitTick();
+  assert.match(g.get('$("#mimg").src'), /happy/);
+});

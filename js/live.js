@@ -37,12 +37,15 @@ const liveCloseKind=(code,reason)=>/api key/i.test(reason||'')?'key':'live';
 /* ---- Loa: phát tiếng Live (PCM 16-bit 24 kHz, từng mẩu nhỏ) nối liền nhau bằng Web Audio ----
    ctxFn trả AudioContext dùng chung `ac` (đã được voice.unlock mở khoá khi bé chạm nút — iOS cần cử chỉ thật) */
 function liveSpeaker(ctxFn=()=>{ac=ac||new(window.AudioContext||window.webkitAudioContext)();return ac}){
-  let next=0,pending=0,waiters=[],stopped=false;const srcs=new Set();
+  let next=0,pending=0,waiters=[],stopped=false,lastCtx=null;const srcs=new Set();
   const settle=()=>{if(pending)return;const w=waiters;waiters=[];w.forEach(r=>r(!stopped))};
   return{
     play(bytes){
       if(stopped)return;
-      const c=ctxFn();c.resume&&c.resume();
+      /* công tắc "Giọng Kuromi" / tắt tiếng chung: giống voice.clip, không phát (chữ vẫn hiện) */
+      if(typeof S!=='undefined'&&S.voice===false)return;
+      const c=lastCtx=ctxFn();
+      try{const r=c.resume&&c.resume();r&&r.catch&&r.catch(()=>{})}catch(e){}
       const n=bytes.length>>1,dv=new DataView(bytes.buffer,bytes.byteOffset,n*2);
       const buf=c.createBuffer(1,n,LIVE_OUT_RATE),ch=buf.getChannelData(0);
       for(let i=0;i<n;i++)ch[i]=dv.getInt16(i*2,true)/32768;
@@ -55,7 +58,9 @@ function liveSpeaker(ctxFn=()=>{ac=ac||new(window.AudioContext||window.webkitAud
     stop(){stopped=true;srcs.forEach(s=>{try{s.onended=null;s.stop()}catch(e){}});srcs.clear();pending=0;settle()},
     /* resolve khi phát hết (true) hoặc bị ngắt (false) */
     idle(){return pending?new Promise(r=>waiters.push(r)):Promise.resolve(!stopped)},
-    active:()=>pending>0
+    active:()=>pending>0,
+    /* còn bao nhiêu ms tiếng đã xếp lịch mà chưa phát */
+    remaining:()=>lastCtx?Math.max(0,next-lastCtx.currentTime)*1000:0
   };
 }
 
@@ -64,15 +69,25 @@ function liveSpeaker(ctxFn=()=>{ac=ac||new(window.AudioContext||window.webkitAud
    key (khoá bị từ chối) | live (không kết nối/đóng sớm) | net (bé nói xong mà quá LIVE_REPLY_MS không có tiếng) |
    format (model không nói gì) | cancelled (close()). Lỗi trước khi có tiếng → game rơi về đường chat + TTS cũ */
 let LIVE_REPLY_MS=15000,LIVE_CONNECT_MS=8000;
+/* đã có tiếng mà server im quá chừng này giữa chừng (không turnComplete) thì kết thúc một phần; chờ loa phát hết tối đa phần còn lại + SLACK
+   (iOS có thể tạm dừng AudioContext làm onended không bao giờ tới) */
+let LIVE_AUDIO_GAP_MS=8000,LIVE_DRAIN_SLACK_MS=2000;
 function liveOpen({key,WS=window.WebSocket,speaker=liveSpeaker(),onAudioStart,onText}={}){
-  let ws=null,ready=false,done=false,gotAudio=false,ended=false,reply='',heard='',replyTimer=0,connectTimer=0;
+  let ws=null,ready=false,done=false,gotAudio=false,ended=false,reply='',heard='',replyTimer=0,connectTimer=0,audioTimer=0,chain=Promise.resolve();
   const queue=[];
   let resolveTurn,rejectTurn;
   const turn=new Promise((res,rej)=>{resolveTurn=res;rejectTurn=rej});
   turn.catch(()=>{});
   const closeWs=()=>{try{ws&&ws.close()}catch(e){}};
-  const finish=fn=>{if(done)return;done=true;clearTimeout(replyTimer);clearTimeout(connectTimer);fn();closeWs()};
-  const fail=kind=>finish(()=>rejectTurn(new ChatError(kind)));
+  const finish=fn=>{if(done)return;done=true;clearTimeout(replyTimer);clearTimeout(connectTimer);clearTimeout(audioTimer);fn();closeWs()};
+  /* lỗi ở bất kỳ lúc nào cũng ngắt tiếng đang phát, khỏi để Kuromi nói tiếp sau khi báo lỗi */
+  const fail=kind=>finish(()=>{rejectTurn(new ChatError(kind));speaker.stop()});
+  /* chờ loa phát hết, nhưng không quá (phần còn lại + SLACK) */
+  const drain=()=>new Promise(res=>{
+    const t=setTimeout(res,(speaker.remaining?speaker.remaining():0)+LIVE_DRAIN_SLACK_MS);
+    speaker.idle().then(()=>{clearTimeout(t);res()});
+  });
+  const finishPartial=()=>drain().then(()=>finish(()=>resolveTurn({heard,reply,gotAudio:true,partial:true})));
   const raw=o=>{ws.send(JSON.stringify(o))};
   const send=o=>{
     if(done)return;
@@ -99,20 +114,23 @@ function liveOpen({key,WS=window.WebSocket,speaker=liveSpeaker(),onAudioStart,on
       if(!p.inlineData||!p.inlineData.data)continue;
       if(!gotAudio){gotAudio=true;clearTimeout(replyTimer);onAudioStart&&onAudioStart()}
       speaker.play(chatFromB64(p.inlineData.data));
+      clearTimeout(audioTimer);audioTimer=setTimeout(()=>{if(!done)finishPartial()},LIVE_AUDIO_GAP_MS);
     }
     if(sc.turnComplete){
       if(!gotAudio){fail('format');return}
-      speaker.idle().then(()=>finish(()=>resolveTurn({heard,reply,gotAudio:true})));
+      drain().then(()=>finish(()=>resolveTurn({heard,reply,gotAudio:true})));
     }
   }
   try{
     ws=new WS(liveUrl(key));
+    ws.binaryType='arraybuffer';
     ws.onopen=()=>{try{raw(liveSetup())}catch(e){fail('live')}};
-    ws.onmessage=ev=>onMessage(ev.data);
+    /* xử lý lần lượt từng khung theo thứ tự đến (khung Blob đọc chậm không được vượt mặt khung sau) */
+    ws.onmessage=ev=>{chain=chain.then(()=>onMessage(ev.data)).catch(()=>{});return chain};
     ws.onerror=()=>{if(!gotAudio)fail('live')};
     ws.onclose=e=>{
       if(done)return;
-      if(gotAudio)speaker.idle().then(()=>finish(()=>resolveTurn({heard,reply,gotAudio:true,partial:true})));
+      if(gotAudio)finishPartial();
       else fail(liveCloseKind(e&&e.code,e&&e.reason));
     };
     connectTimer=setTimeout(()=>{if(!ready)fail('live')},LIVE_CONNECT_MS);
@@ -123,7 +141,7 @@ function liveOpen({key,WS=window.WebSocket,speaker=liveSpeaker(),onAudioStart,on
     sendPcm(i16){send({realtimeInput:{audio:{data:chatB64(new Uint8Array(i16.buffer,i16.byteOffset,i16.byteLength)),mimeType:'audio/pcm;rate='+LIVE_IN_RATE}}})},
     /* bé nói xong: báo hết luồng âm thanh và chờ tiếng trả lời tối đa LIVE_REPLY_MS */
     endAudio(){if(ended)return;ended=true;send({realtimeInput:{audioStreamEnd:true}});armReply()},
-    close(){finish(()=>{rejectTurn(new ChatError('cancelled'));speaker.stop()})},
+    close(){speaker.stop();finish(()=>rejectTurn(new ChatError('cancelled')))},
     /* đang phát tiếng trả lời (để nhạc nền hạ âm lượng) */
     speaking:()=>speaker.active()
   };

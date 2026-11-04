@@ -78,6 +78,8 @@ let chatHist=[],chatEpoch=0,chatState='idle';
 /* Đường chính là Gemini Live (nghe và nói trực tiếp, xem js/live.js); lỗi trước khi có tiếng thì rơi về chat + TTS (chatAsk).
    chatLive = phiên Live của lượt đang chạy; chatLiveAudio = Live đã bắt đầu nói */
 let chatUseLive=true,chatLive=null,chatLiveAudio=false;
+/* chatBeginSeq tăng mỗi lần chatBegin: chatBegin cũ trả về muộn (đang chờ quyền micro) không được đụng vào phiên mới */
+let chatBeginSeq=0;
 const chatMicOK=()=>!!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia);
 const CHAT_ERR_LINE={format:'talk_unheard',limit:'talk_limit',mic:'talk_nomic'};
 function chatListen(on){const i=$('#mimg'),k=i&&i.parentNode;if(k&&k.classList)k.classList.toggle('listening',on)}
@@ -115,7 +117,7 @@ async function chatBegin(){
   if(!geminiKey()){chatKeyModal();return false}
   if(talkLeft()<=0){mascotSay('talk_limit');chatBuyModal();return false}
   voice.stop();voice.unlock();
-  const my=chatEpoch;
+  const my=chatEpoch,seq=++chatBeginSeq,stale=()=>seq!==chatBeginSeq||my!==chatEpoch;
   chatSet('listening');
   chatLiveAudio=false;
   chatLive=chatUseLive&&typeof liveOpen==='function'?liveOpen({key:geminiKey(),
@@ -127,11 +129,12 @@ async function chatBegin(){
       onAuto:r=>{if(my===chatEpoch)r==='stop'?chatEnd():chatNoSpeech()},
       onChunk:(c,rate)=>{if(live&&!chatLiveAudio)live.sendPcm(liveDownsample(c,rate))}
     });
-    if(!started||my!==chatEpoch){
-      if(my===chatEpoch){chatSet('idle');chatLiveClose()}
-      return false;
-    }
-  }catch(e){chatListen(false);chatSet('idle');chatLiveClose();mascotSay('talk_nomic');return false}
+    if(stale())return false;
+    if(!started){chatSet('idle');chatLiveClose();return false}
+  }catch(e){
+    if(stale())return false;
+    chatListen(false);chatSet('idle');chatLiveClose();mascotSay('talk_nomic');return false;
+  }
   chatListen(true);
   return true;
 }
@@ -160,7 +163,7 @@ async function chatEnd(){
   if(r.samples.length/r.rate*1000<TALK_MIN_MS){chatLiveClose();chatSet('idle');return}
   const my=chatEpoch,alive=()=>my===chatEpoch;
   chatSet('thinking');
-  mascot('think','…',{hold:true});
+  if(!chatLiveAudio)mascot('think','…',{hold:true});
   try{
     let done=false;
     if(live){

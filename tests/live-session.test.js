@@ -129,6 +129,44 @@ test('lỗi gửi (ws.send ném) trước khi có tiếng: lỗi live', async ()
   assert.equal(await kindOf(s.turn), 'live');
 });
 
+test('đã có tiếng mà server im giữa chừng (không turnComplete, không đóng): hết LIVE_AUDIO_GAP_MS thì kết thúc một phần, không treo', { timeout: 3000 }, async () => {
+  const { g, s, ws } = session(); g.run('LIVE_AUDIO_GAP_MS=20;LIVE_DRAIN_SLACK_MS=10');
+  ws.open(); await ws.msg({ setupComplete: {} }); await ws.msg(audioMsg([1, 0]));
+  const r = plain(await s.turn);
+  assert.equal(r.gotAudio, true); assert.equal(r.partial, true);
+  assert.equal(ws.closed, true);
+});
+test('loa không bao giờ báo phát xong (iOS tạm dừng AudioContext): turnComplete rồi vẫn kết thúc sau LIVE_DRAIN_SLACK_MS', { timeout: 3000 }, async () => {
+  const { g, s, ws } = session({ speaker: { play() {}, stop() {}, idle: () => new Promise(() => {}), active: () => true } });
+  g.run('LIVE_DRAIN_SLACK_MS=20');
+  ws.open(); await ws.msg({ setupComplete: {} }); await ws.msg(audioMsg([1, 0]));
+  await ws.msg({ serverContent: { turnComplete: true } });
+  assert.equal(plain(await s.turn).gotAudio, true);
+});
+test('khung dạng Blob đọc chậm không làm đảo thứ tự: tiếng phát đúng thứ tự, turnComplete không nuốt mẩu cuối', async () => {
+  const { s, ws, plays } = session();
+  ws.open(); await ws.msg({ setupComplete: {} });
+  const slow = o => ({ text: () => new Promise(r => setTimeout(() => r(JSON.stringify(o)), 40)) });
+  const fast = o => ({ text: async () => JSON.stringify(o) });
+  const a = ws.onmessage({ data: slow(audioMsg([1, 0])) });
+  const b = ws.onmessage({ data: fast(audioMsg([2, 0])) });
+  const c = ws.onmessage({ data: fast({ serverContent: { turnComplete: true } }) });
+  await Promise.all([a, b, c]); await s.turn;
+  assert.deepEqual(plays, [[1, 0], [2, 0]]);
+});
+test('liveOpen đặt binaryType=arraybuffer để khung nhị phân giải mã đồng bộ', () => {
+  const { ws } = session();
+  assert.equal(ws.binaryType, 'arraybuffer');
+});
+test('lỗi gửi sau khi đã có tiếng: ngắt tiếng đang phát (không để tiếng Kuromi chạy tiếp)', async () => {
+  const { s, ws, stopped } = session();
+  ws.open(); await ws.msg({ setupComplete: {} }); await ws.msg(audioMsg([1, 0]));
+  ws.send = () => { throw new Error('boom'); };
+  s.sendPcm(new Int16Array([1]));
+  await kindOf(s.turn);
+  assert.ok(stopped() >= 1);
+});
+
 /* ---- Loa phát tiếng Live (PCM 24 kHz) ---- */
 function speakerGame() {
   const g = game(), starts = [], srcs = [], bufs = [];
@@ -159,4 +197,23 @@ test('liveSpeaker: idle() xong khi mọi mẩu phát hết; stop() ngắt và id
   const b = speakerGame(); b.sp.play(pcm);
   const p = b.sp.idle(); b.sp.stop();
   assert.equal(await p, false); assert.equal(b.sp.active(), false);
+});
+
+test('liveSpeaker: tắt giọng Kuromi (S.voice=false) thì không phát tiếng Live', () => {
+  const { g, sp, srcs } = speakerGame();
+  g.run('S.voice=false');
+  sp.play(new Uint8Array(new Int16Array(240).buffer));
+  assert.equal(srcs.length, 0); assert.equal(sp.active(), false);
+});
+test('liveSpeaker: resume() bị từ chối không gây unhandled rejection', async () => {
+  const { g, sp } = speakerGame();
+  g.run('__c.resume=()=>Promise.reject(new Error("closed"))');
+  sp.play(new Uint8Array(new Int16Array(240).buffer));
+  await settle();
+});
+test('liveSpeaker: remaining() cho biết còn bao nhiêu ms phải phát', () => {
+  const { g, sp } = speakerGame();
+  sp.play(new Uint8Array(new Int16Array(2400).buffer));
+  const ms = sp.remaining();
+  assert.ok(ms > 90 && ms < 200, String(ms));
 });
