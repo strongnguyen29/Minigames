@@ -5,7 +5,8 @@
     "test": "node --test \"tests/**/*.test.js\"",
     "e2e": "node tests/e2e/smoke.mjs",
     "voice:export": "node tools/voice-export.mjs",
-    "voice:manifest": "node tools/voice-manifest.mjs"
+    "voice:manifest": "node tools/voice-manifest.mjs",
+    "voice:generate": "node tools/voice-generate.mjs"
   },
   "devDependencies": {
     "playwright": "1.64.1"

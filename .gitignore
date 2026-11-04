@@ -3,3 +3,4 @@
 .superpowers/
 node_modules/
 tests/e2e/shots/
+.env

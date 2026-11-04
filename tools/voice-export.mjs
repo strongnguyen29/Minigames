@@ -12,9 +12,42 @@ for (const [group, arr] of Object.entries(LINES)) for (const x of arr) rows.push
 for (const p of PHRASES) rows.push({ file: p.id + '.mp3', text: p.text, group: 'ghep_de', emotion: 'neutral', tone: 'đọc trung tính, đều giọng, không lên giọng cuối' });
 for (let n = 0; n <= 100; n++) rows.push({ file: `num_${n}.mp3`, text: numberWords(n), group: 'so', emotion: 'neutral', tone: 'đọc rõ, trung tính, không lên giọng cuối' });
 
+/* Thẻ cảm xúc (audio tag) của ElevenLabs v3 cho từng cách đọc; cột "elevenlabs" = thẻ + câu nói, dán thẳng vào ô nhập */
+const TAGS = {
+  'đọc rõ, trung tính, không lên giọng cuối': '[calm]',
+  'đọc trung tính, đều giọng, không lên giọng cuối': '[calm]',
+  'hào hứng, rõ ràng': '[excited]',
+  'reo vui': '[cheerfully]',
+  'reo vui, ngắn gọn': '[cheerfully]',
+  'reo vui, phấn khích': '[excited]',
+  'reo vui, tự hào': '[proudly]',
+  'reo vui, bất ngờ': '[surprised]',
+  'vui, rõ ràng': '[cheerfully]',
+  'hướng dẫn, vui': '[cheerfully]',
+  'trầm trồ': '[amazed]',
+  'tự hào': '[proudly]',
+  'ấm áp, thân thiện': '[warmly]',
+  'vui vẻ, khích lệ': '[encouragingly]',
+  'nhẹ nhàng, khích lệ': '[encouragingly]',
+  'nhẹ nhàng, an ủi': '[gently]',
+  'dịu dàng, động viên': '[gently]',
+  'nhẹ nhàng, giải thích': '[gently]',
+  'tinh nghịch, cười khúc khích': '[playfully] [giggles]',
+  'hào hứng, bí ẩn': '[mysteriously]',
+  'phấn khích': '[excited]',
+  'phấn khích, reo to': '[excited]',
+  'phấn khích, bất ngờ': '[surprised]',
+  'thì thầm gợi ý': '[whispers]',
+  'háo hức, tò mò': '[curious]',
+  'thân thiện, tò mò': '[curious]',
+  'thích thú, mơ mộng': '[dreamy]',
+};
+const EMO_TAG = { neutral: '[calm]', happy: '[cheerfully]', think: '[gently]', clap: '[excited]' };
+for (const r of rows) r.elevenlabs = `${TAGS[r.tone] || EMO_TAG[r.emotion] || ''} ${r.text}`.trim();
+
 const csv = v => /[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v;
 const out = path.join(ROOT, 'audio/voice');
-fs.writeFileSync(path.join(out, 'script.csv'), ['file,text,group,emotion,tone', ...rows.map(r => [r.file, r.text, r.group, r.emotion, r.tone].map(csv).join(','))].join('\n') + '\n');
+fs.writeFileSync(path.join(out, 'script.csv'), ['file,text,group,emotion,tone,elevenlabs', ...rows.map(r => [r.file, r.text, r.group, r.emotion, r.tone, r.elevenlabs].map(csv).join(','))].join('\n') + '\n');
 
 const EMO = { neutral: 'Trung tính', happy: 'Vui sướng', think: 'Suy nghĩ', clap: 'Vỗ tay' };
 let md = `# Kịch bản giọng Kuromi\n\nTổng cộng **${rows.length} file**. Đặt tên file đúng cột "File", bỏ vào \`audio/voice/\`, rồi chạy \`npm run voice:manifest\`.\n`;
@@ -47,6 +80,7 @@ Không ghi tên diễn viên lồng tiếng hay nhân vật có bản quyền v�
 - **Chỉ dùng một giọng đã lưu cho tất cả các file**, để các mẩu ghép nghe liền mạch.
 - Stability khoảng 0,5; Similarity khoảng 0,75; Style thấp với mẩu ghép, cao hơn với câu cảm xúc.
 - Câu cố định: đọc theo cột "Cách đọc" và "Cảm xúc".
+- **Cột \`elevenlabs\` trong \`script.csv\`** là câu đã ghép sẵn thẻ cảm xúc (ví dụ \`[excited] Yeah! Mình là Kuromi…\`): copy cả ô dán thẳng vào ô nhập. Thẻ chỉ có tác dụng với model **Eleven v3**.
 - **Mẩu ghép đề và mẩu số**: đọc trung tính, đều giọng, không lên giọng hay xuống giọng ở cuối, không ngừng dài ở đầu hoặc cuối file.
 - Xuất mp3 (44,1kHz, 128kbps là đủ).
 

@@ -16,6 +16,7 @@ Không ghi tên diễn viên lồng tiếng hay nhân vật có bản quyền v�
 - **Chỉ dùng một giọng đã lưu cho tất cả các file**, để các mẩu ghép nghe liền mạch.
 - Stability khoảng 0,5; Similarity khoảng 0,75; Style thấp với mẩu ghép, cao hơn với câu cảm xúc.
 - Câu cố định: đọc theo cột "Cách đọc" và "Cảm xúc".
+- **Cột `elevenlabs` trong `script.csv`** là câu đã ghép sẵn thẻ cảm xúc (ví dụ `[excited] Yeah! Mình là Kuromi…`): copy cả ô dán thẳng vào ô nhập. Thẻ chỉ có tác dụng với model **Eleven v3**.
 - **Mẩu ghép đề và mẩu số**: đọc trung tính, đều giọng, không lên giọng hay xuống giọng ở cuối, không ngừng dài ở đầu hoặc cuối file.
 - Xuất mp3 (44,1kHz, 128kbps là đủ).
 
