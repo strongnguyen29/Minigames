@@ -56,16 +56,17 @@ const TTS_RATE=1.14,TTS_PITCH=1.3;
 const Q_FILE_RATE=1.3;
 const SILENT_WAV='data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
 const voice=(()=>{
-  let token=0,cur=null,el=null;const last={};
+  let token=0,cur=null,el=null,clipUrl=null;const last={};
   /* iOS chỉ cho phát phần tử Audio đã được "mở khoá" bằng một lần chạm → dùng lại một phần tử duy nhất */
   const audio=()=>el||(el=new Audio());
   const have=id=>VOICE_FILES.includes(id);
   /* emoji có tên (🍎 → quả táo) được đọc thành chữ, emoji trang trí thì bỏ */
   const words=t=>{let s=String(t);for(const [e,w] of Object.entries(EMOJI_WORDS))s=s.split(e).join(' '+w+' ');return s};
   const plain=t=>words(t).replace(/[\p{Extended_Pictographic}‍️]/gu,'').replace(/\s+/g,' ').trim();
+  function freeClip(){if(clipUrl){try{URL.revokeObjectURL(clipUrl)}catch(e){}clipUrl=null}}
   function finish(ok){if(!cur)return;const c=cur;cur=null;c.resolve(ok)}
   function stop(){
-    token++;finish(false);
+    token++;finish(false);freeClip();
     if(el){el.onended=el.onerror=null;try{el.pause()}catch(e){}}
     try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){}
   }
@@ -105,6 +106,22 @@ const voice=(()=>{
       next();
     });
   }
+  /* Phát âm thanh WAV do Gemini TTS trả về; không có wav hoặc phát lỗi thì đọc chữ bằng giọng máy */
+  function clip(wav,text){
+    stop();const my=token;
+    return new Promise(resolve=>{
+      cur={resolve};
+      if(S.voice===false){finish(true);return}
+      const done=()=>{if(my===token){freeClip();finish(true)}};
+      if(!wav){tts(text,done);return}
+      try{clipUrl=URL.createObjectURL(new Blob([wav],{type:'audio/wav'}))}catch(e){tts(text,done);return}
+      const a=audio();
+      const fail=()=>{if(my!==token)return;a.onended=a.onerror=null;freeClip();tts(text,done)};
+      a.onended=()=>{a.onended=a.onerror=null;done()};a.onerror=fail;a.src=clipUrl;
+      a.defaultPlaybackRate=a.playbackRate=1;
+      try{const p=a.play();p&&p.catch&&p.catch(fail)}catch(e){fail()}
+    });
+  }
   return{
     unlock(){
       try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();ac.resume&&ac.resume()}catch(e){}
@@ -125,6 +142,7 @@ const voice=(()=>{
     },
     busy(){return !!cur},
     text(t){return play(segment(t),t,Q_FILE_RATE)},
+    clip,
     stop
   };
 })();

@@ -1,6 +1,6 @@
 # Kịch bản giọng Kuromi
 
-Tổng cộng **302 file**. Đặt tên file đúng cột "File", bỏ vào `audio/voice/`, rồi chạy `npm run voice:manifest`.
+Tổng cộng **317 file**. Đặt tên file đúng cột "File", bỏ vào `audio/voice/`, rồi chạy `npm run voice:manifest`.
 
 ## Điểm chạm: splash
 
@@ -326,6 +326,46 @@ Tổng cộng **302 file**. Đặt tên file đúng cột "File", bỏ vào `aud
 | `welcome_done_1.mp3` | Tên đẹp quá! Mình chơi thôi! | Vui sướng | reo vui |
 | `welcome_done_2.mp3` | Rất vui được làm quen với bạn! | Vui sướng | reo vui |
 | `welcome_done_3.mp3` | Yeah! Mình bắt đầu nha! | Vui sướng | reo vui |
+
+## Điểm chạm: talk_hint
+
+| File | Câu nói | Cảm xúc | Cách đọc |
+|---|---|---|---|
+| `talk_hint_1.mp3` | Nhấn giữ vào mình rồi nói chuyện với mình nha! | Vui sướng | ấm áp, thân thiện |
+| `talk_hint_2.mp3` | Bạn ơi, giữ tay vào mình và nói đi, mình nghe nè! | Vui sướng | ấm áp, thân thiện |
+| `talk_hint_3.mp3` | Muốn trò chuyện với mình không? Nhấn giữ vào mình nhé! | Vui sướng | ấm áp, thân thiện |
+
+## Điểm chạm: talk_unheard
+
+| File | Câu nói | Cảm xúc | Cách đọc |
+|---|---|---|---|
+| `talk_unheard_1.mp3` | Mình chưa nghe rõ, bạn nói lại nha! | Suy nghĩ | dịu dàng, ấm áp |
+| `talk_unheard_2.mp3` | Ơ, mình nghe chưa kỹ, bạn nói lại giúp mình nhé! | Suy nghĩ | dịu dàng, ấm áp |
+| `talk_unheard_3.mp3` | Bạn nói to hơn một chút được không nè? | Suy nghĩ | dịu dàng, ấm áp |
+
+## Điểm chạm: talk_limit
+
+| File | Câu nói | Cảm xúc | Cách đọc |
+|---|---|---|---|
+| `talk_limit_1.mp3` | Hôm nay mình nói chuyện đủ rồi! Bạn đổi sao để nói thêm nhé! | Suy nghĩ | dịu dàng, giải thích |
+| `talk_limit_2.mp3` | Hết lượt nói chuyện hôm nay rồi, mai mình nói tiếp nha! | Suy nghĩ | dịu dàng, giải thích |
+| `talk_limit_3.mp3` | Muốn nói chuyện thêm thì bạn đổi sao nhé, hoặc đợi mai nha! | Suy nghĩ | dịu dàng, giải thích |
+
+## Điểm chạm: talk_error
+
+| File | Câu nói | Cảm xúc | Cách đọc |
+|---|---|---|---|
+| `talk_error_1.mp3` | Ôi, mình hơi mệt chút xíu, bạn thử lại sau nha! | Suy nghĩ | dịu dàng, ấm áp |
+| `talk_error_2.mp3` | Mình chưa nghe được bạn, mình thử lại sau nhé! | Suy nghĩ | dịu dàng, ấm áp |
+| `talk_error_3.mp3` | Ơ, có chút trục trặc rồi, bạn đợi mình một lát nha! | Suy nghĩ | dịu dàng, ấm áp |
+
+## Điểm chạm: talk_nomic
+
+| File | Câu nói | Cảm xúc | Cách đọc |
+|---|---|---|---|
+| `talk_nomic_1.mp3` | Bạn nhờ ba mẹ bật micro giúp mình nha! | Suy nghĩ | dịu dàng, ấm áp |
+| `talk_nomic_2.mp3` | Mình chưa nghe được, bạn nhờ ba mẹ cho phép dùng micro nhé! | Suy nghĩ | dịu dàng, ấm áp |
+| `talk_nomic_3.mp3` | Cần ba mẹ bật micro thì mình mới nghe bạn nói được đó! | Suy nghĩ | dịu dàng, ấm áp |
 
 ## Điểm chạm: poke
 

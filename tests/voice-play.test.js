@@ -16,14 +16,14 @@ function setup({ have = [], bad = [], noTTS = false, voiceOn = true } = {}) {
 }
 const ALL = ['num_5','p_cong','num_7','p_bang_may'];
 
-test('LINES: mỗi nhóm 3–5 câu, id duy nhất, emo hợp lệ, đủ 41 nhóm', () => {
+test('LINES: mỗi nhóm 3–5 câu, id duy nhất, emo hợp lệ, đủ 46 nhóm', () => {
   const { g } = setup(); const L = g.get('LINES'); const ids = new Set();
   for (const [grp, arr] of Object.entries(L)) {
     assert.ok(arr.length >= 3 && arr.length <= 5, grp);
     for (const x of arr) { assert.ok(!ids.has(x.id), x.id); ids.add(x.id);
       assert.ok(['neutral','happy','think','clap'].includes(x.emo), x.id); assert.ok(x.text && x.tone, x.id); }
   }
-  assert.equal(Object.keys(L).length, 41);
+  assert.equal(Object.keys(L).length, 46);
 });
 test('voice.text phát đủ mẩu khi có file', async () => {
   const { v, played, tts } = setup({ have: ALL });
@@ -121,4 +121,41 @@ test('lời thoại xưng "bạn", không gọi "bé" (trừ "bé hơn" nghĩa l
   for (const arr of Object.values(g.get('LINES'))) for (const x of arr)
     if (/(^|[^\p{L}])[Bb]é(?!\p{L})(?! hơn)/u.test(x.text)) bad.push(x.id + ': ' + x.text);
   assert.deepEqual(bad, []);
+});
+
+test('LINES có đủ nhóm câu cho tính năng nói chuyện với Kuromi', () => {
+  const { g } = setup(); const L = g.get('LINES');
+  for (const k of ['talk_hint', 'talk_unheard', 'talk_limit', 'talk_error', 'talk_nomic']) assert.ok(L[k] && L[k].length === 3, k);
+});
+const WAV = () => new Uint8Array(48);
+test('voice.clip phát âm thanh Gemini qua phần tử Audio dùng chung', async () => {
+  const { g, v, played, tts } = setup();
+  g.ctx.__w = WAV();
+  assert.equal(await g.get('voice.clip(__w,"Chào bé")'), true);
+  assert.equal(played.length, 1); assert.match(played[0], /^blob:/); assert.equal(tts.length, 0);
+});
+test('voice.clip không có wav thì đọc bằng giọng máy', async () => {
+  const { v, played, tts } = setup();
+  assert.equal(await v.clip(null, 'Chào bé'), true);
+  assert.equal(played.length, 0); assert.equal(tts[0].text, 'Chào bé');
+});
+test('voice.clip: phát lỗi thì rơi về giọng máy', async () => {
+  const { g, tts } = setup({ bad: [] });
+  g.run(`Audio=class{constructor(){this.src=''}play(){setTimeout(()=>this.onerror&&this.onerror(),1);return Promise.resolve()}pause(){}}`);
+  g.ctx.__w = WAV();
+  assert.equal(await g.get('voice.clip(__w,"Chào bé")'), true);
+  assert.equal(tts[0].text, 'Chào bé');
+});
+test('stop() cắt clip và promise resolve false', async () => {
+  const { g, v } = setup();
+  g.run(`Audio=class{constructor(){this.src=''}play(){return Promise.resolve()}pause(){}}`);
+  g.ctx.__w = WAV();
+  const p = g.get('voice.clip(__w,"Chào bé")'); v.stop();
+  assert.equal(await p, false);
+});
+test('tắt giọng thì clip resolve ngay, không phát', async () => {
+  const { g, played, tts } = setup({ voiceOn: false });
+  g.ctx.__w = WAV();
+  assert.equal(await g.get('voice.clip(__w,"Chào bé")'), true);
+  assert.equal(played.length + tts.length, 0);
 });

@@ -124,6 +124,21 @@ welcome_ask_3.mp3,Mình là Kuromi nè! Bạn tên gì thế?,welcome_ask,neutra
 welcome_done_1.mp3,Tên đẹp quá! Mình chơi thôi!,welcome_done,happy,reo vui,[cheerfully] Tên đẹp quá! Mình chơi thôi!
 welcome_done_2.mp3,Rất vui được làm quen với bạn!,welcome_done,happy,reo vui,[cheerfully] Rất vui được làm quen với bạn!
 welcome_done_3.mp3,Yeah! Mình bắt đầu nha!,welcome_done,happy,reo vui,[cheerfully] Yeah! Mình bắt đầu nha!
+talk_hint_1.mp3,Nhấn giữ vào mình rồi nói chuyện với mình nha!,talk_hint,happy,"ấm áp, thân thiện",[warmly] Nhấn giữ vào mình rồi nói chuyện với mình nha!
+talk_hint_2.mp3,"Bạn ơi, giữ tay vào mình và nói đi, mình nghe nè!",talk_hint,happy,"ấm áp, thân thiện","[warmly] Bạn ơi, giữ tay vào mình và nói đi, mình nghe nè!"
+talk_hint_3.mp3,Muốn trò chuyện với mình không? Nhấn giữ vào mình nhé!,talk_hint,happy,"ấm áp, thân thiện",[warmly] Muốn trò chuyện với mình không? Nhấn giữ vào mình nhé!
+talk_unheard_1.mp3,"Mình chưa nghe rõ, bạn nói lại nha!",talk_unheard,think,"dịu dàng, ấm áp","[gently] Mình chưa nghe rõ, bạn nói lại nha!"
+talk_unheard_2.mp3,"Ơ, mình nghe chưa kỹ, bạn nói lại giúp mình nhé!",talk_unheard,think,"dịu dàng, ấm áp","[gently] Ơ, mình nghe chưa kỹ, bạn nói lại giúp mình nhé!"
+talk_unheard_3.mp3,Bạn nói to hơn một chút được không nè?,talk_unheard,think,"dịu dàng, ấm áp",[gently] Bạn nói to hơn một chút được không nè?
+talk_limit_1.mp3,Hôm nay mình nói chuyện đủ rồi! Bạn đổi sao để nói thêm nhé!,talk_limit,think,"dịu dàng, giải thích",[gently] Hôm nay mình nói chuyện đủ rồi! Bạn đổi sao để nói thêm nhé!
+talk_limit_2.mp3,"Hết lượt nói chuyện hôm nay rồi, mai mình nói tiếp nha!",talk_limit,think,"dịu dàng, giải thích","[gently] Hết lượt nói chuyện hôm nay rồi, mai mình nói tiếp nha!"
+talk_limit_3.mp3,"Muốn nói chuyện thêm thì bạn đổi sao nhé, hoặc đợi mai nha!",talk_limit,think,"dịu dàng, giải thích","[gently] Muốn nói chuyện thêm thì bạn đổi sao nhé, hoặc đợi mai nha!"
+talk_error_1.mp3,"Ôi, mình hơi mệt chút xíu, bạn thử lại sau nha!",talk_error,think,"dịu dàng, ấm áp","[gently] Ôi, mình hơi mệt chút xíu, bạn thử lại sau nha!"
+talk_error_2.mp3,"Mình chưa nghe được bạn, mình thử lại sau nhé!",talk_error,think,"dịu dàng, ấm áp","[gently] Mình chưa nghe được bạn, mình thử lại sau nhé!"
+talk_error_3.mp3,"Ơ, có chút trục trặc rồi, bạn đợi mình một lát nha!",talk_error,think,"dịu dàng, ấm áp","[gently] Ơ, có chút trục trặc rồi, bạn đợi mình một lát nha!"
+talk_nomic_1.mp3,Bạn nhờ ba mẹ bật micro giúp mình nha!,talk_nomic,think,"dịu dàng, ấm áp",[gently] Bạn nhờ ba mẹ bật micro giúp mình nha!
+talk_nomic_2.mp3,"Mình chưa nghe được, bạn nhờ ba mẹ cho phép dùng micro nhé!",talk_nomic,think,"dịu dàng, ấm áp","[gently] Mình chưa nghe được, bạn nhờ ba mẹ cho phép dùng micro nhé!"
+talk_nomic_3.mp3,Cần ba mẹ bật micro thì mình mới nghe bạn nói được đó!,talk_nomic,think,"dịu dàng, ấm áp",[gently] Cần ba mẹ bật micro thì mình mới nghe bạn nói được đó!
 poke_1.mp3,"Hihi, nhột quá!",poke,happy,"tinh nghịch, cười khúc khích","[playfully] [giggles] Hihi, nhột quá!"
 poke_2.mp3,Bạn chọc mình à? Hihi!,poke,happy,"tinh nghịch, cười khúc khích",[playfully] [giggles] Bạn chọc mình à? Hihi!
 poke_3.mp3,Mình thương bạn lắm!,poke,happy,"tinh nghịch, cười khúc khích",[playfully] [giggles] Mình thương bạn lắm!
