@@ -1,44 +1,41 @@
 const test = require('node:test'), assert = require('node:assert/strict');
 const { loadGame } = require('./helpers/load');
 
-/* Hẹn giờ giả: chỉ chạy khi test gọi fire() */
-function gesture(opts = {}) {
+/* Phát hiện bé ngừng nói: mỗi lần push(rms, ms) cho một đoạn âm thanh dài ms; trả 'stop' | 'nospeech' | null */
+function vad(opts = {}) {
   const g = loadGame(['js/core.js', 'js/chat.js', 'js/chat-ui.js']);
-  const log = [], timers = new Map(); let n = 0;
-  g.ctx.__cb = {
-    onTap: () => log.push('tap'), onHold: () => log.push('hold'), onRelease: () => log.push('release'),
-    setT: fn => { timers.set(++n, fn); return n; }, clearT: id => timers.delete(id), ...opts
-  };
-  const h = g.get('holdGesture({holdMs:350,...__cb})');
-  return { h, log, fire: () => { [...timers.values()].forEach(f => f()); timers.clear(); }, timers };
+  g.ctx.__o = opts;
+  return g.get('chatVad(__o)');
 }
-
-test('holdGesture: chạm nhanh chỉ gọi onTap', () => {
-  const { h, log, timers } = gesture();
-  h.down(); h.up();
-  assert.deepEqual(log, ['tap']); assert.equal(timers.size, 0);
+const LOUD = 0.1, QUIET = 0.001;
+test('chatVad: bé nói rồi im đủ 1,5 giây thì stop', () => {
+  const v = vad();
+  assert.equal(v.push(LOUD, 500), null);
+  assert.equal(v.push(QUIET, 1000), null);
+  assert.equal(v.push(QUIET, 500), 'stop');
 });
-test('holdGesture: giữ qua ngưỡng gọi onHold một lần, thả thì onRelease và không onTap', () => {
-  const { h, log, fire } = gesture();
-  h.down(); fire(); h.up();
-  assert.deepEqual(log, ['hold', 'release']);
+test('chatVad: im ngắn giữa chừng (ngập ngừng) thì không stop, nói tiếp thì đếm lại', () => {
+  const v = vad();
+  v.push(LOUD, 500);
+  assert.equal(v.push(QUIET, 1400), null);
+  assert.equal(v.push(LOUD, 300), null);
+  assert.equal(v.push(QUIET, 1400), null);
+  assert.equal(v.push(QUIET, 200), 'stop');
 });
-test('holdGesture: cancel giữa lúc đang giữ thì onRelease một lần', () => {
-  const { h, log, fire } = gesture();
-  h.down(); fire(); h.cancel(); h.cancel(); h.up();
-  assert.deepEqual(log, ['hold', 'release']);
+test('chatVad: im từ đầu quá 8 giây thì nospeech', () => {
+  const v = vad();
+  assert.equal(v.push(QUIET, 7900), null);
+  assert.equal(v.push(QUIET, 200), 'nospeech');
 });
-test('holdGesture: cancel trước ngưỡng thì không gọi gì', () => {
-  const { h, log, timers } = gesture();
-  h.down(); h.cancel();
-  assert.deepEqual(log, []); assert.equal(timers.size, 0);
+test('chatVad: im lúc đầu rồi mới nói thì không nospeech', () => {
+  const v = vad();
+  v.push(QUIET, 3000); v.push(LOUD, 500);
+  assert.equal(v.push(QUIET, 6000), 'stop');
 });
-test('holdGesture: down hai lần liên tiếp không tạo hai hẹn giờ', () => {
-  const { h, log, fire, timers } = gesture();
-  h.down(); h.down();
-  assert.equal(timers.size, 1);
-  fire();
-  assert.deepEqual(log, ['hold']);
+test('chatVad: nói liên tục thì dừng ở giới hạn tối đa', () => {
+  const v = vad({ maxMs: 3000 });
+  assert.equal(v.push(LOUD, 2900), null);
+  assert.equal(v.push(LOUD, 200), 'stop');
 });
 
 /* micro + AudioContext giả: getUserMedia trả luồng khi gọi release() (hoặc ngay nếu không đợi) */
@@ -92,4 +89,27 @@ test('chatRecStart: máy không có micro thì ném ChatError mic; chatRecStop k
   const kind = await g.get('chatRecStart()').then(() => null, e => e.kind);
   assert.equal(kind, 'mic');
   assert.equal(g.get('chatRecStop()'), null);
+});
+
+/* Bộ xử lý âm thanh giả: tiêm từng đoạn 4096 mẫu ở 16 kHz (256 ms) với biên độ amp */
+async function vadGame() {
+  const g = micGame();
+  g.run(`var __procs=[];AudioContext.prototype.createScriptProcessor=function(){const p={connect(){},disconnect(){}};__procs.push(p);return p}`);
+  const events = [];
+  g.ctx.__auto = r => events.push(r);
+  await g.get('chatRecStart({onAuto:__auto})');
+  const feed = (amp, n = 1) => { g.ctx.__c = { inputBuffer: { getChannelData: () => new Float32Array(4096).fill(amp) } }; for (let i = 0; i < n; i++) g.run('__procs[0].onaudioprocess(__c)'); };
+  return { g, events, feed };
+}
+test('chatRecStart: bé nói rồi im thì gọi onAuto("stop") đúng một lần', async () => {
+  const { events, feed } = await vadGame();
+  feed(0.1, 4); feed(0.0, 8);
+  assert.deepEqual(events, ['stop']);
+  feed(0.0, 8);
+  assert.deepEqual(events, ['stop']);
+});
+test('chatRecStart: im từ đầu thì gọi onAuto("nospeech")', async () => {
+  const { events, feed } = await vadGame();
+  feed(0.0, 40);
+  assert.deepEqual(events, ['nospeech']);
 });

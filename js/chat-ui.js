@@ -4,16 +4,17 @@ const TALK_MIN_MS=600;
 /* Thu tối đa chừng này giây (giữ lâu hơn thì phần sau bị bỏ): giữ yêu cầu gửi Gemini nhỏ, không vượt giới hạn 20 MB */
 let TALK_MAX_S=20;
 
-/* Phân biệt chạm nhanh (onTap) với nhấn giữ (onHold…onRelease). setT/clearT tiêm vào để test */
-function holdGesture({holdMs=350,onHold,onRelease,onTap,setT=setTimeout,clearT=clearTimeout}){
-  let timer=0,held=false,down=false;
-  const clear=()=>{if(timer){clearT(timer);timer=0}};
-  const release=()=>{if(held){held=false;onRelease&&onRelease();return true}return false};
-  return{
-    down(){if(down)return;down=true;held=false;timer=setT(()=>{timer=0;held=true;onHold&&onHold()},holdMs)},
-    up(){if(!down)return;down=false;clear();if(!release())onTap&&onTap()},
-    cancel(){if(!down)return;down=false;clear();release()}
-  };
+/* Biết khi nào bé ngừng nói. push(rms, ms) cho từng đoạn âm thanh dài ms (tính theo mẫu thật, không theo đồng hồ):
+   'stop' = bé đã nói rồi im đủ silenceMs, hoặc đã tới maxMs; 'nospeech' = quá noSpeechMs mà chưa nghe tiếng nói */
+function chatVad({speechRms=0.02,silenceMs=1500,noSpeechMs=8000,maxMs=TALK_MAX_S*1000}={}){
+  let t=0,spoke=false,quiet=0;
+  return{push(rms,ms){
+    t+=ms;
+    if(rms>=speechRms){spoke=true;quiet=0}else if(spoke)quiet+=ms;
+    if(t>=maxMs||(spoke&&quiet>=silenceMs))return'stop';
+    if(!spoke&&t>=noSpeechMs)return'nospeech';
+    return null;
+  }};
 }
 
 /* ---- Thu âm: PCM mono bằng Web Audio (iPhone Safari và Chrome Android đều chạy; sau đó mã hoá WAV) ----
@@ -24,7 +25,8 @@ function chatRecRelease(r){
   try{r.proc.disconnect();r.src.disconnect()}catch(e){}
   try{r.ctx.close()}catch(e){}
 }
-async function chatRecStart(){
+/* onAuto('stop'|'nospeech') được gọi một lần khi bé ngừng nói / không nói gì */
+async function chatRecStart({onAuto}={}){
   chatRecCancel();
   const my=++recSeq;
   const md=navigator.mediaDevices;
@@ -36,10 +38,14 @@ async function chatRecStart(){
   try{
     const ctx=new AC();ctx.resume&&ctx.resume();
     const src=ctx.createMediaStreamSource(stream),proc=ctx.createScriptProcessor(4096,1,1),chunks=[];
-    let total=0;
+    let total=0,fired=false;
+    const vad=chatVad();
     proc.onaudioprocess=e=>{
       if(total>=ctx.sampleRate*TALK_MAX_S)return;
       const c=new Float32Array(e.inputBuffer.getChannelData(0));total+=c.length;chunks.push(c);
+      const rms=Math.sqrt(c.reduce((a,x)=>a+x*x,0)/(c.length||1));
+      const r=vad.push(rms,c.length/ctx.sampleRate*1000);
+      if(r&&!fired){fired=true;onAuto&&onAuto(r)}
     };
     src.connect(proc);proc.connect(ctx.destination);
     rec={stream,ctx,src,proc,chunks,t0:Date.now()};
@@ -65,35 +71,71 @@ function chatRecCancel(){
 /* ---- Luồng nói chuyện ---- */
 /* Chữ bé vừa nói hiện chừng này (ms) trước khi đổi sang câu trả lời của Kuromi */
 let CHAT_HEARD_MS=1200;
-/* chatEpoch tăng mỗi khi rời trang chủ: kết quả đến muộn của lượt cũ bị bỏ */
-let chatHist=[],chatEpoch=0,chatBusy=false;
+/* chatEpoch tăng mỗi khi rời trang chủ: kết quả đến muộn của lượt cũ bị bỏ.
+   chatState: idle (chưa làm gì) → listening (đang nghe) → thinking (chờ Gemini, đọc trả lời) → idle */
+let chatHist=[],chatEpoch=0,chatState='idle';
 const chatMicOK=()=>!!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia);
 const CHAT_ERR_LINE={format:'talk_unheard',limit:'talk_limit',mic:'talk_nomic'};
 function chatListen(on){const i=$('#mimg'),k=i&&i.parentNode;if(k&&k.classList)k.classList.toggle('listening',on)}
 
-/* Bé bắt đầu giữ: kiểm key và số câu còn lại rồi mới thu âm. true = đang thu */
+/* Nút "Trò chuyện với Kuromi" trên trang chủ: nhãn đổi theo trạng thái để bé biết phải làm gì */
+const CHAT_BTN={
+  idle:['💬','Trò chuyện với Kuromi'],
+  listening:['🎙️','Đang nghe… chạm để gửi'],
+  thinking:['💭','Kuromi đang nghĩ…']
+};
+function chatBtnHTML(i){
+  const [ic,tx]=CHAT_BTN.idle;
+  return `<button class="gc btn gloss enter p-pink" id="talkbtn" ${enter(i)} onclick="chatToggle()"><b>${ic}</b>${tx}</button>`;
+}
+function chatSet(state){
+  chatState=state;
+  const b=$('#talkbtn');if(!b)return;
+  const [ic,tx]=CHAT_BTN[state];
+  b.innerHTML=`<b>${ic}</b>${tx}`;
+  b.classList&&b.classList.toggle('listening',state==='listening');
+}
+
+/* Chạm nút: lần 1 bắt đầu nghe, lần 2 gửi sớm; đang chờ Gemini thì bỏ qua */
+async function chatToggle(){
+  if(chatState==='listening'){await chatEnd();return}
+  if(chatState!=='idle')return;
+  await chatBegin();
+}
+/* Bắt đầu nghe: kiểm key và số câu còn lại rồi mới thu âm. true = đang thu */
 async function chatBegin(){
-  if(chatBusy)return false;
+  if(chatState!=='idle')return false;
   if(!geminiKey()){chatKeyModal();return false}
   if(talkLeft()<=0){mascotSay('talk_limit');chatBuyModal();return false}
   voice.stop();voice.unlock();
   const my=chatEpoch;
+  chatSet('listening');
   try{
-    if(!(await chatRecStart())||my!==chatEpoch)return false;
-  }catch(e){chatListen(false);mascotSay('talk_nomic');return false}
+    if(!(await chatRecStart({onAuto:r=>{if(my===chatEpoch)r==='stop'?chatEnd():chatNoSpeech()}}))||my!==chatEpoch){
+      if(my===chatEpoch)chatSet('idle');
+      return false;
+    }
+  }catch(e){chatListen(false);chatSet('idle');mascotSay('talk_nomic');return false}
   chatListen(true);
   return true;
 }
-/* Bé thả tay: gửi âm thanh, hiện chữ bé nói rồi chữ trả lời, đọc bằng giọng Gemini */
+/* Bé im suốt từ đầu: bỏ thu âm, nhắc nói lại */
+function chatNoSpeech(){
+  chatRecCancel();chatListen(false);chatSet('idle');
+  mascotSay('talk_unheard');
+}
+/* Gửi âm thanh đã thu: hiện chữ bé nói rồi chữ trả lời, đọc bằng giọng Gemini */
 async function chatEnd(){
+  if(chatState!=='listening')return;
   chatListen(false);
   const r=chatRecStop();
-  if(!r||r.ms<TALK_MIN_MS)return;
-  /* giữ lâu mà không có mẫu nào = micro không gửi dữ liệu (hay gặp trên iPhone): báo ba mẹ, đừng gửi âm thanh trống */
-  if(!r.samples.length){mascotSay('talk_nomic');return}
-  if(r.samples.length/r.rate*1000<TALK_MIN_MS)return;
+  /* chưa thu được gì / quá ngắn (chạm nhầm): quay về chờ */
+  if(!r||r.ms<TALK_MIN_MS){chatSet('idle');return}
+  /* chạm nút xong im lặng hoàn toàn mà không có mẫu nào = micro không gửi dữ liệu (hay gặp trên iPhone): báo ba mẹ */
+  if(!r.samples.length){chatSet('idle');mascotSay('talk_nomic');return}
+  if(r.samples.length/r.rate*1000<TALK_MIN_MS){chatSet('idle');return}
   const my=chatEpoch,alive=()=>my===chatEpoch;
-  chatBusy=true;
+  chatSet('thinking');
   mascot('think','…',{hold:true});
   try{
     const wavB64=chatB64(chatEncodeWav(r.samples,r.rate));
@@ -112,24 +154,12 @@ async function chatEnd(){
     mascotSay(CHAT_ERR_LINE[k]||'talk_error');
     if(k==='key'||k==='nokey')chatKeyModal();
     if(k==='limit')chatBuyModal();
-  }finally{if(alive())chatBusy=false}
+  }finally{if(alive())chatSet('idle')}
 }
 /* Rời trang chủ (go): huỷ thu âm, bỏ kết quả đang chờ */
 function chatCancel(){
-  chatEpoch++;chatBusy=false;
+  chatEpoch++;chatState='idle';
   chatRecCancel();chatListen(false);
-}
-
-/* Trang chủ: nhấn giữ vào ảnh Kuromi để nói; chạm nhanh vẫn là "chọc" như cũ */
-function chatAttach(){
-  const img=$('#mimg');
-  if(!img||!chatMicOK())return;
-  const h=holdGesture({onTap:()=>mascotPoke(),onHold:()=>{chatBegin()},onRelease:()=>{chatEnd()}});
-  img.onclick=null;
-  img.onpointerdown=e=>{e.preventDefault&&e.preventDefault();voice.unlock();try{img.setPointerCapture(e.pointerId)}catch(x){}h.down()};
-  img.onpointerup=()=>h.up();
-  img.onpointercancel=()=>h.cancel();
-  img.oncontextmenu=e=>{e.preventDefault();return false};
 }
 /* Câu hướng dẫn "nhấn giữ vào mình": lần đầu vào trang chủ, rồi cứ 5 lần nhắc lại một lần */
 function chatHintDue(){

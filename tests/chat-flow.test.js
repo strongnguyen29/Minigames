@@ -17,7 +17,7 @@ function chat({ key = 'AIza-test', local = {}, fetchImpl = okFetch, ms = 2000, s
   if (key) g.run(`setGeminiKey("${key}")`);
   g.run(`navigator.mediaDevices={getUserMedia(){}};CHAT_HEARD_MS=0;CHAT_RETRY_MS=0;
     var __rec=[],__said=[],__pokes=0,__clips=[];
-    chatRecStart=async()=>{__rec.push('start');return true};
+    var __opts=null;chatRecStart=async(o)=>{__rec.push('start');__opts=o;return true};
     chatRecStop=()=>({samples:new Float32Array(${samples}),rate:16000,ms:${ms}});
     chatRecCancel=()=>{__rec.push('cancel')};
     mascotSay=(gr,o)=>{__said.push(gr);return Promise.resolve(true)};
@@ -43,21 +43,6 @@ test('hết câu hôm nay: nói talk_limit và mở bảng đổi sao, không th
   assert.ok(g.get('__said').includes('talk_limit'));
   assert.ok(g.modals().some(h => h.includes('+5 câu') && h.includes('5 ⭐')));
   assert.deepEqual(plain(g.get('__rec')), []);
-});
-test('chạm nhanh vào Kuromi là poke: không thu âm, không trừ câu', () => {
-  const g = chat();
-  g.run('chatAttach()');
-  g.img.onpointerdown({ preventDefault() {}, pointerId: 1 }); g.img.onpointerup({});
-  assert.equal(g.get('__pokes'), 1);
-  assert.deepEqual(plain(g.get('__rec')), []);
-  assert.equal(g.get('talkLeft()'), 10);
-});
-test('chatAttach tắt onclick mặc định và chặn menu chuột phải', () => {
-  const g = chat();
-  g.run('chatAttach()');
-  assert.equal(g.img.onclick, null);
-  let prevented = false; g.img.oncontextmenu({ preventDefault() { prevented = true; } });
-  assert.equal(prevented, true);
 });
 test('thu quá ngắn: không gửi Gemini, không trừ câu', async () => {
   let calls = 0;
@@ -168,10 +153,75 @@ test('độ dài kiểm tra theo mẫu âm thanh thật, không theo đồng h�
   await g.get('chatBegin()'); await g.get('chatEnd()');
   assert.equal(calls, 0);
 });
-test('nhấn xuống Kuromi là mở khoá âm thanh ngay (cử chỉ thật, cần cho iPhone)', () => {
+
+const waitTick = () => new Promise(r => setTimeout(r, 30));
+test('trang chủ có nút "Trò chuyện với Kuromi" khi máy có micro, không có khi không', () => {
   const g = chat();
-  g.run('var __unl=0;voice.unlock=()=>{__unl++};chatAttach()');
-  g.img.onpointerdown({ preventDefault() {}, pointerId: 1 });
+  g.run('home()');
+  const html = g.get('app.innerHTML');
+  assert.ok(html.includes('id="talkbtn"') && html.includes('Trò chuyện với Kuromi') && html.includes('💬'));
+  const g2 = chat(); g2.run('navigator.mediaDevices=undefined;home()');
+  assert.ok(!g2.get('app.innerHTML').includes('talkbtn'));
+});
+test('chạm vào Kuromi vẫn là "chọc": không bị chiếm, không thu âm', () => {
+  const g = chat();
+  const before = g.img.onclick;
+  g.run('home()');
+  assert.equal(g.img.onclick, before);
+  assert.deepEqual(plain(g.get('__rec')), []);
+});
+test('chatToggle: chạm lần 1 bắt đầu nghe, chạm lần 2 gửi đi', async () => {
+  const g = chat();
+  await g.get('chatToggle()');
+  assert.equal(g.get('chatState'), 'listening');
+  assert.equal(g.kuromi.classList.contains('listening'), true);
+  await g.get('chatToggle()');
+  assert.equal(g.get('chatState'), 'idle');
+  assert.equal(g.get('talkLeft()'), 9);
+  assert.deepEqual(plain(g.get('__clips')), ['Bằng hai nha!']);
+});
+test('bé ngừng nói thì tự gửi, không cần chạm lần nữa', async () => {
+  const g = chat();
+  await g.get('chatToggle()');
+  g.run('__opts.onAuto("stop")');
+  await waitTick();
+  assert.equal(g.get('talkLeft()'), 9);
+  assert.equal(g.get('chatState'), 'idle');
+});
+test('bé không nói gì (nospeech): Kuromi nhắc nói lại, không gửi, không trừ câu', async () => {
+  let calls = 0;
+  const g = chat({ fetchImpl: async () => { calls++; throw new Error('x'); } });
+  await g.get('chatToggle()');
+  g.run('__opts.onAuto("nospeech")');
+  await waitTick();
+  assert.equal(calls, 0);
+  assert.ok(g.get('__said').includes('talk_unheard'));
+  assert.equal(g.get('chatState'), 'idle');
+  assert.equal(g.kuromi.classList.contains('listening'), false);
+  assert.equal(g.get('talkLeft()'), 10);
+});
+test('đang chờ Gemini (thinking) thì chạm nút bị bỏ qua', async () => {
+  let release; const gate = new Promise(r => { release = r; });
+  const g = chat({ fetchImpl: async url => { await gate; return okFetch(url); } });
+  await g.get('chatToggle()');
+  const p = g.get('chatToggle()');
+  await waitTick();
+  assert.equal(g.get('chatState'), 'thinking');
+  await g.get('chatToggle()');
+  assert.equal(g.get('chatState'), 'thinking');
+  assert.deepEqual(plain(g.get('__rec')), ['start']);
+  release(); await p;
+  assert.equal(g.get('chatState'), 'idle');
+});
+test('chạm nút là mở khoá âm thanh ngay (cử chỉ thật, cần cho iPhone)', async () => {
+  const g = chat();
+  g.run('var __unl=0;voice.unlock=()=>{__unl++}');
+  await g.get('chatToggle()');
   assert.equal(g.get('__unl'), 1);
-  g.img.onpointerup({});
+});
+test('rời trang chủ: về trạng thái idle', async () => {
+  const g = chat();
+  await g.get('chatToggle()');
+  g.run('go(()=>{})');
+  assert.equal(g.get('chatState'), 'idle');
 });

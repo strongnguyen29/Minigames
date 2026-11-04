@@ -120,7 +120,7 @@ const LINES={
   caro_win_o:L_('caro_win_o','clap','reo vui',['Vòng tròn thắng rồi! Hoan hô! 👏','Năm vòng tròn liền nhau, thắng rồi!','Bạn vòng tròn giỏi quá!']),
   welcome_ask:L_('welcome_ask','neutral','thân thiện, tò mò',['Xin chào! Mình là Kuromi. Bạn tên là gì nhỉ? 💜','Chào bạn nhỏ! Cho mình biết tên của bạn nha!','Mình là Kuromi nè! Bạn tên gì thế?']),
   welcome_done:L_('welcome_done','happy','reo vui',['Tên đẹp quá! Mình chơi thôi!','Rất vui được làm quen với bạn!','Yeah! Mình bắt đầu nha!']),
-  talk_hint:L_('talk_hint','happy','ấm áp, thân thiện',['Nhấn giữ vào mình rồi nói chuyện với mình nha!','Bạn ơi, giữ tay vào mình và nói đi, mình nghe nè!','Muốn trò chuyện với mình không? Nhấn giữ vào mình nhé!']),
+  talk_hint:L_('talk_hint','happy','ấm áp, thân thiện',['Bấm nút trò chuyện rồi nói với mình nha!','Bạn ơi, bấm nút trò chuyện để nói chuyện với mình nè!','Muốn trò chuyện với mình không? Bấm nút trò chuyện nhé!']),
   talk_unheard:L_('talk_unheard','think','dịu dàng, ấm áp',['Mình chưa nghe rõ, bạn nói lại nha!','Ơ, mình nghe chưa kỹ, bạn nói lại giúp mình nhé!','Bạn nói to hơn một chút được không nè?']),
   talk_limit:L_('talk_limit','think','dịu dàng, giải thích',['Hôm nay mình nói chuyện đủ rồi! Bạn đổi sao để nói thêm nhé!','Hết lượt nói chuyện hôm nay rồi, mai mình nói tiếp nha!','Muốn nói chuyện thêm thì bạn đổi sao nhé, hoặc đợi mai nha!']),
   talk_error:L_('talk_error','think','dịu dàng, ấm áp',['Ôi, mình hơi mệt chút xíu, bạn thử lại sau nha!','Mình chưa nghe được bạn, mình thử lại sau nhé!','Ơ, có chút trục trặc rồi, bạn đợi mình một lát nha!']),

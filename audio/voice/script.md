@@ -331,9 +331,9 @@ Tổng cộng **317 file**. Đặt tên file đúng cột "File", bỏ vào `aud
 
 | File | Câu nói | Cảm xúc | Cách đọc |
 |---|---|---|---|
-| `talk_hint_1.mp3` | Nhấn giữ vào mình rồi nói chuyện với mình nha! | Vui sướng | ấm áp, thân thiện |
-| `talk_hint_2.mp3` | Bạn ơi, giữ tay vào mình và nói đi, mình nghe nè! | Vui sướng | ấm áp, thân thiện |
-| `talk_hint_3.mp3` | Muốn trò chuyện với mình không? Nhấn giữ vào mình nhé! | Vui sướng | ấm áp, thân thiện |
+| `talk_hint_1.mp3` | Bấm nút trò chuyện rồi nói với mình nha! | Vui sướng | ấm áp, thân thiện |
+| `talk_hint_2.mp3` | Bạn ơi, bấm nút trò chuyện để nói chuyện với mình nè! | Vui sướng | ấm áp, thân thiện |
+| `talk_hint_3.mp3` | Muốn trò chuyện với mình không? Bấm nút trò chuyện nhé! | Vui sướng | ấm áp, thân thiện |
 
 ## Điểm chạm: talk_unheard
 

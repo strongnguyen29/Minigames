@@ -124,9 +124,9 @@ welcome_ask_3.mp3,Mình là Kuromi nè! Bạn tên gì thế?,welcome_ask,neutra
 welcome_done_1.mp3,Tên đẹp quá! Mình chơi thôi!,welcome_done,happy,reo vui,[cheerfully] Tên đẹp quá! Mình chơi thôi!
 welcome_done_2.mp3,Rất vui được làm quen với bạn!,welcome_done,happy,reo vui,[cheerfully] Rất vui được làm quen với bạn!
 welcome_done_3.mp3,Yeah! Mình bắt đầu nha!,welcome_done,happy,reo vui,[cheerfully] Yeah! Mình bắt đầu nha!
-talk_hint_1.mp3,Nhấn giữ vào mình rồi nói chuyện với mình nha!,talk_hint,happy,"ấm áp, thân thiện",[warmly] Nhấn giữ vào mình rồi nói chuyện với mình nha!
-talk_hint_2.mp3,"Bạn ơi, giữ tay vào mình và nói đi, mình nghe nè!",talk_hint,happy,"ấm áp, thân thiện","[warmly] Bạn ơi, giữ tay vào mình và nói đi, mình nghe nè!"
-talk_hint_3.mp3,Muốn trò chuyện với mình không? Nhấn giữ vào mình nhé!,talk_hint,happy,"ấm áp, thân thiện",[warmly] Muốn trò chuyện với mình không? Nhấn giữ vào mình nhé!
+talk_hint_1.mp3,Bấm nút trò chuyện rồi nói với mình nha!,talk_hint,happy,"ấm áp, thân thiện",[warmly] Bấm nút trò chuyện rồi nói với mình nha!
+talk_hint_2.mp3,"Bạn ơi, bấm nút trò chuyện để nói chuyện với mình nè!",talk_hint,happy,"ấm áp, thân thiện","[warmly] Bạn ơi, bấm nút trò chuyện để nói chuyện với mình nè!"
+talk_hint_3.mp3,Muốn trò chuyện với mình không? Bấm nút trò chuyện nhé!,talk_hint,happy,"ấm áp, thân thiện",[warmly] Muốn trò chuyện với mình không? Bấm nút trò chuyện nhé!
 talk_unheard_1.mp3,"Mình chưa nghe rõ, bạn nói lại nha!",talk_unheard,think,"dịu dàng, ấm áp","[gently] Mình chưa nghe rõ, bạn nói lại nha!"
 talk_unheard_2.mp3,"Ơ, mình nghe chưa kỹ, bạn nói lại giúp mình nhé!",talk_unheard,think,"dịu dàng, ấm áp","[gently] Ơ, mình nghe chưa kỹ, bạn nói lại giúp mình nhé!"
 talk_unheard_3.mp3,Bạn nói to hơn một chút được không nè?,talk_unheard,think,"dịu dàng, ấm áp",[gently] Bạn nói to hơn một chút được không nè?

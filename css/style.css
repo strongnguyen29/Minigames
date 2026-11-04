@@ -503,7 +503,8 @@ h2{text-align:center;margin:8px 0 14px}
   .box.set .sw{padding-top:calc(var(--u)*.6);padding-bottom:calc(var(--u)*.6)}
 }
 
-/* Nhấn giữ vào Kuromi để nói chuyện (trang chủ): không bật menu lưu ảnh / chọn chữ khi giữ lâu */
-.scr.home .kuromi img{touch-action:none;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+/* Nói chuyện với Kuromi: Kuromi nghiêng đầu và phát sáng khi đang nghe; nút Trò chuyện nhấp nháy nhẹ */
 .kuromi.listening img{transform:rotate(-4deg) scale(1.03);filter:drop-shadow(0 0 calc(var(--u)*1.6) #ff7ac0) drop-shadow(0 8px 10px rgba(40,10,70,.4))}
 .kuromi.listening .ped{animation:pedglow .8s ease-in-out infinite;background:radial-gradient(#fff,#ffb6dc 55%,transparent 70%)}
+.gc.listening{animation:talkpulse 1s ease-in-out infinite}
+@keyframes talkpulse{50%{transform:scale(1.04);filter:brightness(1.12)}}
