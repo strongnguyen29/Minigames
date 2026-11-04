@@ -2,7 +2,7 @@
 /* File nghe nằm ngay trong source, tính từ AUDIO_BASE (vd. audio/stories/ngoi-sao-nho-di-lac.m4a).
    Chuyển lên Cloudflare R2: tải file lên R2 giữ nguyên đường dẫn (stories/ngoi-sao-nho-di-lac.m4a…)
    rồi điền AUDIO_CDN = 'https://<tên miền cdn>/'. Món nào ghi file là link đầy đủ (https://…) thì dùng nguyên link */
-const AUDIO_CDN='';
+const AUDIO_CDN='https://pub-def9720cd2ff4f27b52fb80ad561e4a2.r2.dev/';
 const AUDIO_BASE='audio/';
 /* Mỗi ngày được nghe miễn phí LISTEN_FREE_MIN phút (tính riêng từng máy); hết thì đổi sao lấy thêm phút */
 const LISTEN_FREE_MIN=5;
