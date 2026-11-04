@@ -2,8 +2,32 @@
 const CLOUD_KEY='be_vui_cloud_v1';
 const PUSH_DELAY=3000;
 const SWITCH_MSG='Máy này đang có tiến độ của tài khoản khác. Dùng dữ liệu của tài khoản mới (tiến độ trên máy sẽ được thay)?';
-/* adapter Firebase thật (Task 3 điền: nạp SDK từ gstatic, Auth Google, Firestore) */
-function firebaseAdapter(){return Promise.reject(new Error('chưa cấu hình Firebase'))}
+/* adapter Firebase thật: nạp SDK từ gstatic, Auth Google, Firestore (chỉ khi FIREBASE_CONFIG đã điền) */
+function firebaseAdapter(){
+  if(typeof FIREBASE_CONFIG==='undefined'||!FIREBASE_CONFIG)return Promise.reject(new Error('chưa cấu hình Firebase'));
+  const B='https://www.gstatic.com/firebasejs/10.14.1/';
+  return Promise.all([import(B+'firebase-app.js'),import(B+'firebase-auth.js'),import(B+'firebase-firestore.js')]).then(([A,Au,F])=>{
+    const app=A.initializeApp(FIREBASE_CONFIG),auth=Au.getAuth(app),db=F.getFirestore(app);
+    const ref=uid=>F.doc(db,'users',uid,'profiles','main');
+    const standalone=()=>{try{return window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true}catch(e){return false}};
+    const provider=()=>new Au.GoogleAuthProvider();
+    Au.getRedirectResult(auth).catch(()=>{});
+    return {
+      onAuth(cb){Au.onAuthStateChanged(auth,u=>cb(u?{uid:u.uid,email:u.email}:null))},
+      signIn(){
+        return Au.signInWithPopup(auth,provider()).then(()=>{}).catch(e=>{
+          const c=e&&e.code;
+          const fallback=c==='auth/popup-blocked'||c==='auth/operation-not-supported-in-this-environment'||(c==='auth/popup-closed-by-user'&&standalone());
+          if(fallback)return Au.signInWithRedirect(auth,provider());
+          throw e;
+        });
+      },
+      signOut(){return Au.signOut(auth)},
+      get(uid){return F.getDoc(ref(uid)).then(s=>s.exists()?s.data():null)},
+      set(uid,data){return F.setDoc(ref(uid),Object.assign({},data,{updatedAt:F.serverTimestamp()}))}
+    };
+  });
+}
 const cloud=(()=>{
   /* synced: lần kéo cho user hiện tại đã xong (đã qua bước hỏi đổi tài khoản); chưa xong thì không được đẩy */
   let adapter=null,loading=null,user=null,synced=false,timer=null,quiet=false,chain=Promise.resolve();
