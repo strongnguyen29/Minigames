@@ -53,7 +53,7 @@ const VOICE_DIR='audio/voice/';
 /* Tốc độ giọng máy dự phòng (phụ huynh chọn) */
 const TTS_RATE=1.14,TTS_PITCH=1.3;
 /* Tốc độ phát file mp3 khi đọc câu hỏi (ghép mẩu); câu thoại cố định giữ tốc độ gốc */
-const Q_FILE_RATE=1.2;
+const Q_FILE_RATE=1.3;
 const SILENT_WAV='data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
 const voice=(()=>{
   let token=0,cur=null,el=null;const last={};
