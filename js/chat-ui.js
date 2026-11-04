@@ -25,8 +25,8 @@ function chatRecRelease(r){
   try{r.proc.disconnect();r.src.disconnect()}catch(e){}
   try{r.ctx.close()}catch(e){}
 }
-/* onAuto('stop'|'nospeech') được gọi một lần khi bé ngừng nói / không nói gì */
-async function chatRecStart({onAuto}={}){
+/* onAuto('stop'|'nospeech') được gọi một lần khi bé ngừng nói / không nói gì; onChunk(Float32Array, tần số) cho mỗi đoạn thu (truyền liên tục cho Live) */
+async function chatRecStart({onAuto,onChunk}={}){
   chatRecCancel();
   const my=++recSeq;
   const md=navigator.mediaDevices;
@@ -43,6 +43,7 @@ async function chatRecStart({onAuto}={}){
     proc.onaudioprocess=e=>{
       if(total>=ctx.sampleRate*TALK_MAX_S)return;
       const c=new Float32Array(e.inputBuffer.getChannelData(0));total+=c.length;chunks.push(c);
+      onChunk&&onChunk(c,ctx.sampleRate);
       const rms=Math.sqrt(c.reduce((a,x)=>a+x*x,0)/(c.length||1));
       const r=vad.push(rms,c.length/ctx.sampleRate*1000);
       if(r&&!fired){fired=true;onAuto&&onAuto(r)}
@@ -74,6 +75,9 @@ let CHAT_HEARD_MS=1200;
 /* chatEpoch tăng mỗi khi rời trang chủ: kết quả đến muộn của lượt cũ bị bỏ.
    chatState: idle (chưa làm gì) → listening (đang nghe) → thinking (chờ Gemini, đọc trả lời) → idle */
 let chatHist=[],chatEpoch=0,chatState='idle';
+/* Đường chính là Gemini Live (nghe và nói trực tiếp, xem js/live.js); lỗi trước khi có tiếng thì rơi về chat + TTS (chatAsk).
+   chatLive = phiên Live của lượt đang chạy; chatLiveAudio = Live đã bắt đầu nói */
+let chatUseLive=true,chatLive=null,chatLiveAudio=false;
 const chatMicOK=()=>!!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia);
 const CHAT_ERR_LINE={format:'talk_unheard',limit:'talk_limit',mic:'talk_nomic'};
 function chatListen(on){const i=$('#mimg'),k=i&&i.parentNode;if(k&&k.classList)k.classList.toggle('listening',on)}
@@ -105,7 +109,7 @@ async function chatToggle(){
   if(chatState!=='idle')return;
   await chatBegin();
 }
-/* Bắt đầu nghe: kiểm key và số câu còn lại rồi mới thu âm. true = đang thu */
+/* Bắt đầu nghe: kiểm key và số câu còn lại rồi mới thu âm (và mở phiên Live song song). true = đang thu */
 async function chatBegin(){
   if(chatState!=='idle')return false;
   if(!geminiKey()){chatKeyModal();return false}
@@ -113,57 +117,97 @@ async function chatBegin(){
   voice.stop();voice.unlock();
   const my=chatEpoch;
   chatSet('listening');
+  chatLiveAudio=false;
+  chatLive=chatUseLive&&typeof liveOpen==='function'?liveOpen({key:geminiKey(),
+    onAudioStart:()=>{if(my===chatEpoch)chatLiveStarted()},
+    onText:t=>{if(my===chatEpoch)mascot('happy',t,{hold:true})}}):null;
+  const live=chatLive;
   try{
-    if(!(await chatRecStart({onAuto:r=>{if(my===chatEpoch)r==='stop'?chatEnd():chatNoSpeech()}}))||my!==chatEpoch){
-      if(my===chatEpoch)chatSet('idle');
+    const started=await chatRecStart({
+      onAuto:r=>{if(my===chatEpoch)r==='stop'?chatEnd():chatNoSpeech()},
+      onChunk:(c,rate)=>{if(live&&!chatLiveAudio)live.sendPcm(liveDownsample(c,rate))}
+    });
+    if(!started||my!==chatEpoch){
+      if(my===chatEpoch){chatSet('idle');chatLiveClose()}
       return false;
     }
-  }catch(e){chatListen(false);chatSet('idle');mascotSay('talk_nomic');return false}
+  }catch(e){chatListen(false);chatSet('idle');chatLiveClose();mascotSay('talk_nomic');return false}
   chatListen(true);
   return true;
 }
+/* Đóng phiên Live đang mở (nếu có) */
+function chatLiveClose(){const l=chatLive;chatLive=null;chatLiveAudio=false;if(l)l.close()}
+/* Live bắt đầu nói (server tự nhận ra bé ngừng nói): nếu còn đang nghe thì dừng thu và chuyển sang chờ */
+function chatLiveStarted(){
+  chatLiveAudio=true;
+  mascot('happy','…',{hold:true});
+  if(chatState==='listening')chatEnd();
+}
 /* Bé im suốt từ đầu: bỏ thu âm, nhắc nói lại */
 function chatNoSpeech(){
-  chatRecCancel();chatListen(false);chatSet('idle');
+  chatRecCancel();chatListen(false);chatSet('idle');chatLiveClose();
   mascotSay('talk_unheard');
 }
-/* Gửi âm thanh đã thu: hiện chữ bé nói rồi chữ trả lời, đọc bằng giọng Gemini */
+/* Bé nói xong: gửi cho Live (hoặc đường cũ nếu Live lỗi trước khi có tiếng), hiện chữ và đọc câu trả lời */
 async function chatEnd(){
   if(chatState!=='listening')return;
   chatListen(false);
-  const r=chatRecStop();
+  const r=chatRecStop(),live=chatLive;
   /* chưa thu được gì / quá ngắn (chạm nhầm): quay về chờ */
-  if(!r||r.ms<TALK_MIN_MS){chatSet('idle');return}
-  /* chạm nút xong im lặng hoàn toàn mà không có mẫu nào = micro không gửi dữ liệu (hay gặp trên iPhone): báo ba mẹ */
-  if(!r.samples.length){chatSet('idle');mascotSay('talk_nomic');return}
-  if(r.samples.length/r.rate*1000<TALK_MIN_MS){chatSet('idle');return}
+  if(!r||r.ms<TALK_MIN_MS){chatLiveClose();chatSet('idle');return}
+  /* giữ lâu mà không có mẫu nào = micro không gửi dữ liệu (hay gặp trên iPhone): báo ba mẹ */
+  if(!r.samples.length){chatLiveClose();chatSet('idle');mascotSay('talk_nomic');return}
+  if(r.samples.length/r.rate*1000<TALK_MIN_MS){chatLiveClose();chatSet('idle');return}
   const my=chatEpoch,alive=()=>my===chatEpoch;
   chatSet('thinking');
   mascot('think','…',{hold:true});
   try{
-    const wavB64=chatB64(chatEncodeWav(r.samples,r.rate));
-    const a=await chatAsk({wavB64,history:chatHist,alive});
-    if(!alive())return;
-    chatHist=[...chatHist,{role:'user',text:a.heard},{role:'model',text:a.reply}].slice(-TALK_HISTORY*2);
-    mascot('think','🗣️ '+a.heard,{hold:true});
-    await new Promise(res=>setTimeout(res,CHAT_HEARD_MS));
-    if(!alive())return;
-    mascot(a.emotion,a.reply,{hold:true});
-    await voice.clip(a.wav,a.reply);
-    if(alive())mascot(mascotBase);
+    let done=false;
+    if(live){
+      try{await chatLiveTurn(live,alive);done=true}
+      catch(e){
+        /* huỷ, khoá sai, hết câu hoặc Live đã nói dở thì không rơi về đường cũ */
+        if(!alive()||chatLiveAudio||['key','limit','cancelled'].includes(e&&e.kind))throw e;
+      }
+    }
+    if(!done&&alive())await chatSendOld(r,alive);
   }catch(e){
     if(!alive())return;
     const k=e&&e.kind;
     mascotSay(CHAT_ERR_LINE[k]||'talk_error');
     if(k==='key'||k==='nokey')chatKeyModal();
     if(k==='limit')chatBuyModal();
-  }finally{if(alive())chatSet('idle')}
+  }finally{if(alive()){chatSet('idle');chatLive=null;chatLiveAudio=false}}
 }
-/* Rời trang chủ (go): huỷ thu âm, bỏ kết quả đang chờ */
+/* Đường Live: chờ Kuromi nói xong rồi mới trừ một câu (chỉ khi bé còn ở trang chủ) */
+async function chatLiveTurn(live,alive){
+  if(!chatLiveAudio)live.endAudio();
+  await live.turn;
+  if(!alive())return;
+  talkUse();
+  mascot(mascotBase);
+}
+/* Đường dự phòng: chat nhận âm thanh rồi TTS (js/chat.js); hiện chữ bé nói rồi chữ trả lời */
+async function chatSendOld(r,alive){
+  const wavB64=chatB64(chatEncodeWav(r.samples,r.rate));
+  const a=await chatAsk({wavB64,history:chatHist,alive});
+  if(!alive())return;
+  chatHist=[...chatHist,{role:'user',text:a.heard},{role:'model',text:a.reply}].slice(-TALK_HISTORY*2);
+  mascot('think','🗣️ '+a.heard,{hold:true});
+  await new Promise(res=>setTimeout(res,CHAT_HEARD_MS));
+  if(!alive())return;
+  mascot(a.emotion,a.reply,{hold:true});
+  await voice.clip(a.wav,a.reply);
+  if(alive())mascot(mascotBase);
+}
+/* Rời trang chủ (go): huỷ thu âm, đóng phiên Live, bỏ kết quả đang chờ */
 function chatCancel(){
   chatEpoch++;chatState='idle';
-  chatRecCancel();chatListen(false);
+  chatLiveClose();chatRecCancel();chatListen(false);
 }
+/* đang thu âm hoặc đang phát tiếng Live: nhạc nền hạ âm lượng để khỏi lọt vào micro / lấn tiếng Kuromi */
+const chatAudioBusy=()=>!!rec||!!(chatLive&&chatLive.speaking&&chatLive.speaking());
+
 /* Câu hướng dẫn "nhấn giữ vào mình": lần đầu vào trang chủ, rồi cứ 5 lần nhắc lại một lần */
 function chatHintDue(){
   if(!chatMicOK())return false;

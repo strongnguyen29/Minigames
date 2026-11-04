@@ -1,7 +1,7 @@
 const test = require('node:test'), assert = require('node:assert/strict');
 const { loadGame } = require('./helpers/load');
 const FILES = ['js/core.js','js/merge.js','js/questions.js','js/rewards.js','js/lines.js','audio/voice/manifest.js','js/voice.js',
-  'js/music.js','js/scene.js','js/mascot.js','js/shop.js','js/radio.js','js/chat.js','js/chat-ui.js','js/sync.js','js/ui.js'];
+  'js/music.js','js/scene.js','js/mascot.js','js/shop.js','js/radio.js','js/chat.js','js/live.js','js/chat-ui.js','js/sync.js','js/ui.js'];
 const KEY = 'be_vui_hoc_toan_v1', DEVICE_KEY = 'be_vui_device_v1';
 const GOOD = { heard: 'một cộng một', reply: 'Bằng hai nha!', emotion: 'happy' };
 const gem = o => ({ candidates: [{ content: { parts: [{ text: JSON.stringify(o) }] } }] });
@@ -15,7 +15,7 @@ function chat({ key = 'AIza-test', local = {}, fetchImpl = okFetch, ms = 2000, s
   const img = { parentNode: kuromi, classList: kuromi.classList, onclick: () => {}, setPointerCapture() {}, style: {} };
   const g = loadGame(FILES, { storage, pre: 'var setInterval=()=>1,clearInterval=()=>{};var FIREBASE_CONFIG=null;', query: s => (s === '#mimg' ? img : null) });
   if (key) g.run(`setGeminiKey("${key}")`);
-  g.run(`navigator.mediaDevices={getUserMedia(){}};CHAT_HEARD_MS=0;
+  g.run(`navigator.mediaDevices={getUserMedia(){}};CHAT_HEARD_MS=0;chatUseLive=false;
     var __rec=[],__said=[],__pokes=0,__clips=[];
     var __opts=null;chatRecStart=async(o)=>{__rec.push('start');__opts=o;return true};
     chatRecStop=()=>({samples:new Float32Array(${samples}),rate:16000,ms:${ms}});
@@ -266,4 +266,109 @@ test('nút đổi trạng thái bằng class: listening khi đang nghe, thinking
   assert.equal(btn.classList.contains('thinking'), true);
   release(); await p;
   assert.equal(btn.classList.contains('thinking'), false);
+});
+
+/* ---- Đường Live (liveOpen giả) ---- */
+function liveChat(o = {}) {
+  const g = chat(o);
+  g.run(`chatUseLive=true;
+    var __live={sent:[],ended:0,closed:0};
+    liveOpen=(opts)=>{__live.opts=opts;
+      __live.turn=new Promise((res,rej)=>{__live.res=res;__live.rej=rej});__live.turn.catch(()=>{});
+      return{turn:__live.turn,sendPcm(x){__live.sent.push(x.length)},endAudio(){__live.ended++},
+        close(){__live.closed++;__live.rej(new ChatError("cancelled"))},speaking:()=>false}}`);
+  return g;
+}
+const REPLY = { heard: 'con mèo', reply: 'Meo meo!', gotAudio: true };
+const fetchCount = () => { const f = async () => { f.n++; throw new Error('x'); }; f.n = 0; return f; };
+
+test('Live: chạm nút nói, chạm lại để gửi sớm; lượt xong thì trừ một câu, không đụng đường chat cũ', async () => {
+  const f = fetchCount(), g = liveChat({ fetchImpl: f });
+  await g.get('chatToggle()');
+  assert.equal(g.get('chatState'), 'listening');
+  g.ctx.__c = new Float32Array(4800).fill(0.1);
+  g.run('__opts.onChunk(__c,48000)');
+  assert.deepEqual(plain(g.get('__live.sent')), [1600]);
+  const p = g.get('chatToggle()');
+  await waitTick();
+  assert.equal(g.get('__live.ended'), 1);
+  g.run('__live.opts.onText("Meo")');
+  assert.equal(g.get('$("#mbub").textContent'), 'Meo');
+  g.ctx.__r = REPLY; g.run('__live.res(__r)');
+  await p;
+  assert.equal(g.get('talkLeft()'), 9);
+  assert.equal(f.n, 0);
+  assert.equal(g.get('chatState'), 'idle');
+});
+test('Live: server đã trả lời trước khi bé chạm lần hai: tự dừng thu âm, không gửi audioStreamEnd, trừ một câu', async () => {
+  const g = liveChat();
+  await g.get('chatToggle()');
+  g.run('__live.opts.onAudioStart()');
+  await waitTick();
+  assert.equal(g.get('chatState'), 'thinking');
+  assert.equal(g.get('__live.ended'), 0);
+  g.ctx.__c = new Float32Array(4800).fill(0.1);
+  g.run('__opts.onChunk(__c,48000)');
+  assert.deepEqual(plain(g.get('__live.sent')), []);
+  g.ctx.__r = REPLY; g.run('__live.res(__r)');
+  await waitTick();
+  assert.equal(g.get('talkLeft()'), 9);
+  assert.equal(g.get('chatState'), 'idle');
+});
+test('Live lỗi trước khi có tiếng: rơi về chat + TTS cũ bằng đoạn âm thanh đã thu, trừ đúng một câu', async () => {
+  const g = liveChat();
+  await g.get('chatToggle()');
+  const p = g.get('chatToggle()');
+  await waitTick();
+  g.run('__live.rej(new ChatError("live"))');
+  await p;
+  assert.deepEqual(plain(g.get('__clips')), ['Bằng hai nha!']);
+  assert.equal(g.get('talkLeft()'), 9);
+});
+test('Live báo khoá sai: mở hộp nhập key, không rơi về đường cũ, không trừ câu', async () => {
+  const f = fetchCount(), g = liveChat({ fetchImpl: f });
+  await g.get('chatToggle()');
+  const p = g.get('chatToggle()');
+  await waitTick();
+  g.run('__live.rej(new ChatError("key"))');
+  await p;
+  assert.ok(g.modals().some(h => h.includes('ba mẹ')));
+  assert.equal(f.n, 0); assert.equal(g.get('talkLeft()'), 10);
+});
+test('rời trang chủ giữa chừng: đóng phiên Live, không trừ câu, không rơi về đường cũ', async () => {
+  const f = fetchCount(), g = liveChat({ fetchImpl: f });
+  await g.get('chatToggle()');
+  g.run('go(()=>{})');
+  assert.equal(g.get('__live.closed'), 1);
+  assert.equal(g.get('chatState'), 'idle');
+  assert.equal(f.n, 0); assert.equal(g.get('talkLeft()'), 10);
+});
+test('Live trả lời xong nhưng bé đã rời trang: không trừ câu', async () => {
+  const g = liveChat();
+  await g.get('chatToggle()');
+  const p = g.get('chatToggle()');
+  await waitTick();
+  g.run('go(()=>{})');
+  g.ctx.__r = REPLY; g.run('try{__live.res(__r)}catch(e){}');
+  await p;
+  assert.equal(g.get('talkLeft()'), 10);
+});
+test('bé im suốt (nospeech) hoặc thu quá ngắn: đóng phiên Live, không trừ câu', async () => {
+  const g = liveChat();
+  await g.get('chatToggle()');
+  g.run('__opts.onAuto("nospeech")');
+  await waitTick();
+  assert.equal(g.get('__live.closed'), 1);
+  assert.ok(g.get('__said').includes('talk_unheard'));
+  const g2 = liveChat({ ms: 100, samples: 1600 });
+  await g2.get('chatToggle()'); await g2.get('chatToggle()');
+  assert.equal(g2.get('__live.closed'), 1); assert.equal(g2.get('talkLeft()'), 10);
+});
+test('Live: Kuromi vui khi nói (nét mặt happy trong lúc trả lời)', async () => {
+  const g = liveChat();
+  await g.get('chatToggle()');
+  g.run('__live.opts.onAudioStart()');
+  await waitTick();
+  g.run('__live.opts.onText("Meo meo!")');
+  assert.match(g.get('$("#mimg").src'), /happy/);
 });

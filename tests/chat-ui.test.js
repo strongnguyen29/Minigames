@@ -108,6 +108,16 @@ test('chatRecStart: bé nói rồi im thì gọi onAuto("stop") đúng một l�
   feed(0.0, 8);
   assert.deepEqual(events, ['stop']);
 });
+test('chatRecStart: mỗi đoạn thu được gửi cho onChunk kèm tần số lấy mẫu (để truyền liên tục cho Live)', async () => {
+  const g = micGame();
+  g.run(`var __procs=[];AudioContext.prototype.createScriptProcessor=function(){const p={connect(){},disconnect(){}};__procs.push(p);return p}`);
+  const got = [];
+  g.ctx.__chunk = (c, rate) => got.push([c.length, rate]);
+  await g.get('chatRecStart({onChunk:__chunk})');
+  g.ctx.__c = { inputBuffer: { getChannelData: () => new Float32Array(4096).fill(0.1) } };
+  g.run('__procs[0].onaudioprocess(__c);__procs[0].onaudioprocess(__c)');
+  assert.deepEqual(got, [[4096, 16000], [4096, 16000]]);
+});
 test('chatRecStart: im từ đầu thì gọi onAuto("nospeech")', async () => {
   const { events, feed } = await vadGame();
   feed(0.0, 40);

@@ -123,6 +123,8 @@ function liveOpen({key,WS=window.WebSocket,speaker=liveSpeaker(),onAudioStart,on
     sendPcm(i16){send({realtimeInput:{audio:{data:chatB64(new Uint8Array(i16.buffer,i16.byteOffset,i16.byteLength)),mimeType:'audio/pcm;rate='+LIVE_IN_RATE}}})},
     /* bé nói xong: báo hết luồng âm thanh và chờ tiếng trả lời tối đa LIVE_REPLY_MS */
     endAudio(){if(ended)return;ended=true;send({realtimeInput:{audioStreamEnd:true}});armReply()},
-    close(){finish(()=>{rejectTurn(new ChatError('cancelled'));speaker.stop()})}
+    close(){finish(()=>{rejectTurn(new ChatError('cancelled'));speaker.stop()})},
+    /* đang phát tiếng trả lời (để nhạc nền hạ âm lượng) */
+    speaking:()=>speaker.active()
   };
 }

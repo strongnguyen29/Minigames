@@ -20,7 +20,7 @@ const music=(()=>{
     return el;
   }
   function setVol(v){if(gain)gain.gain.value=v;else if(el)el.volume=v}
-  const duck=()=>setVol((typeof voice!=='undefined'&&voice.busy())||(typeof chatRecording==='function'&&chatRecording())?MUSIC_DUCK_VOL:MUSIC_VOL);
+  const duck=()=>setVol((typeof voice!=='undefined'&&voice.busy())||(typeof chatAudioBusy==='function'&&chatAudioBusy())?MUSIC_DUCK_VOL:MUSIC_VOL);
   function sync(){
     const on=want&&S.music!==false&&!document.hidden;
     if(!on){clearInterval(duckIv);duckIv=0;if(el)try{el.pause()}catch(e){}return}
