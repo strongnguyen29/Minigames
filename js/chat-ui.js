@@ -78,21 +78,19 @@ const chatMicOK=()=>!!(navigator.mediaDevices&&navigator.mediaDevices.getUserMed
 const CHAT_ERR_LINE={format:'talk_unheard',limit:'talk_limit',mic:'talk_nomic'};
 function chatListen(on){const i=$('#mimg'),k=i&&i.parentNode;if(k&&k.classList)k.classList.toggle('listening',on)}
 
-/* Nút "Trò chuyện với Kuromi" trên trang chủ: nhãn đổi theo trạng thái để bé biết phải làm gì */
+/* Nút nhỏ (icon lớn, chữ nhỏ) đặt trong khung Kuromi: trên đầu nhân vật ở PC/tablet, bên cạnh ở điện thoại.
+   Nhãn đổi theo trạng thái để bé biết phải làm gì */
 const CHAT_BTN={
   idle:['💬','Trò chuyện với Kuromi'],
-  listening:['🎙️','Đang nghe… chạm để gửi'],
-  thinking:['💭','Kuromi đang nghĩ…']
+  listening:['🎙️','Chạm để gửi'],
+  thinking:['💭','Đang nghĩ…']
 };
-function chatBtnHTML(i){
-  const [ic,tx]=CHAT_BTN.idle;
-  return `<button class="gc btn gloss enter p-pink" id="talkbtn" ${enter(i)} onclick="chatToggle()"><b>${ic}</b>${tx}</button>`;
-}
+const chatBtnInner=state=>`<b>${CHAT_BTN[state][0]}</b><span>${CHAT_BTN[state][1]}</span>`;
+const chatBtnHTML=()=>`<button class="talkbtn" id="talkbtn" onclick="chatToggle()" aria-label="Trò chuyện với Kuromi">${chatBtnInner('idle')}</button>`;
 function chatSet(state){
   chatState=state;
   const b=$('#talkbtn');if(!b)return;
-  const [ic,tx]=CHAT_BTN[state];
-  b.innerHTML=`<b>${ic}</b>${tx}`;
+  b.innerHTML=chatBtnInner(state);
   b.classList&&b.classList.toggle('listening',state==='listening');
 }
 

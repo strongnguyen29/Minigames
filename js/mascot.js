@@ -5,9 +5,9 @@ const MASCOT_BACK_MS=2600;
 let mascotTimer=null,mascotBase='neutral';
 
 /* size: lg | md | sm | corner. emo ban đầu là cảm xúc "nền" của màn (Kuromi quay về đó sau khi phản ứng) */
-function mascotHTML({emo='neutral',text='',size='lg'}={}){
+function mascotHTML({emo='neutral',text='',size='lg',extra=''}={}){
   mascotBase=emo;
-  return `<div class="kuromi ${size}"><div class="ped"></div><div class="bub bpop" id="mbub">${esc(text)}</div>
+  return `<div class="kuromi ${size}${extra?' hasbtn':''}"><div class="ped"></div><div class="bub bpop" id="mbub">${esc(text)}</div>${extra}
   <img id="mimg" class="emo-${emo}" src="${MASCOT_IMG[emo]}" alt="Kuromi" draggable="false" onclick="mascotPoke()"></div>`;
 }
 /* Đổi cảm xúc (và câu trong bong bóng). Không hold thì sau 2,6 giây về cảm xúc nền của màn */

@@ -225,3 +225,20 @@ test('rời trang chủ: về trạng thái idle', async () => {
   g.run('go(()=>{})');
   assert.equal(g.get('chatState'), 'idle');
 });
+
+test('nút nằm trong khung Kuromi, ngay trước ảnh nhân vật (trên đầu / bên cạnh), không còn là ô trong lưới', () => {
+  const g = chat();
+  g.run('home()');
+  const html = g.get('app.innerHTML');
+  const btn = html.indexOf('id="talkbtn"'), img = html.indexOf('id="mimg"'), grid = html.indexOf('class="hgrid"');
+  assert.ok(btn > -1 && btn < img, 'nút phải đứng trước ảnh Kuromi');
+  assert.ok(btn < grid, 'nút không nằm trong lưới trò chơi');
+  assert.ok(html.includes('hasbtn'));
+});
+test('nút gọn: icon lớn và chữ nhỏ, nhãn đổi theo trạng thái', async () => {
+  const g = chat();
+  g.run('home()');
+  assert.ok(g.get('app.innerHTML').includes('<span>Trò chuyện với Kuromi</span>'));
+  await g.get('chatToggle()');
+  assert.ok(g.get('$("#talkbtn").innerHTML').includes('Chạm để gửi'));
+});

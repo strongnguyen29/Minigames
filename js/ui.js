@@ -95,8 +95,7 @@ function home(){
   const n=cards.length;
   cards.push(card(n,'p-dark','⭕','Cờ caro','','caro'),card(n+1,'p-pink','👑','Tiệm công chúa','','shop'),card(n+2,'p-blue','🎵','Tiệm âm thanh','','radio'),
     card(n+3,'p-purple','🎁','Bộ sưu tập',`${S.stickers.length}/${STICKERS.length}`,'album'));
-  if(chatMicOK())cards.push(chatBtnHTML(n+4));
-  app.innerHTML=screenHTML({mascot:{emo:'neutral',size:'lg'},top:topbar(),cls:'home',body:`<div class="hgrid">${cards.join('')}</div>`});
+  app.innerHTML=screenHTML({mascot:{emo:'neutral',size:'lg',extra:chatMicOK()?chatBtnHTML():''},top:topbar(),cls:'home',body:`<div class="hgrid">${cards.join('')}</div>`});
   const fire=S.streak>1?` 🔥 ${S.streak} ngày liên tiếp!`:'';
   if(chatHintDue())mascotSay('talk_hint',{ifIdle:true});
   else mascotSay('home',{format:t=>withName(t)+fire,ifIdle:true});
