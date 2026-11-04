@@ -519,6 +519,12 @@ h2{text-align:center;margin:8px 0 14px}
   text-shadow:0 1px 0 #fff,0 0 calc(var(--u)*.8) #fff}
 @media (min-width:700px){.talkbtn .tt{display:block}}
 .talkbtn .bar{transform-box:fill-box;transform-origin:center}
+.talkbtn .dot{transform-box:fill-box;transform-origin:center}
+/* lúc rảnh: icon nhẹ nhàng bồng bềnh, các vạch sóng âm "thở" lệch nhịp nhau, chấm góc nhấp nháy như thông báo mới */
+.talkbtn svg{animation:talkbob 2.8s ease-in-out infinite}
+.talkbtn .bar{animation:talkbreath 1.8s ease-in-out infinite}
+.talkbtn .b2,.talkbtn .b4{animation-delay:.25s}.talkbtn .b3{animation-delay:.5s}.talkbtn .b5{animation-delay:.75s}
+.talkbtn .dot{animation:talkdot 2.8s ease-in-out infinite}
 .talkbtn:active svg{transform:translateY(calc(var(--u)*.3))}
 .talkbtn.listening{color:#f0609f}
 .talkbtn.listening svg{animation:talkpulse 1s ease-in-out infinite}
@@ -528,4 +534,7 @@ h2{text-align:center;margin:8px 0 14px}
 .talkbtn.thinking{color:#8a4fe0}
 .talkbtn.thinking .bar{animation:talkwave 1.6s ease-in-out infinite;opacity:.8}
 @keyframes talkwave{50%{transform:scaleY(.4)}}
+@keyframes talkbreath{50%{transform:scaleY(.6)}}
+@keyframes talkbob{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(calc(var(--u)*-.7)) rotate(4deg)}}
+@keyframes talkdot{0%,70%,100%{transform:scale(1)}85%{transform:scale(1.35)}}
 @keyframes talkpulse{50%{transform:scale(1.08)}}
