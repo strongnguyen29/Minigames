@@ -155,11 +155,11 @@ test('độ dài kiểm tra theo mẫu âm thanh thật, không theo đồng h�
 });
 
 const waitTick = () => new Promise(r => setTimeout(r, 30));
-test('trang chủ có nút "Trò chuyện với Kuromi" khi máy có micro, không có khi không', () => {
+test('trang chủ có nút trò chuyện khi máy có micro, không có khi không', () => {
   const g = chat();
   g.run('home()');
   const html = g.get('app.innerHTML');
-  assert.ok(html.includes('id="talkbtn"') && html.includes('Trò chuyện với Kuromi') && html.includes('💬'));
+  assert.ok(html.includes('id="talkbtn"') && html.includes('aria-label="Trò chuyện với Kuromi"'));
   const g2 = chat(); g2.run('navigator.mediaDevices=undefined;home()');
   assert.ok(!g2.get('app.innerHTML').includes('talkbtn'));
 });
@@ -235,10 +235,27 @@ test('nút nằm trong khung Kuromi, ngay trước ảnh nhân vật (trên đ�
   assert.ok(btn < grid, 'nút không nằm trong lưới trò chơi');
   assert.ok(html.includes('hasbtn'));
 });
-test('nút gọn: icon lớn và chữ nhỏ, nhãn đổi theo trạng thái', async () => {
+test('nút chỉ có icon (bong bóng thoại + sóng âm), không có chữ hiển thị; nhãn nằm ở aria-label', () => {
   const g = chat();
   g.run('home()');
-  assert.ok(g.get('app.innerHTML').includes('<span>Trò chuyện với Kuromi</span>'));
+  const html = g.get('app.innerHTML');
+  const m = /<button class="talkbtn"[\s\S]*?<\/button>/.exec(html);
+  assert.ok(m, 'có nút talkbtn');
+  assert.ok(m[0].includes('<svg') && m[0].includes('class="bar'));
+  assert.ok(m[0].includes('aria-label="Trò chuyện với Kuromi"'));
+  assert.equal(m[0].replace(/aria-label="[^"]*"/g, '').replace(/<[^>]*>/g, '').trim(), '');
+});
+test('nút đổi trạng thái bằng class: listening khi đang nghe, thinking khi chờ Gemini', async () => {
+  let release; const gate = new Promise(r => { release = r; });
+  const g = chat({ fetchImpl: async url => { await gate; return okFetch(url); } });
+  g.run('home()');
+  const btn = g.get('$("#talkbtn")');
   await g.get('chatToggle()');
-  assert.ok(g.get('$("#talkbtn").innerHTML').includes('Chạm để gửi'));
+  assert.equal(btn.classList.contains('listening'), true);
+  const p = g.get('chatToggle()');
+  await waitTick();
+  assert.equal(btn.classList.contains('listening'), false);
+  assert.equal(btn.classList.contains('thinking'), true);
+  release(); await p;
+  assert.equal(btn.classList.contains('thinking'), false);
 });
