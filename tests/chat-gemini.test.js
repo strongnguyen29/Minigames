@@ -1,0 +1,105 @@
+const test = require('node:test'), assert = require('node:assert/strict');
+const { loadGame } = require('./helpers/load');
+const KEY = 'be_vui_hoc_toan_v1', DEVICE_KEY = 'be_vui_device_v1';
+function setup({ key = 'AIza-test', local = {} } = {}) {
+  const storage = { [DEVICE_KEY]: 'A', [KEY]: JSON.stringify(Object.assign({ name: 'Mai' }, local)) };
+  const g = loadGame(['js/core.js', 'js/merge.js', 'js/chat.js'], { storage });
+  if (key) g.run(`setGeminiKey(${JSON.stringify(key)})`);
+  return g;
+}
+const text = o => ({ candidates: [{ content: { parts: [{ text: JSON.stringify(o) }] } }] });
+const GOOD = { heard: 'một cộng một', reply: 'Bằng hai nha!', emotion: 'happy' };
+const audio = b64 => ({ candidates: [{ content: { parts: [{ inlineData: { mimeType: 'audio/L16;codec=pcm;rate=24000', data: b64 } }] } }] });
+const PCM_B64 = Buffer.from([1, 2, 3, 4]).toString('base64');
+/* fetch giả: chat trả về chatRes, TTS (URL có "tts") trả về ttsRes; ghi lại mọi request */
+function fakeFetch({ chatRes = text(GOOD), ttsRes = audio(PCM_B64), chatStatus = 200, ttsFail = false, netFail = false } = {}) {
+  const calls = [];
+  const f = async (url, init) => {
+    calls.push({ url, init, body: JSON.parse(init.body) });
+    if (netFail) throw new TypeError('Failed to fetch');
+    const tts = /tts/.test(url);
+    if (tts && ttsFail) throw new TypeError('tts down');
+    const status = tts ? 200 : chatStatus;
+    return { ok: status < 400, status, json: async () => (tts ? ttsRes : chatRes) };
+  };
+  f.calls = calls;
+  return f;
+}
+const ask = (g, f, history = []) => { g.ctx.__f = f; g.ctx.__h = history; return g.get('chatAsk({wavB64:"AAAA",history:__h,fetch:__f})'); };
+const kindOf = p => p.then(() => null, e => e.kind);
+
+test('chat thành công: trả reply, trừ một câu, khoá nằm ở header chứ không ở URL', async () => {
+  const g = setup(), f = fakeFetch();
+  const r = await ask(g, f);
+  assert.equal(r.reply, 'Bằng hai nha!'); assert.equal(r.heard, 'một cộng một'); assert.equal(r.emotion, 'happy');
+  assert.equal(Array.from(r.wav.slice(44)).join(), '1,2,3,4');
+  assert.equal(g.get('talkLeft()'), 9);
+  assert.equal(f.calls[0].init.headers['x-goog-api-key'], 'AIza-test');
+  assert.ok(!f.calls[0].url.includes('AIza-test'));
+});
+
+test('body chat: systemInstruction, tối đa 12 mục lịch sử, lượt cuối có âm thanh WAV', async () => {
+  const g = setup(), f = fakeFetch();
+  const hist = Array.from({ length: 20 }, (_, i) => ({ role: i % 2 ? 'model' : 'user', text: 't' + i }));
+  await ask(g, f, hist);
+  const b = f.calls[0].body;
+  assert.ok(b.systemInstruction.parts[0].text.includes('Kuromi'));
+  assert.equal(b.contents.length, 13);
+  assert.equal(b.contents[0].parts[0].text, 't8');
+  const last = b.contents[12].parts[0].inlineData;
+  assert.equal(last.mimeType, 'audio/wav'); assert.equal(last.data, 'AAAA');
+  assert.equal(b.generationConfig.responseMimeType, 'application/json');
+});
+
+test('chat thành công nhưng TTS lỗi: vẫn có chữ, wav null, vẫn trừ một câu', async () => {
+  const g = setup(), r = await ask(g, fakeFetch({ ttsFail: true }));
+  assert.equal(r.reply, 'Bằng hai nha!'); assert.equal(r.wav, null);
+  assert.equal(g.get('talkLeft()'), 9);
+});
+
+test('TTS trả sẵn WAV (RIFF) thì dùng nguyên, không bọc thêm', async () => {
+  const wav = Buffer.concat([Buffer.from('RIFF'), Buffer.alloc(40)]);
+  const g = setup(), r = await ask(g, fakeFetch({ ttsRes: audio(wav.toString('base64')) }));
+  assert.equal(r.wav.length, 44);
+});
+
+test('lỗi: 429 là quota, 403 là key, mạng đứt là net; đều không trừ câu', async () => {
+  for (const [opt, kind] of [[{ chatStatus: 429 }, 'quota'], [{ chatStatus: 403 }, 'key'], [{ chatStatus: 400 }, 'key'], [{ netFail: true }, 'net'], [{ chatStatus: 500 }, 'net']]) {
+    const g = setup();
+    assert.equal(await kindOf(ask(g, fakeFetch(opt))), kind);
+    assert.equal(g.get('talkLeft()'), 10);
+  }
+});
+
+test('JSON hỏng, reply rỗng hoặc heard rỗng: format, không trừ câu, không gọi TTS', async () => {
+  for (const chatRes of [{ candidates: [{ content: { parts: [{ text: 'xin chào' }] } }] }, text({ heard: 'a', reply: '', emotion: 'happy' }), text({ heard: '', reply: 'Ừ', emotion: 'happy' }), {}]) {
+    const g = setup(), f = fakeFetch({ chatRes });
+    assert.equal(await kindOf(ask(g, f)), 'format');
+    assert.equal(g.get('talkLeft()'), 10);
+    assert.equal(f.calls.length, 1);
+  }
+});
+
+test('không có key: nokey, không gọi fetch', async () => {
+  const g = setup({ key: '' }), f = fakeFetch();
+  assert.equal(await kindOf(ask(g, f)), 'nokey');
+  assert.equal(f.calls.length, 0);
+});
+
+test('hết câu: limit và không gọi fetch', async () => {
+  const g = setup({ local: { talk: { day: new Date().getFullYear() + '-' + (new Date().getMonth() + 1) + '-' + new Date().getDate(), used: 10, paid: 0 } } });
+  const f = fakeFetch();
+  assert.equal(await kindOf(ask(g, f)), 'limit');
+  assert.equal(f.calls.length, 0);
+});
+
+test('key lưu riêng, đọc lại được, xoá được và không nằm trong S', () => {
+  const g = setup({ key: '' });
+  assert.equal(g.get('geminiKey()'), '');
+  g.run('setGeminiKey("abc123")');
+  assert.equal(g.get('geminiKey()'), 'abc123');
+  assert.ok(!JSON.stringify(g.get('JSON.stringify(S)')).includes('abc123'));
+  assert.ok(![...g.ctx.__store.entries()].some(([k, v]) => k === KEY && String(v).includes('abc123')));
+  g.run('setGeminiKey("")');
+  assert.equal(g.get('geminiKey()'), '');
+});
