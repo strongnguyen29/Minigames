@@ -5,7 +5,8 @@ const SWITCH_MSG='Máy này đang có tiến độ của tài khoản khác. Dù
 /* adapter Firebase thật (Task 3 điền: nạp SDK từ gstatic, Auth Google, Firestore) */
 function firebaseAdapter(){return Promise.reject(new Error('chưa cấu hình Firebase'))}
 const cloud=(()=>{
-  let adapter=null,loading=null,user=null,timer=null,quiet=false,chain=Promise.resolve();
+  /* synced: lần kéo cho user hiện tại đã xong (đã qua bước hỏi đổi tài khoản); chưa xong thì không được đẩy */
+  let adapter=null,loading=null,user=null,synced=false,timer=null,quiet=false,chain=Promise.resolve();
   const priceOf=id=>{const it=SHOP_ITEMS.find(x=>x.id===id);return it?it.price:0};
   const rd=()=>{try{return JSON.parse(localStorage.getItem(CLOUD_KEY))||{}}catch(e){return {}}};
   const wr=p=>{const c=Object.assign(rd(),p);try{localStorage.setItem(CLOUD_KEY,JSON.stringify(c))}catch(e){}return c};
@@ -25,7 +26,7 @@ const cloud=(()=>{
   /* chạy lần lượt để kéo và đẩy không chen nhau */
   const run=fn=>(chain=chain.then(fn,fn));
   function onAuth(u){
-    user=u&&u.uid?{uid:u.uid,email:u.email||''}:null;
+    user=u&&u.uid?{uid:u.uid,email:u.email||''}:null;synced=false;
     if(user)run(pull);
   }
   function ensure(){
@@ -46,11 +47,12 @@ const cloud=(()=>{
       else if(!hadName){replace(remote);writeLocal()}
       else{replace(merged(remote));writeLocal();await put(u)}
       wr({uid:u.uid,email:u.email,lastSync:Date.now(),lastUid:undefined,error:undefined});
+      synced=true;
       cloud.onChange(hadName);
     }catch(e){fail(e)}
   }
   async function push(){
-    const u=user;if(!u||!adapter)return;
+    const u=user;if(!u||!adapter||!synced)return;
     try{
       const remote=fromCloud(await adapter.get(u.uid));
       if(user!==u)return;
@@ -60,7 +62,8 @@ const cloud=(()=>{
       wr({lastSync:Date.now(),error:undefined});
     }catch(e){fail(e)}
   }
-  const flush=()=>{clearTimeout(timer);timer=null;return run(push)};
+  /* chưa kéo thành công thì thử kéo lại (để bước hỏi đổi tài khoản chạy), không đẩy */
+  const flush=()=>{clearTimeout(timer);timer=null;return run(synced?push:pull)};
   document.addEventListener('visibilitychange',()=>{
     if(document.visibilityState==='hidden'&&user&&(timer||rd().error))flush();
   });
@@ -77,7 +80,7 @@ const cloud=(()=>{
       return ensure().then(a=>{wr({used:true});return a.signIn()}).catch(fail);
     },
     signOut(){
-      clearTimeout(timer);timer=null;user=null;
+      clearTimeout(timer);timer=null;user=null;synced=false;
       const c=rd();
       wr({used:false,uid:undefined,email:undefined,lastSync:undefined,lastUid:c.uid||c.lastUid});
       return Promise.resolve(adapter&&adapter.signOut()).catch(fail);

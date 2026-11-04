@@ -204,3 +204,23 @@ test('đăng xuất thì dừng đồng bộ, xoá uid/email/lastSync', async ()
   g.run('save()');
   assert.equal(g.pending().length, 0);
 });
+
+test('kéo lỗi khi đổi tài khoản thì không đẩy vào tài khoản mới cho tới khi đã hỏi', async () => {
+  const g = setup({ local: { name: 'Mai', stars: 10 }, cloudKey: { used: true, uid: 'A' }, confirm: false,
+    db: { u1: { name: 'Lan', stars: 50, earned: { B: { stars: 50 } }, deviceId: 'B', schema: 1 } } });
+  const warn = console.warn; console.warn = () => {};
+  try {
+    g.run('__fail=true');
+    await g.signIn();
+    assert.equal(g.get('cloud.state().error'), true);
+    g.run('__fail=false;S.stars=11;save()');
+    await g.tick();
+    g.run("document.visibilityState='hidden';__vis.forEach(f=>f())");
+    await flush();
+  } finally { console.warn = warn; }
+  assert.equal(g.sets().length, 0, 'không ghi gì vào tài khoản mới');
+  assert.equal(g.ctx.__db.u1.name, 'Lan');
+  assert.equal(g.get('__asked'), 1, 'lần thử lại chạy bước hỏi đổi tài khoản');
+  assert.equal(g.get('cloud.state().signedIn'), false);
+  assert.equal(g.get('S.name'), 'Mai'); assert.equal(g.get('S.stars'), 11);
+});
