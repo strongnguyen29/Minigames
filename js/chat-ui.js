@@ -78,22 +78,25 @@ const chatMicOK=()=>!!(navigator.mediaDevices&&navigator.mediaDevices.getUserMed
 const CHAT_ERR_LINE={format:'talk_unheard',limit:'talk_limit',mic:'talk_nomic'};
 function chatListen(on){const i=$('#mimg'),k=i&&i.parentNode;if(k&&k.classList)k.classList.toggle('listening',on)}
 
-/* Nút chỉ có icon (bong bóng thoại + sóng âm, chấm tròn góc trên), không chữ vì đã có giọng Kuromi hướng dẫn.
-   Đặt trong khung Kuromi: trên đầu nhân vật ở PC/tablet, bên cạnh ở điện thoại. Trạng thái thể hiện bằng class:
-   listening = các vạch sóng âm nhảy + chấm hồng; thinking = các vạch nhấp nhô chậm */
+/* Nút là icon nền trong suốt (bong bóng thoại + sóng âm, chấm tròn góc trên) kèm dòng chữ nhỏ bên cạnh; CSS chỉ hiện
+   dòng chữ từ tablet trở lên (điện thoại chỉ có icon, đã có giọng Kuromi hướng dẫn). Đặt trong khung Kuromi: trên đầu
+   nhân vật ở PC/tablet ngang, cạnh nhân vật ở màn dọc/điện thoại. Trạng thái thể hiện bằng class:
+   listening = các vạch sóng âm nhảy + màu hồng; thinking = các vạch nhấp nhô chậm */
 const CHAT_BTN_LABEL={idle:'Trò chuyện với Kuromi',listening:'Đang nghe, chạm để gửi',thinking:'Kuromi đang nghĩ'};
+const CHAT_BTN_TEXT={idle:'Trò chuyện với Kuromi nhé!',listening:'Kuromi đang nghe… chạm để gửi',thinking:'Kuromi đang nghĩ…'};
 const CHAT_ICON=`<svg viewBox="0 0 256 256" fill="none" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 <path class="sb" d="M156 28A104 104 0 0 0 54 202L24 236L89 224A104 104 0 0 0 232 128"/>
 <circle class="dot" cx="205" cy="52" r="20"/>
 <path class="bar b1" d="M75 116V136"/><path class="bar b2" d="M102 90V162"/><path class="bar b3" d="M128 76V176"/>
 <path class="bar b4" d="M154 90V162"/><path class="bar b5" d="M181 116V136"/></svg>`;
-const chatBtnHTML=()=>`<button class="talkbtn" id="talkbtn" onclick="chatToggle()" aria-label="${CHAT_BTN_LABEL.idle}">${CHAT_ICON}</button>`;
+const chatBtnHTML=()=>`<button class="talkbtn" id="talkbtn" onclick="chatToggle()" aria-label="${CHAT_BTN_LABEL.idle}">${CHAT_ICON}<span class="tt" id="talktxt">${CHAT_BTN_TEXT.idle}</span></button>`;
 function chatSet(state){
   chatState=state;
   const b=$('#talkbtn');if(!b)return;
   b.classList.toggle('listening',state==='listening');
   b.classList.toggle('thinking',state==='thinking');
   b.setAttribute('aria-label',CHAT_BTN_LABEL[state]);
+  const t=$('#talktxt');if(t)t.textContent=CHAT_BTN_TEXT[state];
 }
 
 /* Chạm nút: lần 1 bắt đầu nghe, lần 2 gửi sớm; đang chờ Gemini thì bỏ qua */

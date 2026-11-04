@@ -235,7 +235,7 @@ test('nút nằm trong khung Kuromi, ngay trước ảnh nhân vật (trên đ�
   assert.ok(btn < grid, 'nút không nằm trong lưới trò chơi');
   assert.ok(html.includes('hasbtn'));
 });
-test('nút chỉ có icon (bong bóng thoại + sóng âm), không có chữ hiển thị; nhãn nằm ở aria-label', () => {
+test('nút là icon (bong bóng thoại + sóng âm) kèm dòng chữ nhỏ "Trò chuyện với Kuromi nhé!" (CSS chỉ hiện từ tablet trở lên)', () => {
   const g = chat();
   g.run('home()');
   const html = g.get('app.innerHTML');
@@ -243,7 +243,15 @@ test('nút chỉ có icon (bong bóng thoại + sóng âm), không có chữ hi�
   assert.ok(m, 'có nút talkbtn');
   assert.ok(m[0].includes('<svg') && m[0].includes('class="bar'));
   assert.ok(m[0].includes('aria-label="Trò chuyện với Kuromi"'));
-  assert.equal(m[0].replace(/aria-label="[^"]*"/g, '').replace(/<[^>]*>/g, '').trim(), '');
+  assert.ok(m[0].includes('<span class="tt" id="talktxt">Trò chuyện với Kuromi nhé!</span>'));
+});
+test('dòng chữ cạnh icon đổi theo trạng thái', async () => {
+  const g = chat();
+  g.run('home()');
+  await g.get('chatToggle()');
+  assert.equal(g.get('$("#talktxt").textContent'), 'Kuromi đang nghe… chạm để gửi');
+  await g.get('chatToggle()');
+  assert.equal(g.get('$("#talktxt").textContent'), 'Trò chuyện với Kuromi nhé!');
 });
 test('nút đổi trạng thái bằng class: listening khi đang nghe, thinking khi chờ Gemini', async () => {
   let release; const gate = new Promise(r => { release = r; });

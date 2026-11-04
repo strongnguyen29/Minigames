@@ -464,7 +464,8 @@ h2{text-align:center;margin:8px 0 14px}
   .mcol .bub,.kuromi.md .bub,.kuromi.sm .bub{position:relative;top:auto;left:auto;right:auto;align-self:center;margin-left:calc(var(--u)*2);max-width:60%;font-size:calc(var(--u)*2.6)}
   .mcol .bub::after{left:calc(var(--u)*-1.4);bottom:40%;border:calc(var(--u)*1.2) solid transparent;border-left:0;border-right-color:#f6eeff}
   .mcol .kuromi.hasbtn .bub{max-width:44%;margin-left:calc(var(--u)*1.2)}
-  .talkbtn{align-self:center;margin:0 calc(var(--u)*1.2);width:calc(var(--u)*10);height:calc(var(--u)*10)}
+  .talkbtn{align-self:center;margin:0 calc(var(--u)*1.2)}
+  .talkbtn svg{width:calc(var(--u)*9);height:calc(var(--u)*9)}.talkbtn .tt{max-width:calc(var(--u)*9)}
   .mainc{padding:calc(var(--u)*2);overflow:visible}
   .hgrid{grid-template-columns:repeat(2,1fr);grid-auto-rows:minmax(calc(var(--u)*20),auto)}
   .chs{grid-template-columns:repeat(2,minmax(0,1fr))}.chs.n3{grid-template-columns:repeat(3,minmax(0,1fr))}
@@ -508,18 +509,23 @@ h2{text-align:center;margin:8px 0 14px}
 /* Nói chuyện với Kuromi: Kuromi nghiêng đầu và phát sáng khi đang nghe; nút Trò chuyện nhấp nháy nhẹ */
 .kuromi.listening img{transform:rotate(-4deg) scale(1.03);filter:drop-shadow(0 0 calc(var(--u)*1.6) #ff7ac0) drop-shadow(0 8px 10px rgba(40,10,70,.4))}
 .kuromi.listening .ped{animation:pedglow .8s ease-in-out infinite;background:radial-gradient(#fff,#ffb6dc 55%,transparent 70%)}
-/* Nút Trò chuyện với Kuromi (chỉ icon): trên đầu nhân vật (PC/tablet); màn dọc/điện thoại thì nằm giữa bong bóng và nhân vật */
-.talkbtn{position:relative;z-index:4;flex:none;width:calc(var(--u)*9);height:calc(var(--u)*9);margin-bottom:calc(var(--u)*-.6);padding:calc(var(--u)*1.2);
-  border:0;border-radius:50%;cursor:pointer;color:#3b5bf5;background:linear-gradient(#fff,#e8ecff);
-  box-shadow:0 calc(var(--u)*.5) 0 #aab6f5,0 calc(var(--u)*1) calc(var(--u)*1.6) rgba(60,20,100,.3);-webkit-tap-highlight-color:transparent}
-.talkbtn svg{display:block;width:100%;height:100%;stroke:currentColor;overflow:visible}
+/* Nút Trò chuyện với Kuromi: icon nền trong suốt; chữ nhỏ bên cạnh chỉ hiện từ tablet (>=700px) trở lên.
+   PC/tablet ngang: nằm trên đầu nhân vật; màn dọc/điện thoại: nằm giữa bong bóng và nhân vật */
+.talkbtn{position:relative;z-index:4;flex:none;display:flex;align-items:center;gap:calc(var(--u)*.8);margin-bottom:calc(var(--u)*-.6);
+  padding:calc(var(--u)*.4);border:0;background:none;cursor:pointer;color:#3b5bf5;font:inherit;-webkit-tap-highlight-color:transparent}
+.talkbtn svg{flex:none;display:block;width:calc(var(--u)*7);height:calc(var(--u)*7);stroke:currentColor;overflow:visible;
+  filter:drop-shadow(0 0 calc(var(--u)*.5) #fff) drop-shadow(0 calc(var(--u)*.3) calc(var(--u)*.5) rgba(60,20,100,.25))}
+.talkbtn .tt{display:none;max-width:calc(var(--u)*11);font-weight:800;font-size:calc(var(--u)*1.7);line-height:1.2;text-align:left;color:#4a2a7a;
+  text-shadow:0 1px 0 #fff,0 0 calc(var(--u)*.8) #fff}
+@media (min-width:700px){.talkbtn .tt{display:block}}
 .talkbtn .bar{transform-box:fill-box;transform-origin:center}
-.talkbtn:active{transform:translateY(calc(var(--u)*.3))}
-.talkbtn.listening{color:#f0609f;animation:talkpulse 1s ease-in-out infinite}
+.talkbtn:active svg{transform:translateY(calc(var(--u)*.3))}
+.talkbtn.listening{color:#f0609f}
+.talkbtn.listening svg{animation:talkpulse 1s ease-in-out infinite}
 .talkbtn.listening .dot{fill:#f0609f}
 .talkbtn.listening .bar{animation:talkwave .7s ease-in-out infinite}
 .talkbtn.listening .b2,.talkbtn.listening .b4{animation-delay:.15s}.talkbtn.listening .b3{animation-delay:.3s}
 .talkbtn.thinking{color:#8a4fe0}
 .talkbtn.thinking .bar{animation:talkwave 1.6s ease-in-out infinite;opacity:.8}
 @keyframes talkwave{50%{transform:scaleY(.4)}}
-@keyframes talkpulse{50%{transform:scale(1.06);filter:brightness(1.05)}}
+@keyframes talkpulse{50%{transform:scale(1.08)}}
