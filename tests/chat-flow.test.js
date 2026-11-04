@@ -15,7 +15,7 @@ function chat({ key = 'AIza-test', local = {}, fetchImpl = okFetch, ms = 2000, s
   const img = { parentNode: kuromi, classList: kuromi.classList, onclick: () => {}, setPointerCapture() {}, style: {} };
   const g = loadGame(FILES, { storage, pre: 'var setInterval=()=>1,clearInterval=()=>{};var FIREBASE_CONFIG=null;', query: s => (s === '#mimg' ? img : null) });
   if (key) g.run(`setGeminiKey("${key}")`);
-  g.run(`navigator.mediaDevices={getUserMedia(){}};CHAT_HEARD_MS=0;CHAT_RETRY_MS=0;
+  g.run(`navigator.mediaDevices={getUserMedia(){}};CHAT_HEARD_MS=0;
     var __rec=[],__said=[],__pokes=0,__clips=[];
     var __opts=null;chatRecStart=async(o)=>{__rec.push('start');__opts=o;return true};
     chatRecStop=()=>({samples:new Float32Array(${samples}),rate:16000,ms:${ms}});

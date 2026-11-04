@@ -66,7 +66,12 @@ function talkBuy(pack){
    Đã chạy thật với key miễn phí ngày 2026-11-04: hội thoại nhận âm thanh WAV = gemini-3.1-flash-lite (~4 giây; các bản
    flash lớn đang báo 503 quá tải, gemini-2.5-flash đã đóng với tài khoản mới), giọng đọc = gemini-3.8-flash-lite-tts
    giọng Leda (~2 giây). Đổi ở đây nếu Google đổi tên */
-const CHAT_MODEL='gemini-3.1-flash-lite',TTS_VOICE='Leda';
+const TTS_VOICE='Leda';
+/* Model chat nhận âm thanh, thử lần lượt: model free tier hay báo 503 "quá tải" hoặc 429, đổi sang model kế tiếp
+   (đã thử cả ba cùng trả lời được ngày 2026-11-05; gemini-3.8-flash thường quá tải nên không để đầu danh sách) */
+const CHAT_MODELS=['gemini-3.1-flash-lite','gemini-3.5-flash-lite','gemini-flash-lite-latest'];
+/* chỉ thử model kế tiếp nếu chưa tốn quá chừng này ms (bé không chờ nổi lâu) */
+let CHAT_BUDGET_MS=25000;
 /* Mỗi model TTS có hạn mức miễn phí riêng (đã thử cả bốn cùng chạy được ngày 2026-11-05): hết hạn mức/quá tải ở
    model này thì thử model kế tiếp, hết cả danh sách mới rơi về giọng máy (giọng nam trên Windows) */
 const TTS_MODELS=['gemini-3.8-flash-lite-tts','gemini-3.8-flash-tts','gemini-3.1-flash-tts-preview'];
@@ -107,25 +112,19 @@ function setGeminiKey(k){
   try{k?localStorage.setItem(GEMINI_KEY_STORE,String(k).trim()):localStorage.removeItem(GEMINI_KEY_STORE)}catch(e){}
 }
 
-/* Gemini hay báo 503 "đang quá tải" thoáng qua: thử lại tối đa CHAT_TRIES lần, cách nhau CHAT_RETRY_MS, rồi mới báo lỗi */
-const CHAT_TRIES=3,RETRY_CODES=[500,502,503,504];
-let CHAT_RETRY_MS=700;
-/* Mỗi lần gọi chờ tối đa CHAT_TIMEOUT_MS: Gemini miễn phí lúc đông có thể mất cả phút, bé không chờ nổi */
+/* Mỗi lần gọi chờ tối đa CHAT_TIMEOUT_MS (Gemini miễn phí lúc đông có thể mất cả phút). Không thử lại cùng một model:
+   lỗi tạm thời thì đã có model dự phòng (chat) hoặc giọng máy (TTS) */
 let CHAT_TIMEOUT_MS=20000;
 /* Giọng đọc chỉ thử một lần và chờ ngắn: TTS chậm thì để chữ trả lời hiện trước, đọc bằng giọng máy */
 const TTS_TIMEOUT_MS=8000;
-async function geminiCall(model,body,key,fetchFn,{tries=CHAT_TRIES,timeout=null}={}){
+async function geminiCall(model,body,key,fetchFn,{timeout=null}={}){
+  const ctl=typeof AbortController!=='undefined'?new AbortController():null;
+  const timer=ctl&&setTimeout(()=>ctl.abort(),timeout||CHAT_TIMEOUT_MS);
   let res;
-  for(let i=1;;i++){
-    const ctl=typeof AbortController!=='undefined'?new AbortController():null;
-    const timer=ctl&&setTimeout(()=>ctl.abort(),timeout||CHAT_TIMEOUT_MS);
-    try{
-      res=await fetchFn(GEMINI_URL+model+':generateContent',{method:'POST',
-        headers:{'Content-Type':'application/json','x-goog-api-key':key},body:JSON.stringify(body),...(ctl?{signal:ctl.signal}:{})});
-    }catch(e){throw new ChatError('net')}finally{timer&&clearTimeout(timer)}
-    if(res.ok||i>=tries||!RETRY_CODES.includes(res.status))break;
-    await new Promise(r=>setTimeout(r,CHAT_RETRY_MS*i));
-  }
+  try{
+    res=await fetchFn(GEMINI_URL+model+':generateContent',{method:'POST',
+      headers:{'Content-Type':'application/json','x-goog-api-key':key},body:JSON.stringify(body),...(ctl?{signal:ctl.signal}:{})});
+  }catch(e){throw new ChatError('net')}finally{timer&&clearTimeout(timer)}
   if(!res.ok)throw new ChatError(await geminiErrKind(res));
   try{return await res.json()}catch(e){throw new ChatError('format')}
 }
@@ -141,18 +140,30 @@ async function geminiErrKind(res){
 }
 const geminiParts=r=>((r&&r.candidates&&r.candidates[0]&&r.candidates[0].content&&r.candidates[0].content.parts)||[]);
 
-/* history: [{role:'user'|'model',text}] — chỉ giữ TALK_HISTORY lượt gần nhất */
+/* history: [{role:'user'|'model',text}] — chỉ giữ TALK_HISTORY lượt gần nhất.
+   Thử lần lượt CHAT_MODELS khi gặp quá tải/hết hạn mức/mạng/JSON hỏng; khoá bị từ chối thì dừng ngay */
 async function geminiChat({key,wavB64,history=[],fetch:fetchFn}){
   const past=history.slice(-TALK_HISTORY*2).map(h=>({role:h.role,parts:[{text:h.text}]}));
-  const r=await geminiCall(CHAT_MODEL,{
+  const body={
     systemInstruction:{parts:[{text:CHAT_PROMPT}]},
     contents:[...past,{role:'user',parts:[{inlineData:{mimeType:'audio/wav',data:wavB64}}]}],
     generationConfig:{responseMimeType:'application/json',responseSchema:CHAT_SCHEMA}
-  },key,fetchFn);
-  const t=geminiParts(r).map(p=>p.text||'').join('');
-  const out=chatParse(t);
-  if(!out)throw new ChatError('format');
-  return out;
+  };
+  const t0=Date.now();
+  let err=new ChatError('net');
+  for(const model of CHAT_MODELS){
+    if(model!==CHAT_MODELS[0]&&Date.now()-t0>CHAT_BUDGET_MS)break;
+    try{
+      const r=await geminiCall(model,body,key,fetchFn);
+      const out=chatParse(geminiParts(r).map(p=>p.text||'').join(''));
+      if(!out)throw new ChatError('format');
+      return out;
+    }catch(e){
+      err=e;
+      if(e&&e.kind==='key')break;
+    }
+  }
+  throw err;
 }
 /* trả WAV: nếu Gemini đã trả WAV (có RIFF) thì giữ nguyên, còn PCM 16-bit 24 kHz thô thì bọc header.
    Thử lần lượt TTS_MODELS khi gặp hết hạn mức/quá tải/mạng; khoá bị từ chối thì dừng ngay */
@@ -165,7 +176,7 @@ async function geminiTts({key,text,fetch:fetchFn}){
       const r=await geminiCall(model,{
         contents:[{parts:[{text}]}],
         generationConfig:{responseModalities:['AUDIO'],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:TTS_VOICE}}}}
-      },key,fetchFn,{tries:1,timeout:TTS_TIMEOUT_MS});
+      },key,fetchFn,{timeout:TTS_TIMEOUT_MS});
       const p=geminiParts(r).find(x=>x.inlineData&&x.inlineData.data);
       if(!p)throw new ChatError('format');
       const bytes=chatFromB64(p.inlineData.data);

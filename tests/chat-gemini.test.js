@@ -5,7 +5,6 @@ function setup({ key = 'AIza-test', local = {} } = {}) {
   const storage = { [DEVICE_KEY]: 'A', [KEY]: JSON.stringify(Object.assign({ name: 'Mai' }, local)) };
   const g = loadGame(['js/core.js', 'js/merge.js', 'js/chat.js'], { storage });
   if (key) g.run(`setGeminiKey(${JSON.stringify(key)})`);
-  g.run('CHAT_RETRY_MS=0');
   return g;
 }
 const text = o => ({ candidates: [{ content: { parts: [{ text: JSON.stringify(o) }] } }] });
@@ -73,11 +72,16 @@ test('lỗi: 429 là quota, 403 là key, mạng đứt là net; đều không tr
 });
 
 test('JSON hỏng, reply rỗng hoặc heard rỗng: format, không trừ câu, không gọi TTS', async () => {
-  for (const chatRes of [{ candidates: [{ content: { parts: [{ text: 'xin chào' }] } }] }, text({ heard: 'a', reply: '', emotion: 'happy' }), text({ heard: '', reply: 'Ừ', emotion: 'happy' }), {}]) {
+  /* [phản hồi, số lần gọi chat mong đợi]: JSON hỏng/thiếu reply thì thử hết các model; heard rỗng là Gemini nghe không ra tiếng
+     bé nên không có lý do thử model khác (cùng âm thanh) */
+  const cases = [[{ candidates: [{ content: { parts: [{ text: 'xin chào' }] } }] }, 'all'], [text({ heard: 'a', reply: '', emotion: 'happy' }), 'all'],
+    [text({ heard: '', reply: 'Ừ', emotion: 'happy' }), 1], [{}, 'all']];
+  for (const [chatRes, calls] of cases) {
     const g = setup(), f = fakeFetch({ chatRes });
     assert.equal(await kindOf(ask(g, f)), 'format');
     assert.equal(g.get('talkLeft()'), 10);
-    assert.equal(f.calls.length, 1);
+    assert.equal(f.calls.length, calls === 'all' ? g.get('CHAT_MODELS.length') : calls);
+    assert.ok(!f.calls.some(c => /tts/.test(c.url)));
   }
 });
 
@@ -105,22 +109,55 @@ function seqFetch(statuses) {
   };
   f.calls = calls; return f;
 }
-test('503 quá tải: thử lại rồi thành công, chỉ trừ một câu', async () => {
-  const g = setup(); g.run('CHAT_RETRY_MS=0');
-  const f = seqFetch([503, 503, 200]);
+/* fetch giả theo từng model chat (thứ tự thử): mỗi phần tử là mã trạng thái, hoặc 'bad' = 200 nhưng JSON hỏng */
+function chainFetch(statuses) {
+  const models = [];
+  const f = async url => {
+    if (/tts/.test(url)) return { ok: true, status: 200, json: async () => audio(PCM_B64) };
+    models.push(url.split('/models/')[1].split(':')[0]);
+    const s = statuses[Math.min(models.length - 1, statuses.length - 1)];
+    if (s === 'bad') return { ok: true, status: 200, json: async () => ({ candidates: [{ content: { parts: [{ text: 'xin chào' }] } }] }) };
+    return { ok: s < 400, status: s, json: async () => text(GOOD) };
+  };
+  f.models = models; return f;
+}
+test('có nhiều model chat dự phòng, tên khác nhau', () => {
+  const g = setup();
+  assert.ok(g.get('CHAT_MODELS.length') >= 3);
+  assert.equal(g.get('new Set(CHAT_MODELS).size'), g.get('CHAT_MODELS.length'));
+});
+test('model đầu quá tải (503) thì thử model kế tiếp, thành công và chỉ trừ một câu', async () => {
+  const g = setup(), f = chainFetch([503, 200]);
   const r = await ask(g, f);
   assert.equal(r.reply, 'Bằng hai nha!');
-  assert.equal(f.calls.filter(u => !/tts/.test(u)).length, 3);
+  assert.equal(f.models.length, 2); assert.notEqual(f.models[0], f.models[1]);
   assert.equal(g.get('talkLeft()'), 9);
 });
-test('503 liên tục: thử tối đa 3 lần rồi báo net, không trừ câu', async () => {
-  const g = setup(); g.run('CHAT_RETRY_MS=0');
-  const f = seqFetch([503]);
+test('model đầu hết hạn mức (429) hoặc trả JSON hỏng thì cũng thử model kế tiếp', async () => {
+  for (const first of [429, 'bad']) {
+    const g = setup(), f = chainFetch([first, 200]);
+    const r = await ask(g, f);
+    assert.equal(r.reply, 'Bằng hai nha!'); assert.equal(f.models.length, 2);
+  }
+});
+test('503 ở mọi model: thử hết danh sách rồi báo net, không trừ câu', async () => {
+  const g = setup(), f = chainFetch([503]);
   assert.equal(await kindOf(ask(g, f)), 'net');
-  assert.equal(f.calls.length, 3);
+  assert.equal(f.models.length, g.get('CHAT_MODELS.length'));
   assert.equal(g.get('talkLeft()'), 10);
 });
-test('Gemini phản hồi quá chậm: huỷ sau thời gian chờ và báo net, không trừ câu', { timeout: 3000 }, async () => {
+test('key bị từ chối (403) thì dừng ngay, không thử model khác', async () => {
+  const g = setup(), f = chainFetch([403]);
+  assert.equal(await kindOf(ask(g, f)), 'key');
+  assert.equal(f.models.length, 1);
+});
+test('quá ngân sách thời gian chờ chat thì không thử thêm model', async () => {
+  const g = setup(); g.run('CHAT_BUDGET_MS=-1');
+  const f = chainFetch([503]);
+  await kindOf(ask(g, f));
+  assert.equal(f.models.length, 1);
+});
+test('Gemini phản hồi quá chậm: huỷ từng lần sau thời gian chờ và báo net, không trừ câu', { timeout: 3000 }, async () => {
   const g = setup(); g.run('CHAT_TIMEOUT_MS=20');
   g.ctx.AbortController = AbortController;
   /* treo mãi, chỉ dừng khi bị huỷ bằng signal */
@@ -183,15 +220,6 @@ test('400 chỉ là key sai khi Gemini nói khoá không hợp lệ; 400 khác l
   assert.equal(await kindOf(ask(setup(), mk('Request payload size exceeds the limit: 20971520 bytes.'))), 'net');
   assert.equal(await kindOf(ask(setup(), async () => ({ ok: false, status: 400, json: async () => { throw new Error('x'); } }))), 'net');
 });
-test('429 và 403 không thử lại', async () => {
-  for (const s of [429, 403]) {
-    const g = setup(); g.run('CHAT_RETRY_MS=0');
-    const f = seqFetch([s]);
-    await kindOf(ask(g, f));
-    assert.equal(f.calls.length, 1);
-  }
-});
-
 test('key lưu riêng, đọc lại được, xoá được và không nằm trong S', () => {
   const g = setup({ key: '' });
   assert.equal(g.get('geminiKey()'), '');
