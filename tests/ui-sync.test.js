@@ -20,7 +20,9 @@ window.CLOUD_ADAPTER={
 function setup({ local, withAdapter = true, db } = {}) {
   const storage = {};
   if (local) storage[KEY] = JSON.stringify(local);
-  const g = loadGame(FILES, { storage, pre: (withAdapter ? ADAPTER : '') + 'var __h=null;' });
+  /* không có adapter: giả lập máy chưa điền cấu hình Firebase */
+  const files = withAdapter ? FILES : FILES.filter(f => f !== 'js/firebase-config.js');
+  const g = loadGame(files, { storage, pre: (withAdapter ? ADAPTER : 'var FIREBASE_CONFIG=null;') + 'var __h=null;' });
   if (db) g.ctx.__db = db;
   return g;
 }
@@ -139,4 +141,15 @@ test('lối "Đăng nhập để lấy lại" chỉ hiện khi chưa có tên v�
   const fresh = setup({});
   fresh.run('welcome()');
   assert.ok(fresh.get('app.innerHTML').includes('Đăng nhập để lấy lại'));
+});
+
+test('Xoá dữ liệu rồi chơi tiếp, đăng nhập lại cùng tài khoản: không mất quà chưa mở trên mây', async () => {
+  const g = setup({ local: { name: 'Mai', gifts: 3, savedAt: 1 } });
+  await g.get('cloud.signIn()'); await flush();
+  assert.equal(g.get('__db.u1.gifts'), 3);
+  g.run('settings()');
+  g.run("$('#rst').onclick()"); await flush();
+  g.run("S.name='Mai';S.gifts=1;save()");
+  await g.get('cloud.signIn()'); await flush();
+  assert.equal(g.get('S.gifts'), 3);
 });

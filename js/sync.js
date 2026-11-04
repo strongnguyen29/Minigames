@@ -127,6 +127,8 @@ const cloud=(()=>{
       wr({used:false,uid:undefined,email:undefined,lastSync:undefined,lastUid:c.uid||c.lastUid});
       return Promise.resolve(adapter&&adapter.signOut()).catch(fail);
     },
+    /* Xoá dữ liệu: quên mốc quà lần trước, để bản mới trên máy không đè quà chưa mở trên mây */
+    forget(){wr({base:undefined})},
     pull:()=>run(pull),
     push:()=>run(push),
     /* đẩy ngay (bỏ hẹn giờ), trả về true nếu đẩy được; dùng trước khi Xoá dữ liệu */

@@ -21,6 +21,8 @@ async function open(browser, url, w, h, saved, pre) {
   pg.on('console', m => { if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) errs.push(m.text()); });
   if (saved) await pg.addInitScript(([k, v]) => { if (!sessionStorage.getItem('seeded')) { localStorage.setItem(k, v); sessionStorage.setItem('seeded', 1); } }, [KEY, JSON.stringify(saved)]);
   if (pre) await pg.addInitScript(pre);
+  /* kiểm thử không bao giờ chạm Firebase thật: luôn chạy như máy chưa điền cấu hình */
+  await pg.route('**/js/firebase-config.js', r => r.fulfill({ contentType: 'application/javascript', body: 'const FIREBASE_CONFIG = null;' }));
   await pg.goto(url);
   return { pg, errs, reqs };
 }

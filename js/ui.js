@@ -77,7 +77,7 @@ function settings(){
     if(!confirm(inn?RESET_CLOUD_MSG:'Xoá hết sao, hình dán và tên của bé?'))return;
     /* đang đăng nhập: đẩy phần chưa sao lưu lên trước; đẩy không được thì hỏi lại */
     if(inn){if(!(await cloud.flushNow())&&!confirm(RESET_UNSYNCED_MSG))return;cloud.signOut()}
-    try{localStorage.removeItem(KEY)}catch(e){}newDevice();memFallback=null;S=freshSave();m.remove();go(welcome)};
+    cloud.forget();try{localStorage.removeItem(KEY)}catch(e){}newDevice();memFallback=null;S=freshSave();m.remove();go(welcome)};
 }
 /* Trang chủ: 6 trò học + cờ caro, tiệm công chúa, bộ sưu tập */
 const HOME_ORDER=['count','shape','add','split','cmp','pattern'];
