@@ -128,15 +128,43 @@ test('Gemini phản hồi quá chậm: huỷ sau thời gian chờ và báo net,
   assert.equal(await kindOf(ask(g, f)), 'net');
   assert.equal(g.get('talkLeft()'), 10);
 });
-test('TTS lỗi 503: chỉ thử một lần (không để chữ trả lời chờ lâu), wav null, vẫn trừ một câu', async () => {
-  const g = setup(); let tts = 0;
+/* fetch giả: mỗi model TTS có một mã trạng thái riêng (theo thứ tự thử), chat luôn thành công */
+function ttsFetch(statuses) {
+  const used = [];
   const f = async url => {
-    if (/tts/.test(url)) { tts++; return { ok: false, status: 503, json: async () => ({}) }; }
+    if (/tts/.test(url)) {
+      used.push(url.split('/models/')[1].split(':')[0]);
+      const s = statuses[Math.min(used.length - 1, statuses.length - 1)];
+      return { ok: s < 400, status: s, json: async () => (s < 400 ? audio(PCM_B64) : {}) };
+    }
     return { ok: true, status: 200, json: async () => text(GOOD) };
   };
+  f.used = used; return f;
+}
+test('TTS lỗi liên tục: mỗi model chỉ thử một lần, hết danh sách thì wav null, vẫn trừ một câu', async () => {
+  const g = setup(), f = ttsFetch([503]);
   const r = await ask(g, f);
-  assert.equal(r.wav, null); assert.equal(tts, 1);
+  assert.equal(r.wav, null);
+  assert.equal(f.used.length, g.get('TTS_MODELS.length'));
+  assert.equal(new Set(f.used).size, f.used.length);
   assert.equal(g.get('talkLeft()'), 9);
+});
+test('TTS: model đầu hết hạn mức (429) thì thử model kế tiếp, có giọng Gemini', async () => {
+  const g = setup(), f = ttsFetch([429, 200]);
+  const r = await ask(g, f);
+  assert.equal(f.used.length, 2);
+  assert.equal(Array.from(r.wav.slice(44)).join(), '1,2,3,4');
+});
+test('TTS: key bị từ chối thì dừng ngay, không thử model khác', async () => {
+  const g = setup(), f = ttsFetch([403]);
+  const r = await ask(g, f);
+  assert.equal(f.used.length, 1); assert.equal(r.wav, null);
+});
+test('TTS: quá ngân sách thời gian thì không thử thêm model', async () => {
+  const g = setup(); g.run('TTS_BUDGET_MS=-1');
+  const f = ttsFetch([429]);
+  await ask(g, f);
+  assert.equal(f.used.length, 1);
 });
 test('rời trang trong lúc chờ TTS: không trừ câu', async () => {
   const g = setup(); let alive = true;

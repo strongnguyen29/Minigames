@@ -66,7 +66,12 @@ function talkBuy(pack){
    Đã chạy thật với key miễn phí ngày 2026-11-04: hội thoại nhận âm thanh WAV = gemini-3.1-flash-lite (~4 giây; các bản
    flash lớn đang báo 503 quá tải, gemini-2.5-flash đã đóng với tài khoản mới), giọng đọc = gemini-3.8-flash-lite-tts
    giọng Leda (~2 giây). Đổi ở đây nếu Google đổi tên */
-const CHAT_MODEL='gemini-3.1-flash-lite',TTS_MODEL='gemini-3.8-flash-lite-tts',TTS_VOICE='Leda';
+const CHAT_MODEL='gemini-3.1-flash-lite',TTS_VOICE='Leda';
+/* Mỗi model TTS có hạn mức miễn phí riêng (đã thử cả bốn cùng chạy được ngày 2026-11-05): hết hạn mức/quá tải ở
+   model này thì thử model kế tiếp, hết cả danh sách mới rơi về giọng máy (giọng nam trên Windows) */
+const TTS_MODELS=['gemini-3.8-flash-lite-tts','gemini-3.8-flash-tts','gemini-3.1-flash-tts-preview'];
+/* chỉ thử model tiếp theo nếu chưa tốn quá chừng này ms, để chữ trả lời không bị giữ lâu */
+let TTS_BUDGET_MS=12000;
 const GEMINI_URL='https://generativelanguage.googleapis.com/v1beta/models/';
 const TALK_HISTORY=6;
 const CHAT_PROMPT=`Bạn là Kuromi, người bạn học tập đáng yêu dành cho trẻ em từ 5 đến 8 tuổi. Giọng điệu ấm áp, thân thiện như một bé gái 7 tuổi.
@@ -149,17 +154,29 @@ async function geminiChat({key,wavB64,history=[],fetch:fetchFn}){
   if(!out)throw new ChatError('format');
   return out;
 }
-/* trả WAV: nếu Gemini đã trả WAV (có RIFF) thì giữ nguyên, còn PCM 16-bit 24 kHz thô thì bọc header */
+/* trả WAV: nếu Gemini đã trả WAV (có RIFF) thì giữ nguyên, còn PCM 16-bit 24 kHz thô thì bọc header.
+   Thử lần lượt TTS_MODELS khi gặp hết hạn mức/quá tải/mạng; khoá bị từ chối thì dừng ngay */
 async function geminiTts({key,text,fetch:fetchFn}){
-  const r=await geminiCall(TTS_MODEL,{
-    contents:[{parts:[{text}]}],
-    generationConfig:{responseModalities:['AUDIO'],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:TTS_VOICE}}}}
-  },key,fetchFn,{tries:1,timeout:TTS_TIMEOUT_MS});
-  const p=geminiParts(r).find(x=>x.inlineData&&x.inlineData.data);
-  if(!p)throw new ChatError('format');
-  const bytes=chatFromB64(p.inlineData.data);
-  const m=/rate=(\d+)/.exec(p.inlineData.mimeType||'');
-  return String.fromCharCode(...bytes.slice(0,4))==='RIFF'?bytes:chatPcmToWav(bytes,m?+m[1]:24000);
+  const t0=Date.now();
+  let err=new ChatError('net');
+  for(const model of TTS_MODELS){
+    if(model!==TTS_MODELS[0]&&Date.now()-t0>TTS_BUDGET_MS)break;
+    try{
+      const r=await geminiCall(model,{
+        contents:[{parts:[{text}]}],
+        generationConfig:{responseModalities:['AUDIO'],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:TTS_VOICE}}}}
+      },key,fetchFn,{tries:1,timeout:TTS_TIMEOUT_MS});
+      const p=geminiParts(r).find(x=>x.inlineData&&x.inlineData.data);
+      if(!p)throw new ChatError('format');
+      const bytes=chatFromB64(p.inlineData.data);
+      const m=/rate=(\d+)/.exec(p.inlineData.mimeType||'');
+      return String.fromCharCode(...bytes.slice(0,4))==='RIFF'?bytes:chatPcmToWav(bytes,m?+m[1]:24000);
+    }catch(e){
+      err=e;
+      if(e&&e.kind==='key')break;
+    }
+  }
+  throw err;
 }
 
 /* Một lượt hỏi: chỉ trừ câu khi Gemini hội thoại trả lời thành công và bé còn ở trang chủ; TTS lỗi thì wav=null (đọc bằng giọng máy) */
