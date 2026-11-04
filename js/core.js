@@ -20,7 +20,7 @@ function load(){
     return Object.assign({},DEF,{earned:{}},s)}}catch(e){if(memFallback)return memFallback}
   return freshSave();
 }
-function save(){S.savedAt=Date.now();try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){memFallback=S}}
+function save(){S.savedAt=Date.now();try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){memFallback=S}if(typeof cloud!=='undefined')cloud.pushSoon()}
 let S=load();
 const dayStr=d=>d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
 function touchStreak(){
