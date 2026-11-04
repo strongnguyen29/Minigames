@@ -3,7 +3,7 @@ const app=$('#app');
 let P=null; // trạng thái lượt chơi
 
 /* Mọi lần chuyển màn: dừng giọng, dừng bài đang nghe ở Tiệm âm thanh, huỷ hẹn giờ cảm xúc của màn cũ */
-function go(fn){voice.stop();if(typeof radioStop==='function')radioStop();mascotReset();fn()}
+function go(fn){voice.stop();if(typeof radioStop==='function')radioStop();if(typeof chatCancel==='function')chatCancel();mascotReset();fn()}
 /* Bấm nút điều hướng: nút nảy kiểu thạch rồi mới chuyển màn (chặn bấm đúp) */
 let goBusy=false;
 function goTap(el,fn){
@@ -61,6 +61,8 @@ function settings(){
   <div class="sw">🗣️ Giọng Kuromi<button class="tg ${S.voice?'':'off'}" id="tv" aria-label="Giọng Kuromi"></button></div>
   <div class="sw">🎵 Âm thanh hiệu ứng<button class="tg ${S.sfx?'':'off'}" id="ts" aria-label="Âm thanh hiệu ứng"></button></div>
   <div class="sw">🎶 Nhạc nền<button class="tg ${S.music?'':'off'}" id="tm" aria-label="Nhạc nền"></button></div>
+  <div class="sw">🔑 Khoá Gemini<button class="btn p-blue small" id="gkey">${geminiKey()?'Đổi':'Nhập'}</button></div>
+  <div class="sw">💬 Còn ${talkLeft()} câu hôm nay<button class="btn p-blue small" id="gbuy">Đổi sao</button></div>
   <div class="cloudbox" id="cloud"></div>
   <div class="row"><button class="btn p-purple" id="chg">✏️ Đổi tên / hình</button><button class="btn p-gray small" id="rst">Xoá dữ liệu</button></div>
   <div class="row"><button class="btn p-pink gloss" id="cl">Đóng</button></div>
@@ -72,6 +74,9 @@ function settings(){
   $('#ts').onclick=e=>{S.sfx=!S.sfx;e.currentTarget.classList.toggle('off',!S.sfx);save();sfx.click();snd()};
   $('#tm').onclick=e=>{S.music=!S.music;e.currentTarget.classList.toggle('off',!S.music);save();music.sync();snd()};
   $('#cl').onclick=()=>m.remove();
+  const gk=$('#gkey'),gb=$('#gbuy');
+  if(gk)gk.onclick=()=>{m.remove();chatKeyModal()};
+  if(gb)gb.onclick=()=>{m.remove();chatBuyModal()};
   $('#chg').onclick=()=>{m.remove();go(welcome)};
   $('#rst').onclick=async()=>{const inn=cloud.state().signedIn;
     if(!confirm(inn?RESET_CLOUD_MSG:'Xoá hết sao, hình dán và tên của bé?'))return;
@@ -92,7 +97,9 @@ function home(){
     card(n+3,'p-purple','🎁','Bộ sưu tập',`${S.stickers.length}/${STICKERS.length}`,'album'));
   app.innerHTML=screenHTML({mascot:{emo:'neutral',size:'lg'},top:topbar(),cls:'home',body:`<div class="hgrid">${cards.join('')}</div>`});
   const fire=S.streak>1?` 🔥 ${S.streak} ngày liên tiếp!`:'';
-  mascotSay('home',{format:t=>withName(t)+fire,ifIdle:true});
+  chatAttach();
+  if(chatHintDue())mascotSay('talk_hint',{ifIdle:true});
+  else mascotSay('home',{format:t=>withName(t)+fire,ifIdle:true});
 }
 /* Chọn mức: các mức nằm trên con đường chấm trắng uốn lượn trên mây (toạ độ % trong khung) */
 const LEVEL_PATH=[[12,85],[30,55],[60,45],[85,38],[62,14],[34,24]];

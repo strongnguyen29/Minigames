@@ -1,7 +1,7 @@
 const test = require('node:test'), assert = require('node:assert/strict');
 const { loadGame, fakeEl } = require('./helpers/load');
 const FILES = ['js/core.js','js/merge.js','js/questions.js','js/rewards.js','js/lines.js','audio/voice/manifest.js','js/voice.js',
-  'js/scene.js','js/mascot.js','js/shop.js','js/firebase-config.js','js/sync.js','js/ui.js','js/pattern.js'];
+  'js/scene.js','js/mascot.js','js/shop.js','js/chat.js','js/chat-ui.js','js/firebase-config.js','js/sync.js','js/ui.js','js/pattern.js'];
 const flush = async () => { for (let i = 0; i < 5; i++) await new Promise(r => setImmediate(r)); };
 
 /* Hẹn giờ giả + giọng giả: done của mỗi câu resolve sau voiceMs (Infinity = không bao giờ) */

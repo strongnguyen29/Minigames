@@ -1,7 +1,7 @@
 const test = require('node:test'), assert = require('node:assert/strict');
 const { loadGame } = require('./helpers/load');
 const FILES = ['js/core.js','js/merge.js','js/questions.js','js/rewards.js','js/lines.js','audio/voice/manifest.js','js/voice.js',
-  'js/scene.js','js/mascot.js','js/shop.js','js/firebase-config.js','js/sync.js','js/ui.js'];
+  'js/scene.js','js/mascot.js','js/shop.js','js/chat.js','js/chat-ui.js','js/firebase-config.js','js/sync.js','js/ui.js'];
 const KEY = 'be_vui_hoc_toan_v1';
 const flush = async () => { for (let i = 0; i < 20; i++) await new Promise(r => setImmediate(r)); };
 

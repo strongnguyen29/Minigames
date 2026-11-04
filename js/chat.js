@@ -92,7 +92,7 @@ Chỉ trả lời JSON, không thêm chữ nào khác:
 {"heard":"chữ bé vừa nói (để trống nếu không nghe rõ)","reply":"Câu trả lời","emotion":"neutral|happy|think|clap"}`;
 const CHAT_SCHEMA={type:'OBJECT',properties:{heard:{type:'STRING'},reply:{type:'STRING'},emotion:{type:'STRING',enum:TALK_EMOS}},required:['heard','reply','emotion']};
 
-/* kind: nokey | key | quota | net | format | limit | mic */
+/* kind: nokey | key | quota | net | format | limit | mic | cancelled */
 class ChatError extends Error{constructor(kind,msg){super(msg||kind);this.kind=kind}}
 
 /* Khoá Gemini nằm riêng ở localStorage: không vào S nên không bao giờ đồng bộ lên mây */
@@ -151,12 +151,13 @@ async function geminiTts({key,text,fetch:fetchFn}){
 }
 
 /* Một lượt hỏi: chỉ trừ câu sau khi Gemini hội thoại trả lời thành công; TTS lỗi thì wav=null (đọc bằng giọng máy) */
-async function chatAsk({wavB64,history=[],fetch:fetchFn=window.fetch.bind(window)}){
+async function chatAsk({wavB64,history=[],alive=()=>true,fetch:fetchFn=window.fetch.bind(window)}){
   const key=geminiKey();
   if(!key)throw new ChatError('nokey');
   if(talkLeft()<=0)throw new ChatError('limit');
   const a=await geminiChat({key,wavB64,history,fetch:fetchFn});
   if(!a.heard)throw new ChatError('format');
+  if(!alive())throw new ChatError('cancelled');
   talkUse();
   let wav=null;
   try{wav=await geminiTts({key,text:a.reply,fetch:fetchFn})}catch(e){}
