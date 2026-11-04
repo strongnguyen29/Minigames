@@ -4,3 +4,5 @@
 node_modules/
 tests/e2e/shots/
 .env
+# nhạc có bản quyền: chỉ để trên máy / R2 (AUDIO_CDN), không đưa lên repo công khai
+audio/songs/

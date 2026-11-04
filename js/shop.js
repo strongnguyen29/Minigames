@@ -59,7 +59,8 @@ const SHOP_ITEMS=SHOP.flatMap(c=>c.items.map(([f,name,price,ch])=>({
   S.owned=owned;S.giftOwned=(S.giftOwned||[]).filter(id=>owned.includes(id));
   S.spent=owned.filter(id=>!S.giftOwned.includes(id)).reduce((a,id)=>a+SHOP_ITEMS.find(x=>x.id===id).price,0);save();
 })();
-const balance=()=>Math.max(0,S.stars-(S.spent||0));
+/* sao còn lại: trừ váy đã đổi và phần đã tiêu ở Tiệm âm thanh (js/radio.js) */
+const balance=()=>Math.max(0,S.stars-(S.spent||0)-(typeof radioSpent==='function'?radioSpent():0));
 const owns=id=>(S.owned||[]).includes(id);
 let shopCat=SHOP[0].id;
 

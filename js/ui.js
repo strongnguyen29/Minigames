@@ -2,8 +2,8 @@
 const app=$('#app');
 let P=null; // trạng thái lượt chơi
 
-/* Mọi lần chuyển màn: dừng giọng, huỷ hẹn giờ cảm xúc của màn cũ */
-function go(fn){voice.stop();mascotReset();fn()}
+/* Mọi lần chuyển màn: dừng giọng, dừng bài đang nghe ở Tiệm âm thanh, huỷ hẹn giờ cảm xúc của màn cũ */
+function go(fn){voice.stop();if(typeof radioStop==='function')radioStop();mascotReset();fn()}
 /* Bấm nút điều hướng: nút nảy kiểu thạch rồi mới chuyển màn (chặn bấm đúp) */
 let goBusy=false;
 function goTap(el,fn){
@@ -79,7 +79,7 @@ function settings(){
     if(inn){if(!(await cloud.flushNow())&&!confirm(RESET_UNSYNCED_MSG))return;cloud.signOut()}
     cloud.forget();try{localStorage.removeItem(KEY)}catch(e){}newDevice();memFallback=null;S=freshSave();m.remove();go(welcome)};
 }
-/* Trang chủ: 6 trò học + cờ caro, tiệm công chúa, bộ sưu tập */
+/* Trang chủ: 6 trò học + cờ caro, tiệm công chúa, tiệm âm thanh, bộ sưu tập */
 const HOME_ORDER=['count','shape','add','split','cmp','pattern'];
 const HOME_COLORS=['p-purple','p-pink','p-blue'];
 function home(){
@@ -88,8 +88,8 @@ function home(){
   const cards=games.map((k,i)=>{const g=GAMES[k],tot=g.levels.reduce((a,_,j)=>a+(S.best[k+'-'+j]||0),0);
     return card(i,HOME_COLORS[i%3],g.icon,g.name,`⭐ ${tot}/${g.levels.length*3}`,`()=>levels('${k}')`)});
   const n=cards.length;
-  cards.push(card(n,'p-dark','⭕','Cờ caro','','caro'),card(n+1,'p-pink','👑','Tiệm công chúa','','shop'),
-    card(n+2,'p-purple','🎁','Bộ sưu tập',`${S.stickers.length}/${STICKERS.length}`,'album'));
+  cards.push(card(n,'p-dark','⭕','Cờ caro','','caro'),card(n+1,'p-pink','👑','Tiệm công chúa','','shop'),card(n+2,'p-blue','🎵','Tiệm âm thanh','','radio'),
+    card(n+3,'p-purple','🎁','Bộ sưu tập',`${S.stickers.length}/${STICKERS.length}`,'album'));
   app.innerHTML=screenHTML({mascot:{emo:'neutral',size:'lg'},top:topbar(),cls:'home',body:`<div class="hgrid">${cards.join('')}</div>`});
   const fire=S.streak>1?` 🔥 ${S.streak} ngày liên tiếp!`:'';
   mascotSay('home',{format:t=>withName(t)+fire,ifIdle:true});

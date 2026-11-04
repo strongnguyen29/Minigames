@@ -1,7 +1,8 @@
 /* ============ Gộp tiến độ giữa hai máy (không phụ thuộc mạng) ============ */
 const DEVICE_KEY='be_vui_device_v1';
 const COUNTERS=['stars','rounds','perfect'];
-const LOCAL_ONLY=['sound','voice','sfx','music'];
+/* listen: phút nghe miễn phí đã dùng hôm nay, phút đã mua còn lại, chỗ dừng mỗi bài (riêng từng máy) */
+const LOCAL_ONLY=['sound','voice','sfx','music','listen'];
 let memDevice=null;
 function deviceId(){
   try{let d=localStorage.getItem(DEVICE_KEY);
@@ -40,7 +41,11 @@ function mergeSave(local,remote,priceOf,base){
   const best={};
   [local.best,remote.best].forEach(src=>{for(const k in src||{})best[k]=Math.max(best[k]||0,src[k])});
   out.best=best;
-  ['stickers','badges','owned','giftOwned'].forEach(k=>{out[k]=union(local[k],remote[k])});
+  ['stickers','badges','owned','giftOwned','songs'].forEach(k=>{out[k]=union(local[k],remote[k])});
+  /* sao đổi phút nghe: mỗi máy chỉ tăng phần của mình → max từng máy */
+  const ls={};
+  [local.listenSpent,remote.listenSpent].forEach(src=>{for(const d in src||{})ls[d]=Math.max(ls[d]||0,src[d]||0)});
+  out.listenSpent=ls;
   out.spent=out.owned.filter(id=>!out.giftOwned.includes(id)).reduce((n,id)=>n+(priceOf(id)||0),0);
   /* quà chưa mở: bên nào còn giống base thì chưa đổi, lấy bên kia; cả hai đổi (hoặc không có base) thì bên nhiều hơn thắng */
   const same=x=>!!base&&(x.gifts||0)===(base.gifts||0)&&JSON.stringify(x.luckyGifts||[])===JSON.stringify(base.luckyGifts||[]);

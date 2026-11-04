@@ -1,6 +1,6 @@
 # Kịch bản giọng Kuromi
 
-Tổng cộng **290 file**. Đặt tên file đúng cột "File", bỏ vào `audio/voice/`, rồi chạy `npm run voice:manifest`.
+Tổng cộng **302 file**. Đặt tên file đúng cột "File", bỏ vào `audio/voice/`, rồi chạy `npm run voice:manifest`.
 
 ## Điểm chạm: splash
 
@@ -222,6 +222,38 @@ Tổng cộng **290 file**. Đặt tên file đúng cột "File", bỏ vào `aud
 | `shop_wear_1.mp3` | Xinh quá trời luôn! | Vui sướng | trầm trồ |
 | `shop_wear_2.mp3` | Wow, bạn nhỏ đẹp lung linh! | Vui sướng | trầm trồ |
 | `shop_wear_3.mp3` | Bộ này đẹp ghê! | Vui sướng | trầm trồ |
+
+## Điểm chạm: radio_hello
+
+| File | Câu nói | Cảm xúc | Cách đọc |
+|---|---|---|---|
+| `radio_hello_1.mp3` | Chào mừng bạn đến Tiệm âm thanh! | Vui sướng | vui tươi, êm dịu |
+| `radio_hello_2.mp3` | Hôm nay bạn muốn nghe bài hát hay câu chuyện nào? | Vui sướng | vui tươi, êm dịu |
+| `radio_hello_3.mp3` | Chọn một bài rồi mình cùng nghe nha! | Vui sướng | vui tươi, êm dịu |
+
+## Điểm chạm: radio_buy
+
+| File | Câu nói | Cảm xúc | Cách đọc |
+|---|---|---|---|
+| `radio_buy_1.mp3` | Yeah! Bài mới của bạn nè! | Vui sướng | reo vui |
+| `radio_buy_2.mp3` | Đổi được rồi! Mình nghe thôi! | Vui sướng | reo vui |
+| `radio_buy_3.mp3` | Hay quá, bạn có thêm một bài mới! | Vui sướng | reo vui |
+
+## Điểm chạm: radio_poor
+
+| File | Câu nói | Cảm xúc | Cách đọc |
+|---|---|---|---|
+| `radio_poor_1.mp3` | Chưa đủ sao rồi, mình chơi thêm để có sao nha! | Suy nghĩ | nhẹ nhàng, khích lệ |
+| `radio_poor_2.mp3` | Bạn chơi thêm vài màn nữa là đổi được đó! | Suy nghĩ | nhẹ nhàng, khích lệ |
+| `radio_poor_3.mp3` | Cần thêm sao nữa, mình cùng cố gắng nhé! | Suy nghĩ | nhẹ nhàng, khích lệ |
+
+## Điểm chạm: radio_timeup
+
+| File | Câu nói | Cảm xúc | Cách đọc |
+|---|---|---|---|
+| `radio_timeup_1.mp3` | Hết giờ nghe hôm nay rồi! Mai mình nghe tiếp nha | Suy nghĩ | dịu dàng, giải thích |
+| `radio_timeup_2.mp3` | Hết phút nghe rồi, bạn đổi sao để nghe thêm nhé! | Suy nghĩ | dịu dàng, giải thích |
+| `radio_timeup_3.mp3` | Nghỉ tai một chút nha! Mai lại có phút nghe miễn phí đó. | Suy nghĩ | dịu dàng, giải thích |
 
 ## Điểm chạm: album_stickers
 

@@ -85,6 +85,18 @@ shop_drag_3.mp3,Kéo váy vào bạn nhỏ thử xem nào!,shop_drag,neutral,"h�
 shop_wear_1.mp3,Xinh quá trời luôn!,shop_wear,happy,trầm trồ,[amazed] Xinh quá trời luôn!
 shop_wear_2.mp3,"Wow, bạn nhỏ đẹp lung linh!",shop_wear,happy,trầm trồ,"[amazed] Wow, bạn nhỏ đẹp lung linh!"
 shop_wear_3.mp3,Bộ này đẹp ghê!,shop_wear,happy,trầm trồ,[amazed] Bộ này đẹp ghê!
+radio_hello_1.mp3,Chào mừng bạn đến Tiệm âm thanh!,radio_hello,happy,"vui tươi, êm dịu",[cheerfully] Chào mừng bạn đến Tiệm âm thanh!
+radio_hello_2.mp3,Hôm nay bạn muốn nghe bài hát hay câu chuyện nào?,radio_hello,happy,"vui tươi, êm dịu",[cheerfully] Hôm nay bạn muốn nghe bài hát hay câu chuyện nào?
+radio_hello_3.mp3,Chọn một bài rồi mình cùng nghe nha!,radio_hello,happy,"vui tươi, êm dịu",[cheerfully] Chọn một bài rồi mình cùng nghe nha!
+radio_buy_1.mp3,Yeah! Bài mới của bạn nè!,radio_buy,happy,reo vui,[cheerfully] Yeah! Bài mới của bạn nè!
+radio_buy_2.mp3,Đổi được rồi! Mình nghe thôi!,radio_buy,happy,reo vui,[cheerfully] Đổi được rồi! Mình nghe thôi!
+radio_buy_3.mp3,"Hay quá, bạn có thêm một bài mới!",radio_buy,happy,reo vui,"[cheerfully] Hay quá, bạn có thêm một bài mới!"
+radio_poor_1.mp3,"Chưa đủ sao rồi, mình chơi thêm để có sao nha!",radio_poor,think,"nhẹ nhàng, khích lệ","[encouragingly] Chưa đủ sao rồi, mình chơi thêm để có sao nha!"
+radio_poor_2.mp3,Bạn chơi thêm vài màn nữa là đổi được đó!,radio_poor,think,"nhẹ nhàng, khích lệ",[encouragingly] Bạn chơi thêm vài màn nữa là đổi được đó!
+radio_poor_3.mp3,"Cần thêm sao nữa, mình cùng cố gắng nhé!",radio_poor,think,"nhẹ nhàng, khích lệ","[encouragingly] Cần thêm sao nữa, mình cùng cố gắng nhé!"
+radio_timeup_1.mp3,Hết giờ nghe hôm nay rồi! Mai mình nghe tiếp nha,radio_timeup,think,"dịu dàng, giải thích",[gently] Hết giờ nghe hôm nay rồi! Mai mình nghe tiếp nha
+radio_timeup_2.mp3,"Hết phút nghe rồi, bạn đổi sao để nghe thêm nhé!",radio_timeup,think,"dịu dàng, giải thích","[gently] Hết phút nghe rồi, bạn đổi sao để nghe thêm nhé!"
+radio_timeup_3.mp3,Nghỉ tai một chút nha! Mai lại có phút nghe miễn phí đó.,radio_timeup,think,"dịu dàng, giải thích",[gently] Nghỉ tai một chút nha! Mai lại có phút nghe miễn phí đó.
 album_stickers_1.mp3,Bộ sưu tập hình dán của bạn nè!,album_stickers,happy,tự hào,[proudly] Bộ sưu tập hình dán của bạn nè!
 album_stickers_2.mp3,Bạn sưu tầm thêm hình dán nha!,album_stickers,happy,tự hào,[proudly] Bạn sưu tầm thêm hình dán nha!
 album_stickers_3.mp3,Nhiều hình dán xinh quá!,album_stickers,happy,tự hào,[proudly] Nhiều hình dán xinh quá!

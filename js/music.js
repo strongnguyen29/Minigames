@@ -1,9 +1,9 @@
 /* ============ Nhạc nền ============ */
-/* Phát ở các màn menu (trang chủ, chọn mức, tiệm, bộ sưu tập, kết quả…); tạm dừng khi vào màn chơi */
+/* Phát ở các màn menu (trang chủ, chọn mức, tiệm, bộ sưu tập, kết quả…); tạm dừng khi vào màn chơi và Tiệm âm thanh */
 const MUSIC_SRC='audio/music/kuromi-lofi.m4a';
 /* nhạc nền nhỏ hơn hẳn giọng Kuromi (giọng phát ở mức 1); khi Kuromi đang nói thì hạ thêm */
 const MUSIC_VOL=.7,MUSIC_DUCK_VOL=.3;
-const MUSIC_MUTE_SCREENS=['play','caro'];
+const MUSIC_MUTE_SCREENS=['play','caro','radio'];
 const music=(()=>{
   let el=null,gain=null,want=false,duckIv=0;
   /* iOS bỏ qua audio.volume → chỉnh âm lượng qua GainNode của Web Audio (ac dùng chung với hiệu ứng).

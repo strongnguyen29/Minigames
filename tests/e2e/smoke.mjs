@@ -105,7 +105,7 @@ async function run(browser, url, [name, w, h]) {
     await tap(pg, '.ttl .back');
   });
   await step('tiệm', async () => {
-    await pg.waitForSelector('.hgrid'); await pg.locator('.hgrid .gc').nth(-2).click();
+    await pg.waitForSelector('.hgrid'); await pg.locator('.hgrid .gc', { hasText: 'Tiệm công chúa' }).click();
     await pg.waitForSelector('.shopl'); await pg.waitForTimeout(800);
     /* cho bé sẵn vài váy (6 váy dạ hội) để kiểm tra cột "Kéo để mặc" không bị Kuromi che */
     await pg.evaluate(() => { S.owned = SHOP_ITEMS.filter(x => x.cat === 'gown').map(x => x.id); save(); shop(true); });
@@ -114,8 +114,15 @@ async function run(browser, url, [name, w, h]) {
     await noHScroll(pg, `${name} tiệm`); await shot(pg, `${name}-09-shop`);
     await tap(pg, '.ttl .back');
   });
+  await step('tiệm âm thanh', async () => {
+    await pg.waitForSelector('.hgrid'); await pg.locator('.hgrid .gc', { hasText: 'Tiệm âm thanh' }).click();
+    await pg.waitForSelector('.rbar'); await pg.waitForTimeout(600);
+    await notCovered(pg, '.ritem, .rbar button', `${name} tiệm âm thanh`);
+    await noHScroll(pg, `${name} tiệm âm thanh`); await shot(pg, `${name}-09b-radio`);
+    await tap(pg, '.ttl .back');
+  });
   await step('cờ caro', async () => {
-    await pg.waitForSelector('.hgrid'); await pg.locator('.hgrid .gc').nth(-3).click();
+    await pg.waitForSelector('.hgrid'); await pg.locator('.hgrid .gc', { hasText: 'Cờ caro' }).click();
     await pg.waitForSelector('#caro'); await pg.waitForTimeout(500);
     await noHScroll(pg, `${name} caro`); await shot(pg, `${name}-10-caro`);
     await tap(pg, '.ttl .back');
