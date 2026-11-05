@@ -96,3 +96,34 @@ test('earned trên mây có mục null thì không ném lỗi', () => {
   const r = merge({ stars:3, earned:{ A:{ stars:3 } } }, { earned:{ B:null } });
   assert.equal(r.stars, 3);
 });
+
+/* ---- gộp nhiệm vụ chăm ngoan ---- */
+test('chore rỗng và giftSongs rỗng khi cả hai bên thiếu', () => {
+  const r = merge({}, {});
+  assert.deepEqual(r.chore, { log:{}, extra:[], cnt:{} }); assert.deepEqual(r.giftSongs, []);
+});
+test('chore log: trạng thái cuối thắng, hai chiều', () => {
+  const d = { log:{ k:{ st:'done', n:4, t:7 } } }, w = { log:{ k:{ st:'wait', t:9 } } };
+  [[d, w], [w, d]].forEach(([a, b]) => { const k = merge({ chore:a }, { chore:b }).chore.log.k; assert.equal(k.st, 'done'); assert.equal(k.n, 4) });
+  assert.equal(merge({ chore:{ log:{ k:{ st:'closed', t:1 } } } }, { chore:w }).chore.log.k.st, 'closed');
+});
+test('chore log: hai trạng thái không cuối lấy t lớn hơn', () => {
+  const redo = t => ({ log:{ k:{ st:'redo', t } } }), wait = t => ({ log:{ k:{ st:'wait', t } } });
+  assert.equal(merge({ chore:redo(5) }, { chore:wait(9) }).chore.log.k.st, 'wait');
+  assert.equal(merge({ chore:redo(9) }, { chore:wait(5) }).chore.log.k.st, 'redo');
+});
+test('chore log: hai trạng thái cuối lấy t nhỏ hơn', () => {
+  const r = merge({ chore:{ log:{ k:{ st:'done', n:2, t:8 } } } }, { chore:{ log:{ k:{ st:'closed', t:3 } } } });
+  assert.equal(r.chore.log.k.st, 'closed');
+});
+test('chore extra: hợp theo id, trùng thì giữ một', () => {
+  const r = merge({ chore:{ extra:[{ id:'a', task:'x', st:'wait', t:1 }] } }, { chore:{ extra:[{ id:'a', task:'x', st:'done', n:3, t:2 }, { id:'b', task:'y', st:'wait', t:2 }] } });
+  assert.equal(r.chore.extra.length, 2); assert.equal(r.chore.extra.find(e => e.id === 'a').st, 'done');
+});
+test('chore cnt: max từng máy, từng bộ đếm', () => {
+  const r = merge({ chore:{ cnt:{ A:{ done:3 } } } }, { chore:{ cnt:{ A:{ done:5 }, B:{ done:1 } } } });
+  assert.deepEqual(r.chore.cnt, { A:{ done:5 }, B:{ done:1 } });
+});
+test('giftSongs là hợp hai bên', () => {
+  assert.deepEqual(merge({ giftSongs:['a','b'] }, { giftSongs:['b','c'] }).giftSongs, ['a','b','c']);
+});

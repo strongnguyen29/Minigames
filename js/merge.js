@@ -26,6 +26,25 @@ function foldEarned(s,dev){
 }
 const dayNum=s=>{const m=/^(\d+)-(\d+)-(\d+)$/.exec(s||'');return m?Date.UTC(+m[1],m[2]-1,+m[3])/864e5:-1};
 const union=(a,b)=>{const r=[...(a||[])];(b||[]).forEach(x=>{if(!r.includes(x))r.push(x)});return r};
+/* nhiệm vụ chăm ngoan: trạng thái cuối (done/closed) thắng; cùng loại thì cuối lấy t nhỏ, chưa cuối lấy t lớn */
+const FINAL=x=>x.st==='done'||x.st==='closed';
+const pickChore=(x,y)=>{
+  if(!x)return y;if(!y)return x;
+  const fx=FINAL(x),fy=FINAL(y);
+  if(fx!==fy)return fx?x:y;
+  const tx=x.t||0,ty=y.t||0;
+  return fx?(ty<tx?y:x):(ty>tx?y:x);
+};
+function mergeChore(a,b){
+  a=a||{};b=b||{};
+  const log={};
+  [a.log,b.log].forEach(src=>{for(const k in src||{})log[k]=pickChore(log[k],src[k])});
+  const ex={};
+  [a.extra,b.extra].forEach(src=>(src||[]).forEach(e=>{ex[e.id]=pickChore(ex[e.id],e)}));
+  const cnt={};
+  [a.cnt,b.cnt].forEach(src=>{for(const d in src||{}){const t=cnt[d]=cnt[d]||{};for(const k in src[d]||{})t[k]=Math.max(t[k]||0,src[d][k]||0)}});
+  return{log:JSON.parse(JSON.stringify(log)),extra:Object.values(ex).map(e=>({...e})),cnt};
+}
 /* base: cặp {gifts,luckyGifts} của lần đồng bộ trước (tuỳ chọn), để gộp quà 3 chiều */
 function mergeSave(local,remote,priceOf,base){
   /* trường lạ: lấy cả bản của bên có savedAt lớn hơn, rồi ghi đè các trường có luật riêng */
@@ -43,6 +62,8 @@ function mergeSave(local,remote,priceOf,base){
   [local.best,remote.best].forEach(src=>{for(const k in src||{})best[k]=Math.max(best[k]||0,src[k])});
   out.best=best;
   ['stickers','badges','owned','giftOwned','songs'].forEach(k=>{out[k]=union(local[k],remote[k])});
+  out.chore=mergeChore(local.chore,remote.chore);
+  out.giftSongs=union(local.giftSongs,remote.giftSongs);
   /* sao đổi phút nghe: mỗi máy chỉ tăng phần của mình → max từng máy */
   const ls={};
   [local.listenSpent,remote.listenSpent].forEach(src=>{for(const d in src||{})ls[d]=Math.max(ls[d]||0,src[d]||0)});
