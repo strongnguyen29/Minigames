@@ -13,7 +13,7 @@ function setup(local = {}) {
 const waitOne = g => g.get("(()=>{const r=choreKey('day_dung_gio',choreDay());choreDone(r);return r})()");
 const solve = g => g.run("[...String(lockS.q.answer)].forEach(choreLockPress);choreLockPress('✓')");
 
-test('màn chính: thẻ Hôm nay có việc và nút "Con xong rồi!"; thẻ Đột xuất có nút báo điểm 10', () => {
+test('màn chính: thẻ Hôm nay có việc và nút "Con xong rồi!"; thẻ Thành tích có nút báo điểm 10', () => {
   const g = setup();
   g.run('chores()');
   const h = g.get('app.innerHTML');

@@ -1,6 +1,6 @@
 /* ============ Màn Công chúa chăm ngoan: ba thẻ, màn chấm sao, câu khoá của bố mẹ, hộp quà ============ */
 let choreTab='day';
-const CHORE_TABS=[['day','☀️ Hôm nay'],['week','📅 Tuần này'],['extra','🌟 Đột xuất']];
+const CHORE_TABS=[['day','☀️ Hôm nay'],['week','📅 Tuần này'],['extra','🌟 Thành tích']];
 const CHORE_EXTRA_BTN={diem10:'💯 Con đạt điểm 10!',vuot_thi:'🎓 Con vượt qua kỳ thi!'};
 const choreTask=id=>[...CHORES,...CHORES_WEEK,...CHORES_EXTRA].find(c=>c.id===id);
 const choreTaskOf=ref=>{const x=choreExtraOf(ref);return choreTask(x?x.task:ref.split('@')[0])};
