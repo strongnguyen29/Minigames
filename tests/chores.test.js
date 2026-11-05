@@ -1,6 +1,6 @@
 const test = require('node:test'), assert = require('node:assert/strict');
 const { loadGame } = require('./helpers/load');
-const FILES = ['js/core.js','js/merge.js','js/questions.js','js/rewards.js','js/lines.js','audio/voice/manifest.js','js/voice.js',
+const FILES = ['js/core.js','js/merge.js','js/questions.js','js/pattern.js','js/rewards.js','js/lines.js','audio/voice/manifest.js','js/voice.js',
   'js/music.js','js/scene.js','js/mascot.js','js/shop.js','js/radio.js','js/chat.js','js/chat-ui.js','js/chores.js'];
 const PRE = 'var setInterval=()=>1,clearInterval=()=>{};var FIREBASE_CONFIG=null;';
 const setup = () => loadGame(FILES, { storage: { be_vui_device_v1: 'A', be_vui_hoc_toan_v1: JSON.stringify({ name: 'Mai', voice: false }) }, pre: PRE });
@@ -206,4 +206,35 @@ test('chorePrune: bỏ done cũ, giữ wait và done mới, cnt không đổi', 
   assert.deepEqual(g.get('Object.keys(S.chore.log).sort()').map(String), ['an_sang@' + g.get('choreDay(new Date(2026,10,5-30))'), 'rua_tay@' + g.get('choreDay(new Date(2026,10,5-13))'), 'tuan_hoc_tho@2026-10-5'].sort());
   assert.deepEqual(plain(g.get('S.chore.extra.map(x=>x.id)')), ['b', 'c']);
   assert.equal(g.get(`choreCount('done')`), 3);
+});
+
+/* ---- Task 5: huy hiệu ---- */
+const DAYS7 = [2, 3, 4, 5, 6, 7, 8];
+const doneDay = (g, d, skip) => g.run(`{const dt=new Date(2026,10,${d}),p=choreDay(dt);choresFor(dt).forEach(c=>{if(c.id!=='${skip||''}')S.chore.log[choreKey(c.id,p)]={st:'done',n:3,t:1}})}`);
+test('BADGES có đủ 16 huy hiệu chăm ngoan', () => {
+  const g = setup();
+  for (const id of ['c_first','c_five','c_20','c_100','c_300','c_day','c_day3','c_day7','c_box','c_week','c_morning','c_sleep','c_dinner','c_ten1','c_ten10','c_exam'])
+    assert.ok(g.get(`BADGES.some(b=>b.id==='${id}')`), id);
+});
+test('7 ngày liên tiếp chấm hết: choreGreatRun=7 và có c_day7', () => {
+  const g = setup(); DAYS7.forEach(d => doneDay(g, d));
+  assert.equal(g.get('choreGreatRun()'), 7);
+  assert.ok(g.get(`checkBadges().some(b=>b.id==='c_day7')`));
+});
+test('bỏ một việc ở ngày giữa thì chuỗi còn 3', () => {
+  const g = setup(); DAYS7.forEach(d => doneDay(g, d, d === 5 ? 'mac_do' : ''));
+  assert.equal(g.get('choreGreatRun()'), 3);
+});
+test('c_week: 4 việc tuần 5 sao có, chỉ 3 thì không', () => {
+  const g = setup();
+  g.run(`CHORES_WEEK.slice(0,3).forEach(c=>S.chore.log[choreKey(c.id,'2026-11-2')]={st:'done',n:5,t:1})`);
+  assert.equal(g.get('chorePerfectWeek()'), false);
+  assert.ok(!g.get(`checkBadges().some(b=>b.id==='c_week')`));
+  g.run(`S.chore.log[choreKey(CHORES_WEEK[3].id,'2026-11-2')]={st:'done',n:5,t:1}`);
+  assert.equal(g.get('chorePerfectWeek()'), true);
+  assert.ok(g.get(`checkBadges().some(b=>b.id==='c_week')`));
+});
+test('lần chấm đầu tiên cho c_first', () => {
+  const g = setup(); g.run(`choreReport('mac_do',${P});choreRate(choreKey('mac_do',${P}),3)`);
+  assert.ok(g.get(`checkBadges().some(b=>b.id==='c_first')`));
 });

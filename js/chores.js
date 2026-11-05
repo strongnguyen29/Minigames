@@ -148,3 +148,37 @@ function chorePrune(now=new Date()){
   S.chore.extra=S.chore.extra.filter(x=>x.st==='wait'||x.t>=dayCut);
   save();
 }
+/* ===== Huy hiệu chăm ngoan ===== */
+/* chuỗi dài nhất các ngày liên tiếp (trong log còn giữ) mà mọi việc của ngày đều done */
+function choreGreatRun(){
+  const days=new Set();for(const k in choreLog()){const [id,p]=k.split('@');if(!choreIsWeek(id))days.add(p)}
+  const ts=[...days].map(p=>{const [y,m,d]=p.split('-').map(Number);return new Date(y,m-1,d)})
+    .filter(dt=>choresFor(dt).every(c=>choreStatus(c.id,dayStr(dt))==='done')).map(dt=>dt.getTime()).sort((a,b)=>a-b);
+  let best=0,run=0,prev=null;
+  for(const t of ts){const n=new Date(t);n.setDate(n.getDate()-1);run=prev!==null&&n.getTime()===prev?run+1:1;prev=t;best=Math.max(best,run)}
+  return best;
+}
+/* có một tuần mà cả 4 việc tuần đều done với 5 sao */
+function chorePerfectWeek(){
+  const log=choreLog(),weeks=new Set(Object.keys(log).filter(k=>choreIsWeek(k.split('@')[0])).map(k=>k.split('@')[1]));
+  return [...weeks].some(w=>CHORES_WEEK.every(c=>{const e=log[choreKey(c.id,w)];return e&&e.st==='done'&&e.n===5}));
+}
+const CHORE_BADGES=[
+  {id:'c_first',icon:'🌷',name:'Công chúa nhỏ',desc:'Được bố mẹ chấm sao lần đầu',ok:()=>choreCount('done')>=1},
+  {id:'c_five',icon:'💖',name:'Năm sao đầu tiên',desc:'Một nhiệm vụ được chấm 5 sao',ok:()=>choreCount('five')>=1},
+  {id:'c_20',icon:'🎀',name:'Bé chăm làm',desc:'Hoàn thành 20 nhiệm vụ',ok:()=>choreCount('done')>=20},
+  {id:'c_100',icon:'👸',name:'Công chúa chăm ngoan',desc:'Hoàn thành 100 nhiệm vụ',ok:()=>choreCount('done')>=100},
+  {id:'c_300',icon:'💎',name:'Công chúa kim cương',desc:'Hoàn thành 300 nhiệm vụ',ok:()=>choreCount('done')>=300},
+  {id:'c_day',icon:'☀️',name:'Một ngày tuyệt vời',desc:'Mọi nhiệm vụ ngày của một ngày đều được chấm sao',ok:()=>choreGreatRun()>=1},
+  {id:'c_day3',icon:'🌈',name:'Ba ngày chăm ngoan',desc:'3 "ngày tuyệt vời" liên tiếp',ok:()=>choreGreatRun()>=3},
+  {id:'c_day7',icon:'🏰',name:'Tuần lễ công chúa',desc:'7 "ngày tuyệt vời" liên tiếp',ok:()=>choreGreatRun()>=7},
+  {id:'c_box',icon:'🎁',name:'Hộp quà đầu tiên',desc:'Mở hộp quà chăm ngoan đầu tiên',ok:()=>choreCount('boxOut')>=1},
+  {id:'c_week',icon:'👑',name:'Tuần hoàn hảo',desc:'Cả 4 nhiệm vụ tuần đều được 5 sao trong cùng một tuần',ok:()=>chorePerfectWeek()},
+  {id:'c_morning',icon:'🌅',name:'Chim sơn ca',desc:'Hoàn thành hết nhiệm vụ buổi sáng 7 lần',ok:()=>choreCount('morning')>=7},
+  {id:'c_sleep',icon:'🌙',name:'Ngủ ngoan',desc:'"Đi ngủ trước 10 giờ 15" được chấm 10 lần',ok:()=>choreCount('sleep')>=10},
+  {id:'c_dinner',icon:'🍚',name:'Bé ăn giỏi',desc:'"Ăn hết cơm tối, ăn đủ rau thịt trong 30 phút" được chấm 10 lần',ok:()=>choreCount('dinner')>=10},
+  {id:'c_ten1',icon:'💯',name:'Điểm 10 đầu tiên',desc:'Đạt điểm 10 lần đầu',ok:()=>choreCount('ten')>=1},
+  {id:'c_ten10',icon:'📝',name:'Mưa điểm 10',desc:'Đạt điểm 10 tổng cộng 10 lần',ok:()=>choreCount('ten')>=10},
+  {id:'c_exam',icon:'🎓',name:'Vượt vũ môn',desc:'Vượt qua 1 kỳ thi',ok:()=>choreCount('exam')>=1}
+];
+BADGES.push(...CHORE_BADGES);
