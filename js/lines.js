@@ -101,6 +101,7 @@ const LINES={
   sticker_new:L_('sticker_new','happy','reo vui',['Yeah! Hình dán mới của bạn nè!','Xinh quá đi! Thêm vào bộ sưu tập nha!','Bạn có thêm một hình dán rồi!']),
   gift_dress:L_('gift_dress','happy','reo vui, bất ngờ',['Oa! Trong hộp có váy mới nè! 👗','Bất ngờ chưa! Bạn được tặng một chiếc váy xinh!','Váy mới cho bạn nhỏ nè, xem trong tủ váy nha!']),
   sticker_all:L_('sticker_all','happy','phấn khích',['Bạn có đủ tất cả hình dán rồi! Thưởng thêm ba sao nè!','Bộ sưu tập đầy đủ luôn! Bạn được thêm sao nha!','Giỏi quá, đủ hết hình dán rồi! Tặng bạn ba sao!']),
+  chore_box_stars:L_('chore_box_stars','happy','phấn khích',['Oa, hộp quà có năm ngôi sao lấp lánh nè!','Hộp quà tặng bạn năm sao luôn đó!','Yeah, bạn được thêm 5 sao nè!']),
   locked:L_('locked','think','nhẹ nhàng, giải thích',['Mức này còn khoá. Bạn đạt hai sao ở mức trước để mở nha 🔒','Chưa mở được đâu, bạn qua mức trước với hai sao nhé!','Hmm… cần hai sao ở mức trước mới mở được đó!']),
   shop_hello:L_('shop_hello','neutral','thích thú, mơ mộng',['Chào mừng bạn đến tiệm công chúa! 👑','Váy nào cũng xinh hết, bạn thích cái nào?','Mình cùng thay đồ cho bạn nhỏ nhé!']),
   shop_buy:L_('shop_buy','happy','reo vui',['Yeah! Váy mới của bạn nè! 🎉','Đẹp quá đi! Bạn mua được rồi!','Váy này hợp với bạn nhỏ lắm đó!']),

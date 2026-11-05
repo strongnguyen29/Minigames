@@ -86,13 +86,16 @@ function chorePending(now=new Date()){
   for(const k in choreLog())if(choreLog()[k].st==='wait'){const [task,period]=k.split('@');out.push({ref:k,task,period,past:chorePast(task,period,now)})}
   return out;
 }
-/* Câu khoá: 2–3 số 1–10, có × hoặc ÷; nhân chia trước, chia hết, mọi bước ≥ 0 */
+/* Câu khoá: đúng 3 số 1–10, có cả × ÷ lẫn + −; nhân chia trước, chia hết, mọi bước ≥ 0; bỏ câu dễ đoán (×1, ÷1, a ÷ a), đáp án ≥ 10 */
 function lockQuestion(rnd=Math.random){
-  const pk=a=>a[Math.floor(rnd()*a.length)],OPS=['+','−','×','÷'];
-  for(let i=0;i<200;i++){
-    const k=pk([2,3]),nums=Array.from({length:k},()=>1+Math.floor(rnd()*10)),ops=Array.from({length:k-1},()=>pk(OPS));
-    if(!ops.some(o=>o==='×'||o==='÷'))continue;
-    const v=[nums[0]],add=[];let ok=true;
+  const pk=a=>a[Math.floor(rnd()*a.length)],OPS=['+','−','×','÷'],MD=o=>o==='×'||o==='÷';
+  for(let i=0;i<300;i++){
+    const nums=Array.from({length:3},()=>1+Math.floor(rnd()*10)),ops=Array.from({length:2},()=>pk(OPS));
+    if(!ops.some(MD)||ops.every(MD))continue;
+    let ok=true;
+    ops.forEach((o,j)=>{if(MD(o)&&(nums[j]===1||nums[j+1]===1||(o==='÷'&&nums[j]===nums[j+1])))ok=false});
+    if(!ok)continue;
+    const v=[nums[0]],add=[];
     ops.forEach((o,j)=>{const b=nums[j+1];
       if(o==='×')v[v.length-1]*=b;
       else if(o==='÷'){if(v[v.length-1]%b)ok=false;else v[v.length-1]/=b}
@@ -100,9 +103,9 @@ function lockQuestion(rnd=Math.random){
     if(!ok)continue;
     let acc=v[0];
     for(let j=0;j<add.length&&ok;j++){acc+=add[j]==='+'?v[j+1]:-v[j+1];if(acc<0)ok=false}
-    if(ok)return {text:nums.map((n,j)=>j?`${ops[j-1]} ${n}`:`${n}`).join(' '),answer:acc};
+    if(ok&&acc>=10)return {text:nums.map((n,j)=>j?`${ops[j-1]} ${n}`:`${n}`).join(' '),answer:acc};
   }
-  return {text:'6 × 7',answer:42};
+  return {text:'7 × 8 − 6',answer:50};
 }
 /* Chế độ bố mẹ: chỉ trong bộ nhớ, tự khoá sau 5 phút không bấm */
 const PARENT_IDLE_MS=300000;let _parentAt=-Infinity;

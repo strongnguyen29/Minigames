@@ -112,13 +112,16 @@ test('save cũ thiếu chore được bù', () => {
 
 test('câu khoá: hợp lệ, đúng đáp án', () => {
   const g = setup();
-  let n2 = 0, n3 = 0;
+  const freq = {};
   for (let i = 0; i < 2000; i++) {
     const q = JSON.parse(JSON.stringify(g.get('lockQuestion()')));
     const t = q.text.split(' ');
     const nums = t.filter((_, j) => j % 2 === 0), ops = t.filter((_, j) => j % 2 === 1);
-    assert.ok(nums.length >= 2 && nums.length <= 3, q.text);
-    nums.length === 2 ? n2++ : n3++;
+    assert.equal(nums.length, 3, q.text);
+    freq[q.answer] = (freq[q.answer] || 0) + 1;
+    assert.ok(q.answer >= 10, q.text);
+    assert.ok(ops.some(o => o === '+' || o === '−'), q.text);
+    ops.forEach((o, j) => { if (o === '×' || o === '÷') { assert.notEqual(nums[j], '1', q.text); assert.notEqual(nums[j + 1], '1', q.text); } if (o === '÷') assert.notEqual(nums[j], nums[j + 1], q.text); });
     nums.forEach(x => assert.ok(/^\d+$/.test(x) && +x >= 1 && +x <= 10, q.text));
     ops.forEach(o => assert.ok('+−×÷'.includes(o), q.text));
     assert.ok(ops.some(o => o === '×' || o === '÷'), q.text);
@@ -137,7 +140,7 @@ test('câu khoá: hợp lệ, đúng đáp án', () => {
     o2.forEach((o, j) => { acc = o === '+' ? acc + v[j + 1] : acc - v[j + 1]; assert.ok(acc >= 0, q.text); });
     assert.equal(acc, q.answer, q.text);
   }
-  assert.ok(n2 > 0 && n3 > 0);
+  assert.ok(Math.max(...Object.values(freq)) <= 2000 * 0.03, JSON.stringify(freq));
 });
 
 test('chế độ bố mẹ tự khoá sau 5 phút', () => {

@@ -47,6 +47,7 @@ test('chấm khi chưa mở chế độ bố mẹ: hỏi câu khoá trước, gi
   g.run("lockS.q={text:'2 × 3',answer:6};choreLockPress('9');choreLockPress('✓')");
   assert.equal(g.get('S.stars'), 0); assert.equal(g.get('parentOn()'), false);
   assert.ok(g.get('__lines').includes('parent_wrong'));
+  g.run('lockS.until=0');
   solve(g);
   assert.equal(g.get('S.stars'), 3); assert.equal(g.get('parentOn()'), true);
   assert.ok(g.get('__lines').includes('chore_rated'));
@@ -65,12 +66,12 @@ test('trong chế độ bố mẹ thì chấm luôn; hết hạn thì hỏi lạ
   assert.ok(g.modals().some(h => h.includes('Câu hỏi của bố mẹ')));
 });
 
-test('bàn phím khoá: tối đa 3 chữ số, ⌫ xoá một số', () => {
+test('bàn phím khoá: tối đa 4 chữ số, ⌫ xoá một số', () => {
   const g = setup();
-  g.run("choreLockModal(()=>{});['1','2','3','4'].forEach(choreLockPress)");
-  assert.equal(g.get('lockS.val'), '123');
+  g.run("choreLockModal(()=>{});['1','2','3','4','5'].forEach(choreLockPress)");
+  assert.equal(g.get('lockS.val'), '1234');
   g.run("choreLockPress('⌫')");
-  assert.equal(g.get('lockS.val'), '12');
+  assert.equal(g.get('lockS.val'), '123');
 });
 
 test('"Chưa được" không cần câu khoá: việc hôm nay quay về chưa làm', () => {
@@ -108,4 +109,27 @@ test('mở hộp quà chăm ngoan: dùng lớp phủ hộp quà, quà là bài h
   assert.equal(g.get('S.giftSongs.length'), 1);
   assert.ok(g.get('__lines').includes('gift_song'));
   assert.ok(g.get('S.badges').includes('c_box'));
+});
+
+test('khoá: ✓ khi chưa nhập là không làm gì; sai thì chờ 2 giây', () => {
+  const g = setup();
+  g.run("choreLockModal(()=>{});__lines.length=0;lockS.q={text:'2 × 3',answer:6};choreLockPress('✓')");
+  assert.ok(!g.get('__lines').includes('parent_wrong'));
+  assert.equal(g.get('lockS.q.text'), '2 × 3');
+  assert.equal(g.get('LOCK_WRONG_COOLDOWN_MS'), 2000);
+  g.run("var __now=Date.now;Date.now=()=>1000;choreLockPress('9');choreLockPress('✓')");
+  assert.ok(g.get('__lines').includes('parent_wrong'));
+  /* trong 2 giây: gõ được số nhưng ✓ bị bỏ qua, kể cả đáp án đúng */
+  g.run("lockS.q={text:'2 × 3',answer:6};Date.now=()=>2999;choreLockPress('6');choreLockPress('✓')");
+  assert.equal(g.get('lockS.val'), '6'); assert.equal(g.get('lockS!==null'), true);
+  g.run("Date.now=()=>3000;choreLockPress('✓')");
+  assert.equal(g.get('lockS'), null);
+  g.run('Date.now=__now');
+});
+
+test('hộp quà hết món: +5 sao dùng lời chore_box_stars', () => {
+  const g = setup();
+  g.run("choreBoxOpen=()=>({kind:'stars',value:5})");
+  assert.equal(g.get('choreBoxGift().line'), 'chore_box_stars');
+  assert.equal(g.get('LINES.chore_box_stars.length'), 3);
 });

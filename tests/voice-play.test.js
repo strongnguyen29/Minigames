@@ -23,7 +23,7 @@ test('LINES: mỗi nhóm 3–5 câu, id duy nhất, emo hợp lệ, đủ 54 nh�
     for (const x of arr) { assert.ok(!ids.has(x.id), x.id); ids.add(x.id);
       assert.ok(['neutral','happy','think','clap'].includes(x.emo), x.id); assert.ok(x.text && x.tone, x.id); }
   }
-  assert.equal(Object.keys(L).length, 54);
+  assert.equal(Object.keys(L).length, 55);
 });
 test('voice.text phát đủ mẩu khi có file', async () => {
   const { v, played, tts } = setup({ have: ALL });

@@ -55,7 +55,7 @@ Tổng cộng 19 việc. Biểu tượng cho từng việc do người xây ch�
 2. Việc đã báo xong mà bố mẹ chưa chấm **vẫn đợi** qua ngày hoặc tuần mới, không bị bỏ.
 3. Bố mẹ chấm **trên chính máy bé đang dùng**.
 4. **Một câu khoá cho cả lượt chấm**, không phải mỗi việc một câu. Lần đầu bố mẹ bấm chấm một việc, app hỏi câu khoá trước. Giải đúng thì vào **chế độ bố mẹ**: chọn sao là ghi nhận ngay cho từng việc, chấm liền được nhiều việc mà không phải giải lại. Chế độ bố mẹ tự khoá lại khi rời màn Công chúa chăm ngoan, hoặc sau **5 phút** không bấm gì. Nút **"Chưa được"** không cần câu khoá, vì bé không nhận được gì.
-5. Câu khoá là phép tính **hỗn hợp cộng, trừ, nhân, chia với các số trong phạm vi 10**, ví dụ `7 × 8 − 6`, `9 + 6 × 4`, `6 × 8 ÷ 4 + 3`. Mỗi câu có 2–3 số, mỗi số từ 1 đến 10, và luôn có ít nhất một phép nhân hoặc chia. Phép chia luôn ra số tròn, kết quả không âm, và nhân chia tính trước cộng trừ. Bố mẹ nhập đáp án bằng bàn phím số trên màn hình.
+5. Câu khoá là phép tính **hỗn hợp cộng, trừ, nhân, chia với các số trong phạm vi 10**, ví dụ `7 × 8 − 6`, `9 + 6 × 4`, `6 × 8 ÷ 4 + 3`. Mỗi câu có đúng 3 số, mỗi số từ 1 đến 10, luôn có cả phép nhân/chia lẫn cộng/trừ, không có câu dễ đoán (nhân/chia với 1, a ÷ a) và đáp án ≥ 10. Bấm ✓ khi chưa nhập thì không tính; trả lời sai thì phải chờ 2 giây mới bấm ✓ được. Phép chia luôn ra số tròn, kết quả không âm, và nhân chia tính trước cộng trừ. Bố mẹ nhập đáp án bằng bàn phím số trên màn hình.
 
 ### Giao diện
 

@@ -95,8 +95,8 @@ function choreRated(ref,n){
   mascotSay('chore_rated',{hold:true}).then(ok=>{if(ok&&gained.length)mascotSay('badge',{hold:true})});
   return r;
 }
-/* Câu hỏi của bố mẹ: ô đáp án chỉ hiển thị (không bật bàn phím máy), bàn phím số tối đa 3 chữ số */
-let lockS=null;
+/* Câu hỏi của bố mẹ: ô đáp án chỉ hiển thị (không bật bàn phím máy), bàn phím số tối đa 4 chữ số; ✓ khi chưa nhập thì bỏ qua; sai thì chờ 2 giây mới bấm ✓ được */
+let lockS=null;const LOCK_WRONG_COOLDOWN_MS=2000;
 const CHORE_KEYS=['1','2','3','4','5','6','7','8','9','⌫','0','✓'];
 function choreLockModal(onOk){
   const q=lockQuestion();
@@ -104,17 +104,18 @@ function choreLockModal(onOk){
     <div class="lkeys">${CHORE_KEYS.map(k=>`<button class="lkey${k==='✓'?' ok':''}" onclick="choreLockPress('${k}')">${k}</button>`).join('')}</div>
     <button class="btn p-gray" id="lcl">Đóng</button>`);
   m.classList.add('lock');
-  lockS={q,val:'',onOk,m};
+  lockS={q,val:'',onOk,m,until:0};
   $('#lcl').onclick=()=>{m.remove();lockS=null};
 }
 function choreLockPress(k){
   const L=lockS;if(!L||!L.m.isConnected)return;
   if(k==='⌫')L.val=L.val.slice(0,-1);
   else if(k==='✓'){
-    if(L.val!==''&&+L.val===L.q.answer){lockS=null;L.m.remove();sfx.ok();L.onOk();return}
-    sfx.bad();mascotSay('parent_wrong');L.q=lockQuestion();L.val='';
+    if(L.val===''||Date.now()<L.until)return;
+    if(+L.val===L.q.answer){lockS=null;L.m.remove();sfx.ok();L.onOk();return}
+    sfx.bad();mascotSay('parent_wrong');L.q=lockQuestion();L.val='';L.until=Date.now()+LOCK_WRONG_COOLDOWN_MS;
     const b=L.m.querySelector('.box');if(b){b.classList.remove('shk');void b.offsetWidth;b.classList.add('shk')}
-  }else if(L.val.length<3)L.val+=k;
+  }else if(L.val.length<4)L.val+=k;
   if(k!=='✓')sfx.click();
   const q=$('#lq'),a=$('#lans');
   if(q)q.textContent=L.q.text+' = ?';
@@ -128,6 +129,6 @@ function choreBoxGift(){
     return {pic:`<img class="gdress" src="${it.thumb}" alt="${esc(it.name)}" draggable="false">`,title:`Váy mới: ${esc(it.name)}!`,line:'gift_dress'}}
   if(p.kind==='song'){const it=radioItem(p.value);return {pic:it.icon,title:`Bài mới: ${esc(it.name)}!`,line:'gift_song'}}
   if(p.kind==='talk')return {pic:'💬',title:`+${p.value} câu hỏi với Kuromi!`,line:'gift_talk'};
-  return {pic:'🌟',title:`Bạn đã có tất cả quà! +${p.value} ⭐`,line:'sticker_all'};
+  return {pic:'🌟',title:`Bạn đã có tất cả quà! +${p.value} ⭐`,line:'chore_box_stars'};
 }
 function openChoreBox(done){giftOverlay({count:choreBoxes,take:choreBoxGift,done:done||(()=>chores(true))})}

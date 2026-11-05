@@ -127,3 +127,9 @@ test('chore cnt: max từng máy, từng bộ đếm', () => {
 test('giftSongs là hợp hai bên', () => {
   assert.deepEqual(merge({ giftSongs:['a','b'] }, { giftSongs:['b','c'] }).giftSongs, ['a','b','c']);
 });
+
+test('chore: bỏ qua mục extra/log hỏng thay vì ném lỗi', () => {
+  const bad = { log:{ a:null, b:{ st:'done', t:1 } }, extra:[null, 5, { st:'wait' }, { id:'x', st:'wait', t:1 }], cnt:{} };
+  const r = merge({ chore:bad }, { chore:{ log:{}, extra:[], cnt:{} } }).chore;
+  assert.deepEqual(Object.keys(r.log), ['b']); assert.deepEqual(r.extra.map(e => e.id), ['x']);
+});

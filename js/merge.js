@@ -38,9 +38,9 @@ const pickChore=(x,y)=>{
 function mergeChore(a,b){
   a=a||{};b=b||{};
   const log={};
-  [a.log,b.log].forEach(src=>{for(const k in src||{})log[k]=pickChore(log[k],src[k])});
+  [a.log,b.log].forEach(src=>{for(const k in src||{})if(src[k]&&typeof src[k]==='object')log[k]=pickChore(log[k],src[k])});
   const ex={};
-  [a.extra,b.extra].forEach(src=>(src||[]).forEach(e=>{ex[e.id]=pickChore(ex[e.id],e)}));
+  [a.extra,b.extra].forEach(src=>(src||[]).forEach(e=>{if(e&&typeof e==='object'&&e.id)ex[e.id]=pickChore(ex[e.id],e)}));
   const cnt={};
   [a.cnt,b.cnt].forEach(src=>{for(const d in src||{}){const t=cnt[d]=cnt[d]||{};for(const k in src[d]||{})t[k]=Math.max(t[k]||0,src[d][k]||0)}});
   return{log:JSON.parse(JSON.stringify(log)),extra:Object.values(ex).map(e=>({...e})),cnt};

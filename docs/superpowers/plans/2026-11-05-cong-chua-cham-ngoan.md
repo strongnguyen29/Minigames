@@ -15,7 +15,7 @@
 - Danh sách việc cố định trong code, bố mẹ không sửa được. Có 19 việc ngày, 4 việc tuần và 2 việc đột xuất, dùng đúng tên trong spec.
 - Năm việc chỉ có khi đi học được ẩn vào thứ Bảy và Chủ nhật: `di_hoc`, `o_truong`, `an_trua`, `chao_ve`, `soan_sach`.
 - Ngày mới bắt đầu lúc 0 giờ theo giờ máy (`dayStr`). Tuần tính từ thứ Hai đến Chủ nhật.
-- Câu khoá có 2–3 số, mỗi số từ 1 đến 10, có ít nhất một phép × hoặc ÷. Phép chia luôn ra số tròn, kết quả cuối và mọi bước trung gian đều không âm, nhân chia làm trước cộng trừ. Hiển thị bằng ký hiệu `×`, `÷`, `+`, `−`.
+- Câu khoá có đúng 3 số, mỗi số từ 1 đến 10, có cả phép ×/÷ lẫn +/−, không nhân/chia với 1, không a ÷ a, đáp án ≥ 10; bấm ✓ khi chưa nhập thì không tính, sai thì chờ 2 giây. Phép chia luôn ra số tròn, kết quả cuối và mọi bước trung gian đều không âm, nhân chia làm trước cộng trừ. Hiển thị bằng ký hiệu `×`, `÷`, `+`, `−`.
 - Một câu khoá đúng mở **chế độ bố mẹ**. Chế độ này tự khoá sau **5 phút** không bấm gì, hoặc khi rời màn. Nút "Chưa được" không cần khoá.
 - Ít nhất 1 sao. Nhiệm vụ tuần được 5 sao thì cho 1 hộp quà.
 - Tỷ lệ hộp quà: sticker 35%, câu hỏi Kuromi 25% (+5 câu, không hết hạn), nhạc 20% (bài có giá > 0 chưa có), váy 20% (bộ chưa có). Loại đã hết món thì chọn lại trong các loại còn món. Hết sạch thì cho +5 ⭐.

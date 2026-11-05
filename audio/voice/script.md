@@ -1,6 +1,6 @@
 # Kịch bản giọng Kuromi
 
-Tổng cộng **341 file**. Đặt tên file đúng cột "File", bỏ vào `audio/voice/`, rồi chạy `npm run voice:manifest`.
+Tổng cộng **344 file**. Đặt tên file đúng cột "File", bỏ vào `audio/voice/`, rồi chạy `npm run voice:manifest`.
 
 ## Điểm chạm: splash
 
@@ -174,6 +174,14 @@ Tổng cộng **341 file**. Đặt tên file đúng cột "File", bỏ vào `aud
 | `sticker_all_1.mp3` | Bạn có đủ tất cả hình dán rồi! Thưởng thêm ba sao nè! | Vui sướng | phấn khích |
 | `sticker_all_2.mp3` | Bộ sưu tập đầy đủ luôn! Bạn được thêm sao nha! | Vui sướng | phấn khích |
 | `sticker_all_3.mp3` | Giỏi quá, đủ hết hình dán rồi! Tặng bạn ba sao! | Vui sướng | phấn khích |
+
+## Điểm chạm: chore_box_stars
+
+| File | Câu nói | Cảm xúc | Cách đọc |
+|---|---|---|---|
+| `chore_box_stars_1.mp3` | Oa, hộp quà có năm ngôi sao lấp lánh nè! | Vui sướng | phấn khích |
+| `chore_box_stars_2.mp3` | Hộp quà tặng bạn năm sao luôn đó! | Vui sướng | phấn khích |
+| `chore_box_stars_3.mp3` | Yeah, bạn được thêm 5 sao nè! | Vui sướng | phấn khích |
 
 ## Điểm chạm: locked
 
