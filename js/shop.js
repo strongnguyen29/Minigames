@@ -47,6 +47,23 @@ const SHOP=[
     ['yellow-casual-set','Dạo Phố Vàng Chanh',12],
     ['navy-sailor-set','Dạo Phố Xanh Dương',12,'blue-casual-set'],
     ['mint-casual-set','Dạo Phố Bạc Hà',12]
+  ]},
+  {id:'noel',icon:'🎄',name:'Noel lấp lánh',bg:'noel',items:[
+    ['noel-christmas-tree-dress','Váy Cây Thông Lấp Lánh',40],
+    ['noel-gold-star-gown','Công chúa Sao Vàng',40],
+    ['noel-ice-blue-gown','Váy Băng Giá Xanh',35],
+    ['noel-white-snowflake-gown','Váy Bông Tuyết Trắng',35],
+    ['noel-red-santa-dress','Váy Nhung Đỏ Ông Già Noel',30],
+    ['noel-red-velvet-set','Áo Nhung Đỏ Viền Lông',28],
+    ['noel-green-velvet-ao-dai','Áo dài Nhung Xanh Nơ Đỏ',28],
+    ['noel-snowflake-ao-dai','Áo dài Bông Tuyết',28]
+  ]},
+  {id:'tet',icon:'🧧',name:'Tết Đinh Mùi',bg:'tet2027',items:[
+    ['tet-red-goat-ao-dai','Áo dài Đỏ Dê Vàng',30],
+    ['tet-yellow-mai-ao-dai','Áo dài Mai Vàng Phú Quý',28],
+    ['tet-purple-blossom-ao-dai','Áo dài Tím Mây Hoa',28],
+    ['tet-green-bamboo-ao-dai','Áo dài Trúc Xanh',28],
+    ['tet-pink-lixi-ao-dai','Áo dài Hồng Lì Xì',28]
   ]}
 ];
 /* Danh sách phẳng: id = fashion/<tên ảnh váy> (ổn định khi thêm món) */
