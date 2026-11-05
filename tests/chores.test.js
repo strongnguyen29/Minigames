@@ -112,13 +112,11 @@ test('save cũ thiếu chore được bù', () => {
 
 test('câu khoá: hợp lệ, đúng đáp án', () => {
   const g = setup();
-  const freq = {};
   for (let i = 0; i < 2000; i++) {
     const q = JSON.parse(JSON.stringify(g.get('lockQuestion()')));
     const t = q.text.split(' ');
     const nums = t.filter((_, j) => j % 2 === 0), ops = t.filter((_, j) => j % 2 === 1);
     assert.equal(nums.length, 3, q.text);
-    freq[q.answer] = (freq[q.answer] || 0) + 1;
     assert.ok(q.answer >= 10, q.text);
     assert.ok(ops.some(o => o === '+' || o === '−'), q.text);
     ops.forEach((o, j) => { if (o === '×' || o === '÷') { assert.notEqual(nums[j], '1', q.text); assert.notEqual(nums[j + 1], '1', q.text); } if (o === '÷') assert.notEqual(nums[j], nums[j + 1], q.text); });
@@ -140,7 +138,10 @@ test('câu khoá: hợp lệ, đúng đáp án', () => {
     o2.forEach((o, j) => { acc = o === '+' ? acc + v[j + 1] : acc - v[j + 1]; assert.ok(acc >= 0, q.text); });
     assert.equal(acc, q.answer, q.text);
   }
-  assert.ok(Math.max(...Object.values(freq)) <= 2000 * 0.03, JSON.stringify(freq));
+  /* tần suất đáp án: 20000 mẫu cho ổn định (đỉnh thật ~2.5%) */
+  const freq = {}, N = 20000;
+  for (let i = 0; i < N; i++) { const a = g.get('lockQuestion().answer'); freq[a] = (freq[a] || 0) + 1; }
+  assert.ok(Math.max(...Object.values(freq)) <= N * 0.03, JSON.stringify(freq));
 });
 
 test('chế độ bố mẹ tự khoá sau 5 phút', () => {
