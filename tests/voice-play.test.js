@@ -16,14 +16,14 @@ function setup({ have = [], bad = [], noTTS = false, voiceOn = true } = {}) {
 }
 const ALL = ['num_5','p_cong','num_7','p_bang_may'];
 
-test('LINES: mỗi nhóm 3–5 câu, id duy nhất, emo hợp lệ, đủ 46 nhóm', () => {
+test('LINES: mỗi nhóm 3–5 câu, id duy nhất, emo hợp lệ, đủ 54 nhóm', () => {
   const { g } = setup(); const L = g.get('LINES'); const ids = new Set();
   for (const [grp, arr] of Object.entries(L)) {
     assert.ok(arr.length >= 3 && arr.length <= 5, grp);
     for (const x of arr) { assert.ok(!ids.has(x.id), x.id); ids.add(x.id);
       assert.ok(['neutral','happy','think','clap'].includes(x.emo), x.id); assert.ok(x.text && x.tone, x.id); }
   }
-  assert.equal(Object.keys(L).length, 46);
+  assert.equal(Object.keys(L).length, 54);
 });
 test('voice.text phát đủ mẩu khi có file', async () => {
   const { v, played, tts } = setup({ have: ALL });

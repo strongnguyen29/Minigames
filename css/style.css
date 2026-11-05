@@ -453,6 +453,38 @@ h2{text-align:center;margin:8px 0 14px}
   background:linear-gradient(#fff3b0,#ffc93c);color:#6a3b00;box-shadow:inset 0 calc(var(--u)*-.3) 0 #e09a00,0 calc(var(--u)*.3) 0 rgba(0,0,0,.2)}
 .rleft.low{animation:beat 1.2s ease-in-out infinite}
 
+/* ============ Công chúa chăm ngoan: dòng việc, nhãn trạng thái, màn chấm sao, bàn phím câu khoá ============ */
+.chores .ttl .ctn{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chores .ttl .coin{margin-left:0}
+.plock{background:linear-gradient(#fff3b0,#ffd9ec)}
+.chlist{display:flex;flex-direction:column;gap:calc(var(--u)*1)}
+.cgrp{font-weight:800;font-size:calc(var(--u)*2.2);color:#8a4fe0;margin-top:calc(var(--u)*.8)}
+.cgrp:first-child{margin-top:0}
+.crow{display:flex;align-items:center;gap:calc(var(--u)*1.4);background:#fff;border-radius:calc(var(--u)*2);padding:calc(var(--u)*1) calc(var(--u)*1.4);box-shadow:0 calc(var(--u)*.4) 0 #e0cdf8;font-weight:700;font-size:calc(var(--u)*2.2)}
+.crow>b{flex:none;font-size:calc(var(--u)*3.6);line-height:1}
+.crow .cn{flex:1;min-width:0;line-height:1.25}
+.crow .cn small{display:block;font-size:calc(var(--u)*1.7);opacity:.7}
+.ctag{flex:none;border:0;font-family:inherit;font-weight:800;font-size:calc(var(--u)*2);border-radius:calc(var(--u)*2);padding:calc(var(--u)*.8) calc(var(--u)*1.6);white-space:nowrap}
+.ctag.wait{cursor:pointer;background:linear-gradient(#fff3b0,#ffc93c);color:#6a3b00;box-shadow:inset 0 calc(var(--u)*-.3) 0 #e09a00,0 calc(var(--u)*.4) 0 rgba(0,0,0,.15)}
+.ctag.done{background:#d9f7e3;color:#167a3e;letter-spacing:-.05em}
+.crow.done{background:#f6fff8}
+.cnote{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:calc(var(--u)*1.4);text-align:center;font-weight:800;font-size:calc(var(--u)*2.2);background:linear-gradient(90deg,#fff3b0,#ffe4f1);border-radius:calc(var(--u)*2);padding:calc(var(--u)*1) calc(var(--u)*1.6)}
+.cxbtns{display:flex;flex-wrap:wrap;gap:calc(var(--u)*1.4);justify-content:center}
+.chores #tt{position:fixed;left:50%;bottom:calc(var(--u)*3);transform:translateX(-50%);z-index:30;display:flex;flex-direction:column;align-items:center;gap:calc(var(--u)*1);pointer-events:none}
+.chores #tt:empty{display:none}
+.rstars{display:flex;justify-content:center;gap:calc(var(--u)*1)}
+.rst{border:0;background:none;cursor:pointer;font-size:calc(var(--u)*6.4);line-height:1;padding:0;transition:transform .15s,filter .15s}
+.rst.off{filter:grayscale(1);opacity:.35}
+.rst:not(.off){transform:scale(1.1)}
+.btn:disabled{opacity:.5;cursor:default}
+.lq{font-weight:800;font-size:calc(var(--u)*5);color:#8a4fe0}
+.lans{min-height:1.4em;font-weight:800;font-size:calc(var(--u)*4.4);background:#fff;border-radius:calc(var(--u)*2);padding:calc(var(--u)*.6);box-shadow:inset 0 calc(var(--u)*.5) 0 #efe4ff,0 calc(var(--u)*.4) 0 var(--soft)}
+.lkeys{display:grid;grid-template-columns:repeat(3,1fr);gap:calc(var(--u)*1.2)}
+.lkey{border:0;cursor:pointer;font-family:inherit;font-weight:800;font-size:calc(var(--u)*3.6);padding:calc(var(--u)*1.2) 0;border-radius:calc(var(--u)*2);color:var(--ink);background:linear-gradient(#fff,#f3e9ff);box-shadow:0 calc(var(--u)*.5) 0 var(--soft)}
+.lkey:active{transform:translateY(calc(var(--u)*.4))}
+.lkey.ok{color:#fff;background:linear-gradient(#ffa6d2,#f0609f);box-shadow:inset 0 calc(var(--u)*-.5) 0 #c93d7c,0 calc(var(--u)*.5) 0 #8f2557}
+.modal .box.shk{animation:shake .35s}
+
 /* ============ Màn dọc / điện thoại: Kuromi thành dải trên cùng, nội dung cuộn bên dưới ============ */
 @media (orientation:portrait),(max-width:700px){
   :root{--u:min(1.6vw,calc(100dvh / 75))}
@@ -480,6 +512,7 @@ h2{text-align:center;margin:8px 0 14px}
   .scr.shop .kuromi.corner{position:relative;left:auto;bottom:auto;align-self:flex-start;margin:calc(var(--u)*8) 0 0 calc(var(--u)*2)}
   .shopl .side.mine{margin-bottom:0}
   .rgrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .crow{flex-wrap:wrap}.crow .ctag{margin-left:auto}
   .rbar{flex-wrap:wrap;justify-content:center}
   .rmid{flex-basis:60%}
   .board{min-height:60dvh}

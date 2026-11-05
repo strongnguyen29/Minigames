@@ -139,6 +139,30 @@ talk_error_3.mp3,"Ơ, có chút trục trặc rồi, bạn đợi mình một l�
 talk_nomic_1.mp3,Bạn nhờ ba mẹ bật micro giúp mình nha!,talk_nomic,think,"dịu dàng, ấm áp",[gently] Bạn nhờ ba mẹ bật micro giúp mình nha!
 talk_nomic_2.mp3,"Mình chưa nghe được, bạn nhờ ba mẹ cho phép dùng micro nhé!",talk_nomic,think,"dịu dàng, ấm áp","[gently] Mình chưa nghe được, bạn nhờ ba mẹ cho phép dùng micro nhé!"
 talk_nomic_3.mp3,Cần ba mẹ bật micro thì mình mới nghe bạn nói được đó!,talk_nomic,think,"dịu dàng, ấm áp",[gently] Cần ba mẹ bật micro thì mình mới nghe bạn nói được đó!
+chore_home_1.mp3,Công chúa chăm ngoan đây rồi! Hôm nay bạn làm được việc gì nè?,chore_home,happy,"ấm áp, thân thiện",[warmly] Công chúa chăm ngoan đây rồi! Hôm nay bạn làm được việc gì nè?
+chore_home_2.mp3,"Làm xong việc nào thì bấm ""Con xong rồi!"" nha!",chore_home,happy,"ấm áp, thân thiện","[warmly] Làm xong việc nào thì bấm ""Con xong rồi!"" nha!"
+chore_home_3.mp3,Mình cùng làm việc tốt để nhận sao nhé!,chore_home,happy,"ấm áp, thân thiện",[warmly] Mình cùng làm việc tốt để nhận sao nhé!
+chore_done_1.mp3,"Giỏi quá, chờ bố mẹ chấm nha!",chore_done,clap,reo vui,"[cheerfully] Giỏi quá, chờ bố mẹ chấm nha!"
+chore_done_2.mp3,Bạn chăm ghê! Bố mẹ sẽ chấm sao cho bạn đó!,chore_done,clap,reo vui,[cheerfully] Bạn chăm ghê! Bố mẹ sẽ chấm sao cho bạn đó!
+chore_done_3.mp3,Xong rồi hả? Hoan hô bạn! Đợi bố mẹ chấm nhé!,chore_done,clap,reo vui,[cheerfully] Xong rồi hả? Hoan hô bạn! Đợi bố mẹ chấm nhé!
+chore_rated_1.mp3,Yeah! Bạn nhận được sao rồi!,chore_rated,clap,"reo vui, tự hào",[proudly] Yeah! Bạn nhận được sao rồi!
+chore_rated_2.mp3,"Bố mẹ khen bạn đó, giỏi quá!",chore_rated,clap,"reo vui, tự hào","[proudly] Bố mẹ khen bạn đó, giỏi quá!"
+chore_rated_3.mp3,Thêm sao cho công chúa chăm ngoan nè!,chore_rated,clap,"reo vui, tự hào",[proudly] Thêm sao cho công chúa chăm ngoan nè!
+chore_redo_1.mp3,"Không sao đâu, mình làm lại thật tốt nha!",chore_redo,think,"nhẹ nhàng, khích lệ","[encouragingly] Không sao đâu, mình làm lại thật tốt nha!"
+chore_redo_2.mp3,"Cố thêm chút nữa nhé, bạn làm được mà!",chore_redo,think,"nhẹ nhàng, khích lệ","[encouragingly] Cố thêm chút nữa nhé, bạn làm được mà!"
+chore_redo_3.mp3,Làm lại lần nữa rồi báo bố mẹ nha!,chore_redo,think,"nhẹ nhàng, khích lệ",[encouragingly] Làm lại lần nữa rồi báo bố mẹ nha!
+chore_box_1.mp3,Bạn có hộp quà chăm ngoan nè! Mở ra xem nào!,chore_box,happy,"háo hức, tò mò",[curious] Bạn có hộp quà chăm ngoan nè! Mở ra xem nào!
+chore_box_2.mp3,Hộp quà chăm ngoan đang chờ bạn đó!,chore_box,happy,"háo hức, tò mò",[curious] Hộp quà chăm ngoan đang chờ bạn đó!
+chore_box_3.mp3,"Chăm ngoan được quà nè, bạn mở đi!",chore_box,happy,"háo hức, tò mò","[curious] Chăm ngoan được quà nè, bạn mở đi!"
+gift_song_1.mp3,Oa! Bạn được tặng một bài mới nè!,gift_song,happy,"reo vui, bất ngờ",[surprised] Oa! Bạn được tặng một bài mới nè!
+gift_song_2.mp3,"Bài mới cho bạn đó, vào Tiệm âm thanh nghe nha!",gift_song,happy,"reo vui, bất ngờ","[surprised] Bài mới cho bạn đó, vào Tiệm âm thanh nghe nha!"
+gift_song_3.mp3,"Có bài mới để nghe rồi, vui quá!",gift_song,happy,"reo vui, bất ngờ","[surprised] Có bài mới để nghe rồi, vui quá!"
+gift_talk_1.mp3,Yeah! Bạn được thêm năm câu nói chuyện với mình nè!,gift_talk,happy,"reo vui, bất ngờ",[surprised] Yeah! Bạn được thêm năm câu nói chuyện với mình nè!
+gift_talk_2.mp3,"Thêm năm câu hỏi cho bạn, mình nói chuyện nhiều hơn nha!",gift_talk,happy,"reo vui, bất ngờ","[surprised] Thêm năm câu hỏi cho bạn, mình nói chuyện nhiều hơn nha!"
+gift_talk_3.mp3,"Mình được nói chuyện với bạn thêm nữa rồi, vui ghê!",gift_talk,happy,"reo vui, bất ngờ","[surprised] Mình được nói chuyện với bạn thêm nữa rồi, vui ghê!"
+parent_wrong_1.mp3,"Chưa đúng rồi, bố mẹ thử câu khác nha!",parent_wrong,think,"nhẹ nhàng, giải thích","[gently] Chưa đúng rồi, bố mẹ thử câu khác nha!"
+parent_wrong_2.mp3,"Hmm… sai mất rồi, mình đổi câu mới nhé!",parent_wrong,think,"nhẹ nhàng, giải thích","[gently] Hmm… sai mất rồi, mình đổi câu mới nhé!"
+parent_wrong_3.mp3,"Ơ, chưa phải rồi. Bố mẹ tính lại nha!",parent_wrong,think,"nhẹ nhàng, giải thích","[gently] Ơ, chưa phải rồi. Bố mẹ tính lại nha!"
 poke_1.mp3,"Hihi, nhột quá!",poke,happy,"tinh nghịch, cười khúc khích","[playfully] [giggles] Hihi, nhột quá!"
 poke_2.mp3,Bạn chọc mình à? Hihi!,poke,happy,"tinh nghịch, cười khúc khích",[playfully] [giggles] Bạn chọc mình à? Hihi!
 poke_3.mp3,Mình thương bạn lắm!,poke,happy,"tinh nghịch, cười khúc khích",[playfully] [giggles] Mình thương bạn lắm!

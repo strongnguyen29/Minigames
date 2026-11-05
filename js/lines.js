@@ -125,5 +125,13 @@ const LINES={
   talk_limit:L_('talk_limit','think','dịu dàng, giải thích',['Hôm nay mình nói chuyện đủ rồi! Bạn đổi sao để nói thêm nhé!','Hết lượt nói chuyện hôm nay rồi, mai mình nói tiếp nha!','Muốn nói chuyện thêm thì bạn đổi sao nhé, hoặc đợi mai nha!']),
   talk_error:L_('talk_error','think','dịu dàng, ấm áp',['Ôi, mình hơi mệt chút xíu, bạn thử lại sau nha!','Mình chưa nghe được bạn, mình thử lại sau nhé!','Ơ, có chút trục trặc rồi, bạn đợi mình một lát nha!']),
   talk_nomic:L_('talk_nomic','think','dịu dàng, ấm áp',['Bạn nhờ ba mẹ bật micro giúp mình nha!','Mình chưa nghe được, bạn nhờ ba mẹ cho phép dùng micro nhé!','Cần ba mẹ bật micro thì mình mới nghe bạn nói được đó!']),
+  chore_home:L_('chore_home','happy','ấm áp, thân thiện',['Công chúa chăm ngoan đây rồi! Hôm nay bạn làm được việc gì nè? 👸','Làm xong việc nào thì bấm "Con xong rồi!" nha!','Mình cùng làm việc tốt để nhận sao nhé!']),
+  chore_done:L_('chore_done','clap','reo vui',['Giỏi quá, chờ bố mẹ chấm nha!','Bạn chăm ghê! Bố mẹ sẽ chấm sao cho bạn đó!','Xong rồi hả? Hoan hô bạn! Đợi bố mẹ chấm nhé!']),
+  chore_rated:L_('chore_rated','clap','reo vui, tự hào',['Yeah! Bạn nhận được sao rồi! ⭐','Bố mẹ khen bạn đó, giỏi quá!','Thêm sao cho công chúa chăm ngoan nè!']),
+  chore_redo:L_('chore_redo','think','nhẹ nhàng, khích lệ',['Không sao đâu, mình làm lại thật tốt nha!','Cố thêm chút nữa nhé, bạn làm được mà!','Làm lại lần nữa rồi báo bố mẹ nha!']),
+  chore_box:L_('chore_box','happy','háo hức, tò mò',['Bạn có hộp quà chăm ngoan nè! Mở ra xem nào! 🎁','Hộp quà chăm ngoan đang chờ bạn đó!','Chăm ngoan được quà nè, bạn mở đi!']),
+  gift_song:L_('gift_song','happy','reo vui, bất ngờ',['Oa! Bạn được tặng một bài mới nè! 🎵','Bài mới cho bạn đó, vào Tiệm âm thanh nghe nha!','Có bài mới để nghe rồi, vui quá!']),
+  gift_talk:L_('gift_talk','happy','reo vui, bất ngờ',['Yeah! Bạn được thêm năm câu nói chuyện với mình nè! 💬','Thêm năm câu hỏi cho bạn, mình nói chuyện nhiều hơn nha!','Mình được nói chuyện với bạn thêm nữa rồi, vui ghê!']),
+  parent_wrong:L_('parent_wrong','think','nhẹ nhàng, giải thích',['Chưa đúng rồi, bố mẹ thử câu khác nha!','Hmm… sai mất rồi, mình đổi câu mới nhé!','Ơ, chưa phải rồi. Bố mẹ tính lại nha!']),
   poke:L_('poke','happy','tinh nghịch, cười khúc khích',['Hihi, nhột quá!','Bạn chọc mình à? Hihi!','Mình thương bạn lắm! 💜','Ê hê, mình ở đây nè!'])
 };

@@ -1,6 +1,6 @@
 # Kịch bản giọng Kuromi
 
-Tổng cộng **317 file**. Đặt tên file đúng cột "File", bỏ vào `audio/voice/`, rồi chạy `npm run voice:manifest`.
+Tổng cộng **341 file**. Đặt tên file đúng cột "File", bỏ vào `audio/voice/`, rồi chạy `npm run voice:manifest`.
 
 ## Điểm chạm: splash
 
@@ -366,6 +366,70 @@ Tổng cộng **317 file**. Đặt tên file đúng cột "File", bỏ vào `aud
 | `talk_nomic_1.mp3` | Bạn nhờ ba mẹ bật micro giúp mình nha! | Suy nghĩ | dịu dàng, ấm áp |
 | `talk_nomic_2.mp3` | Mình chưa nghe được, bạn nhờ ba mẹ cho phép dùng micro nhé! | Suy nghĩ | dịu dàng, ấm áp |
 | `talk_nomic_3.mp3` | Cần ba mẹ bật micro thì mình mới nghe bạn nói được đó! | Suy nghĩ | dịu dàng, ấm áp |
+
+## Điểm chạm: chore_home
+
+| File | Câu nói | Cảm xúc | Cách đọc |
+|---|---|---|---|
+| `chore_home_1.mp3` | Công chúa chăm ngoan đây rồi! Hôm nay bạn làm được việc gì nè? | Vui sướng | ấm áp, thân thiện |
+| `chore_home_2.mp3` | Làm xong việc nào thì bấm "Con xong rồi!" nha! | Vui sướng | ấm áp, thân thiện |
+| `chore_home_3.mp3` | Mình cùng làm việc tốt để nhận sao nhé! | Vui sướng | ấm áp, thân thiện |
+
+## Điểm chạm: chore_done
+
+| File | Câu nói | Cảm xúc | Cách đọc |
+|---|---|---|---|
+| `chore_done_1.mp3` | Giỏi quá, chờ bố mẹ chấm nha! | Vỗ tay | reo vui |
+| `chore_done_2.mp3` | Bạn chăm ghê! Bố mẹ sẽ chấm sao cho bạn đó! | Vỗ tay | reo vui |
+| `chore_done_3.mp3` | Xong rồi hả? Hoan hô bạn! Đợi bố mẹ chấm nhé! | Vỗ tay | reo vui |
+
+## Điểm chạm: chore_rated
+
+| File | Câu nói | Cảm xúc | Cách đọc |
+|---|---|---|---|
+| `chore_rated_1.mp3` | Yeah! Bạn nhận được sao rồi! | Vỗ tay | reo vui, tự hào |
+| `chore_rated_2.mp3` | Bố mẹ khen bạn đó, giỏi quá! | Vỗ tay | reo vui, tự hào |
+| `chore_rated_3.mp3` | Thêm sao cho công chúa chăm ngoan nè! | Vỗ tay | reo vui, tự hào |
+
+## Điểm chạm: chore_redo
+
+| File | Câu nói | Cảm xúc | Cách đọc |
+|---|---|---|---|
+| `chore_redo_1.mp3` | Không sao đâu, mình làm lại thật tốt nha! | Suy nghĩ | nhẹ nhàng, khích lệ |
+| `chore_redo_2.mp3` | Cố thêm chút nữa nhé, bạn làm được mà! | Suy nghĩ | nhẹ nhàng, khích lệ |
+| `chore_redo_3.mp3` | Làm lại lần nữa rồi báo bố mẹ nha! | Suy nghĩ | nhẹ nhàng, khích lệ |
+
+## Điểm chạm: chore_box
+
+| File | Câu nói | Cảm xúc | Cách đọc |
+|---|---|---|---|
+| `chore_box_1.mp3` | Bạn có hộp quà chăm ngoan nè! Mở ra xem nào! | Vui sướng | háo hức, tò mò |
+| `chore_box_2.mp3` | Hộp quà chăm ngoan đang chờ bạn đó! | Vui sướng | háo hức, tò mò |
+| `chore_box_3.mp3` | Chăm ngoan được quà nè, bạn mở đi! | Vui sướng | háo hức, tò mò |
+
+## Điểm chạm: gift_song
+
+| File | Câu nói | Cảm xúc | Cách đọc |
+|---|---|---|---|
+| `gift_song_1.mp3` | Oa! Bạn được tặng một bài mới nè! | Vui sướng | reo vui, bất ngờ |
+| `gift_song_2.mp3` | Bài mới cho bạn đó, vào Tiệm âm thanh nghe nha! | Vui sướng | reo vui, bất ngờ |
+| `gift_song_3.mp3` | Có bài mới để nghe rồi, vui quá! | Vui sướng | reo vui, bất ngờ |
+
+## Điểm chạm: gift_talk
+
+| File | Câu nói | Cảm xúc | Cách đọc |
+|---|---|---|---|
+| `gift_talk_1.mp3` | Yeah! Bạn được thêm năm câu nói chuyện với mình nè! | Vui sướng | reo vui, bất ngờ |
+| `gift_talk_2.mp3` | Thêm năm câu hỏi cho bạn, mình nói chuyện nhiều hơn nha! | Vui sướng | reo vui, bất ngờ |
+| `gift_talk_3.mp3` | Mình được nói chuyện với bạn thêm nữa rồi, vui ghê! | Vui sướng | reo vui, bất ngờ |
+
+## Điểm chạm: parent_wrong
+
+| File | Câu nói | Cảm xúc | Cách đọc |
+|---|---|---|---|
+| `parent_wrong_1.mp3` | Chưa đúng rồi, bố mẹ thử câu khác nha! | Suy nghĩ | nhẹ nhàng, giải thích |
+| `parent_wrong_2.mp3` | Hmm… sai mất rồi, mình đổi câu mới nhé! | Suy nghĩ | nhẹ nhàng, giải thích |
+| `parent_wrong_3.mp3` | Ơ, chưa phải rồi. Bố mẹ tính lại nha! | Suy nghĩ | nhẹ nhàng, giải thích |
 
 ## Điểm chạm: poke
 

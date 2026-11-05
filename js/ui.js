@@ -2,8 +2,8 @@
 const app=$('#app');
 let P=null; // trạng thái lượt chơi
 
-/* Mọi lần chuyển màn: dừng giọng, dừng bài đang nghe ở Tiệm âm thanh, huỷ hẹn giờ cảm xúc của màn cũ */
-function go(fn){voice.stop();if(typeof radioStop==='function')radioStop();if(typeof chatCancel==='function')chatCancel();mascotReset();fn()}
+/* Mọi lần chuyển màn: dừng giọng, dừng bài đang nghe ở Tiệm âm thanh, khoá chế độ bố mẹ, huỷ hẹn giờ cảm xúc của màn cũ */
+function go(fn){voice.stop();if(typeof radioStop==='function')radioStop();if(typeof chatCancel==='function')chatCancel();if(typeof parentLock==='function')parentLock();mascotReset();fn()}
 /* Bấm nút điều hướng: nút nảy kiểu thạch rồi mới chuyển màn (chặn bấm đúp) */
 let goBusy=false;
 function goTap(el,fn){
@@ -84,7 +84,7 @@ function settings(){
     if(inn){if(!(await cloud.flushNow())&&!confirm(RESET_UNSYNCED_MSG))return;cloud.signOut()}
     cloud.forget();try{localStorage.removeItem(KEY)}catch(e){}newDevice();memFallback=null;S=freshSave();m.remove();go(welcome)};
 }
-/* Trang chủ: 6 trò học + cờ caro, tiệm công chúa, tiệm âm thanh, bộ sưu tập */
+/* Trang chủ: 6 trò học + cờ caro, Công chúa chăm ngoan, tiệm công chúa, tiệm âm thanh, bộ sưu tập */
 const HOME_ORDER=['count','shape','add','split','cmp','pattern'];
 const HOME_COLORS=['p-purple','p-pink','p-blue'];
 function home(){
@@ -93,8 +93,12 @@ function home(){
   const cards=games.map((k,i)=>{const g=GAMES[k],tot=g.levels.reduce((a,_,j)=>a+(S.best[k+'-'+j]||0),0);
     return card(i,HOME_COLORS[i%3],g.icon,g.name,`⭐ ${tot}/${g.levels.length*3}`,`()=>levels('${k}')`)});
   const n=cards.length;
-  cards.push(card(n,'p-dark','⭕','Cờ caro','','caro'),card(n+1,'p-pink','👑','Tiệm công chúa','','shop'),card(n+2,'p-blue','🎵','Tiệm âm thanh','','radio'),
-    card(n+3,'p-purple','🎁','Bộ sưu tập',`${S.stickers.length}/${STICKERS.length}`,'album'));
+  /* thẻ Công chúa chăm ngoan: dòng phụ là số việc đang chờ bố mẹ chấm */
+  const wait=typeof chorePending==='function'?chorePending().length:0;
+  cards.push(card(n,'p-dark','⭕','Cờ caro','','caro'));
+  if(typeof chores==='function')cards.push(card(n+1,'p-pink','👸','Công chúa chăm ngoan',wait>0?`⏳ ${wait}`:'','chores'));
+  cards.push(card(n+2,'p-pink','👑','Tiệm công chúa','','shop'),card(n+3,'p-blue','🎵','Tiệm âm thanh','','radio'),
+    card(n+4,'p-purple','🎁','Bộ sưu tập',`${S.stickers.length}/${STICKERS.length}`,'album'));
   app.innerHTML=screenHTML({mascot:{emo:'neutral',size:'lg',extra:chatMicOK()?chatBtnHTML():''},top:topbar(),cls:'home',body:`<div class="hgrid">${cards.join('')}</div>`});
   const fire=S.streak>1?` 🔥 ${S.streak} ngày liên tiếp!`:'';
   if(chatHintDue())mascotSay('talk_hint',{ifIdle:true});
@@ -207,9 +211,10 @@ function finish(){
   window.result_btns=()=>{const b=$('#rgift');if(b&&S.gifts<1)b.remove()};
 }
 const dressChance=l=>Math.min(1,.3+.1*l); // l: chỉ số màn (0 = màn 1)
-/* Mở quà: lớp phủ tím mờ, hộp quà lắc lư, Kuromi nhảy bên cạnh; chạm hộp thì hình dán bung ra */
-function openGift(done){
-  if(S.gifts<1)return;
+/* Lớp phủ mở quà: tím mờ, hộp quà lắc lư, Kuromi nhảy bên cạnh; chạm hộp thì take() trả quà {pic,title,line} bung ra.
+   count: số hộp còn (để hiện "Mở tiếp"); done: bấm "Tuyệt!" */
+function giftOverlay(o){
+  if(o.count()<1)return;
   sfx.click();
   const m=document.createElement('div');m.className='modal gift-ov';
   m.innerHTML=`<div class="gbox"><img class="gmas" src="${MASCOT_IMG.happy}" alt="" draggable="false">
@@ -219,6 +224,21 @@ function openGift(done){
   let opened=false;
   $('#gb').onclick=()=>{
     if(opened)return;opened=true;
+    const {pic,title,line}=o.take();
+    const gained=checkBadges();save();sfx.win();confetti(40);
+    voice.line(line);
+    const n=o.count();
+    m.querySelector('.gbox').innerHTML=`<img class="gmas" src="${MASCOT_IMG.happy}" alt="" draggable="false"><div class="halo"></div>
+      <div class="stk-big">${pic}</div><div class="gtxt">${title}</div>
+      ${gained.map(b=>`<div class="badge" style="--d:.6s"><span>${b.icon}</span>Huy hiệu mới: ${esc(b.name)}!</div>`).join('')}
+      <div class="row">${n>0?`<button class="btn p-pink gloss" id="again">🎁 Mở tiếp (${n})</button>`:''}<button class="btn p-green" id="ok">Tuyệt!</button></div>`;
+    $('#ok').onclick=()=>{m.remove();o.done()};
+    const ag=$('#again');if(ag)ag.onclick=()=>{m.remove();giftOverlay(o)};
+  };
+}
+/* Mở quà sau màn chơi (S.gifts): hình dán, hoặc váy với hộp lần đầu 3 sao */
+function openGift(done){
+  giftOverlay({count:()=>S.gifts,done:()=>done?done():go(album),take(){
     const left=STICKERS.filter(s=>!S.stickers.includes(s));
     let pic,title,line;
     S.gifts--;
@@ -230,15 +250,8 @@ function openGift(done){
       pic=`<img class="gdress" src="${dress.thumb}" alt="${esc(dress.name)}" draggable="false">`;title=`Váy mới: ${esc(dress.name)}!`;line='gift_dress'}
     else if(left.length){pic=pick(left);S.stickers.push(pic);title='Hình dán mới!';line='sticker_new'}
     else{S.stars+=3;pic='🌟';title='Bạn đã có tất cả hình dán! +3 ⭐';line='sticker_all'}
-    const gained=checkBadges();save();sfx.win();confetti(40);
-    voice.line(line);
-    m.querySelector('.gbox').innerHTML=`<img class="gmas" src="${MASCOT_IMG.happy}" alt="" draggable="false"><div class="halo"></div>
-      <div class="stk-big">${pic}</div><div class="gtxt">${title}</div>
-      ${gained.map(b=>`<div class="badge" style="--d:.6s"><span>${b.icon}</span>Huy hiệu mới: ${esc(b.name)}!</div>`).join('')}
-      <div class="row">${S.gifts>0?`<button class="btn p-pink gloss" id="again">🎁 Mở tiếp (${S.gifts})</button>`:''}<button class="btn p-green" id="ok">Tuyệt!</button></div>`;
-    $('#ok').onclick=()=>{m.remove();done?done():go(album)};
-    const ag=$('#again');if(ag)ag.onclick=()=>{m.remove();openGift(done)};
-  };
+    return {pic,title,line};
+  }});
 }
 /* Bộ sưu tập: dải hộp quà + 3 tab (hình dán / tủ váy / huy hiệu); tab đang chọn được nhớ */
 let albumTab='stickers';

@@ -121,6 +121,27 @@ async function run(browser, url, [name, w, h]) {
     await noHScroll(pg, `${name} tiệm âm thanh`); await shot(pg, `${name}-09b-radio`);
     await tap(pg, '.ttl .back');
   });
+  await step('công chúa chăm ngoan', async () => {
+    await pg.waitForSelector('.hgrid'); await pg.locator('.hgrid .gc', { hasText: 'Công chúa chăm ngoan' }).click();
+    await pg.waitForSelector('.chlist .crow'); await pg.waitForTimeout(500);
+    const coin = async () => +(await pg.locator('.ttl .coin').innerText()).replace(/\D/g, '');
+    const before = await coin();
+    await tap(pg, '.crow .ctag.btn');                          // "Con xong rồi!" của việc đầu tiên
+    await tap(pg, '.crow .ctag.wait');                         // "⏳ Chờ bố mẹ"
+    await tap(pg, '.modal .rst[data-n="5"]'); await tap(pg, '#rok');
+    await pg.waitForSelector('.modal #lq');
+    await noHScroll(pg, `${name} câu khoá`); await shot(pg, `chores-lock-${name}`);
+    /* đọc phép tính trên màn, tự tính đáp án rồi bấm phím */
+    const q = (await pg.locator('#lq').innerText()).replace('= ?', '').replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-');
+    const ans = Function(`return (${q})`)();
+    for (const d of String(ans)) await pg.locator('.lkey').filter({ hasText: new RegExp(`^${d}$`) }).click();
+    await tap(pg, '.lkey.ok'); await pg.waitForTimeout(300);
+    check(await coin() === before + 5, `${name} chăm ngoan: số sao phải tăng 5 (${before} → ${await coin()})`);
+    check(await pg.locator('.ttl .plock').count() === 1, `${name} chăm ngoan: thiếu nút 🔓 khi đang mở chế độ bố mẹ`);
+    await notCovered(pg, '.crow .ctag.btn', `${name} chăm ngoan`);
+    await noHScroll(pg, `${name} chăm ngoan`); await shot(pg, `chores-${name}`);
+    await tap(pg, '.ttl .back');
+  });
   await step('cờ caro', async () => {
     await pg.waitForSelector('.hgrid'); await pg.locator('.hgrid .gc', { hasText: 'Cờ caro' }).click();
     await pg.waitForSelector('#caro'); await pg.waitForTimeout(500);
