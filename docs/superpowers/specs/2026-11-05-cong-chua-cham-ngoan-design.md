@@ -105,7 +105,7 @@ Màn chấm (bản phác ở cùng file) có tên việc, dòng "Bố mẹ chấ
 - **Trả lời sai câu khoá:** app báo sai nhẹ nhàng, đổi sang câu mới, chưa mở khoá. Bố mẹ có thể đóng màn chấm, và việc vẫn ở trạng thái chờ. Không giới hạn số lần thử.
 - **Lối vào:** một thẻ mới trên trang chủ, "👸 Công chúa chăm ngoan", đặt cạnh các tiệm. Dòng phụ trên thẻ hiện số việc đang chờ chấm (ví dụ "⏳ 3"), để bố mẹ nhìn là biết.
 - **Hộp quà chăm ngoan** là loại hộp riêng, không dùng chung bộ đếm `S.gifts` của hộp quà sau mỗi màn chơi, vì tỷ lệ và phần thưởng khác nhau. Hộp chưa mở được để dành. Hiệu ứng mở hộp dùng lại `openGift` hiện có (lớp phủ, hộp lắc, Kuromi).
-- **Tỷ lệ phần thưởng (tạm đặt):** sticker 45%, câu hỏi Kuromi 25%, nhạc 20%, váy 10%.
+- **Tỷ lệ phần thưởng (tạm đặt):** sticker 35%, câu hỏi Kuromi 25%, nhạc 20%, váy 20%.
   - Sticker: một hình dán bé chưa có.
   - Câu hỏi Kuromi: **+5 câu**, không hết hạn khi sang ngày mới. Khác với câu mua bằng sao, vốn chỉ dùng được trong ngày.
   - Nhạc: mở khoá một bài hát hoặc câu chuyện **có giá > 0** mà bé chưa có trong Tiệm âm thanh.
