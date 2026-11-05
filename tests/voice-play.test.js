@@ -31,10 +31,10 @@ test('voice.text phát đủ mẩu khi có file', async () => {
   assert.deepEqual(played, ALL.map(i => `audio/voice/${i}.mp3`));
   assert.equal(tts.length, 0);
 });
-test('câu hỏi phát file nhanh 1.3 lần, câu thoại cố định giữ tốc độ gốc', async () => {
+test('câu hỏi phát file nhanh 1.5 lần, câu thoại cố định giữ tốc độ gốc', async () => {
   const { g, v, rates } = setup({ have: ALL });
   await v.text('5 cộng 7 bằng mấy?');
-  assert.deepEqual(rates, ALL.map(() => 1.3));
+  assert.deepEqual(rates, ALL.map(() => 1.5));
   g.run(`VOICE_FILES.push(...LINES.correct.map(x=>x.id))`);
   await v.line('correct').done;
   assert.equal(rates.at(-1), 1);

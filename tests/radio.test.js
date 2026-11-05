@@ -21,10 +21,10 @@ function setup(local = {}) {
 }
 const STORY = 'stories/ngoi-sao-nho-di-lac', FREE = 'stories/tho-con-va-cu-ca-rot';
 
-test('id món lấy từ đường dẫn file, bỏ tên miền và đuôi; link đầy đủ giữ nguyên, còn lại theo AUDIO_BASE', () => {
+test('id món lấy từ đường dẫn file, bỏ tên miền và đuôi; link đầy đủ giữ nguyên, còn lại theo AUDIO_CDN (trống thì AUDIO_BASE)', () => {
   const g = setup();
   assert.ok(g.get(`radioItem('${STORY}')`));
-  assert.equal(g.get(`radioUrl(radioItem('${STORY}'))`), 'audio/stories/ngoi-sao-nho-di-lac.m4a');
+  assert.equal(g.get(`radioUrl(radioItem('${STORY}'))`), g.get('AUDIO_CDN||AUDIO_BASE') + 'stories/ngoi-sao-nho-di-lac.m4a');
   g.run(`RADIO_ITEMS.push(...[['https://cdn.x.vn/songs/a-b.mp3','A',0,'🎵']].map(([file,name,price,icon])=>({id:'songs/a-b',cat:'song',file,name,price,icon})))`);
   assert.equal(g.get(`radioUrl(radioItem('songs/a-b'))`), 'https://cdn.x.vn/songs/a-b.mp3');
 });
