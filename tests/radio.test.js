@@ -148,3 +148,12 @@ test('màn Tiệm âm thanh vẽ được, tắt nhạc nền', () => {
   g.run(`radioLocked('${STORY}')`);
   assert.ok(g.modals().some(h => h.includes('Bạn cần thêm 6 ⭐')));
 });
+
+test('radioSpent bỏ qua bài hát tặng', () => {
+  const g = setup();
+  const id = g.get('RADIO_ITEMS.find(x=>x.price>0).id'), price = g.get(`radioItem('${id}').price`);
+  g.run(`S.songs=['${id}']`);
+  assert.equal(g.get('radioSpent()'), price);
+  g.run(`S.giftSongs=['${id}']`);
+  assert.equal(g.get('radioSpent()'), 0);
+});

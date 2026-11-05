@@ -5,6 +5,7 @@ const FILES = ['js/core.js','js/merge.js','js/questions.js','js/rewards.js','js/
 const PRE = 'var setInterval=()=>1,clearInterval=()=>{};var FIREBASE_CONFIG=null;';
 const setup = () => loadGame(FILES, { storage: { be_vui_device_v1: 'A', be_vui_hoc_toan_v1: JSON.stringify({ name: 'Mai', voice: false }) }, pre: PRE });
 const TODAY = 'new Date(2026,10,5)', YEST = 'choreDay(new Date(2026,10,4))', P = 'choreDay(new Date(2026,10,5))';
+const plain = x => JSON.parse(JSON.stringify(x));
 const NOW = 'new Date(2026,10,5,12)';
 
 test('danh sách và chu kỳ', () => {
@@ -150,4 +151,59 @@ test('chế độ bố mẹ tự khoá sau 5 phút', () => {
   assert.equal(g.get('parentOn(450000)'), true);
   g.run('parentLock()');
   assert.equal(g.get('parentOn(1)'), false);
+});
+
+/* ---- Task 4: hộp quà, dọn lịch sử ---- */
+const withBox = (g, n = 1) => g.run(`S.chore.cnt.A={boxIn:${n}}`);
+test('choreBoxPrize: ngưỡng cộng dồn 35/60/80/100', () => {
+  const g = setup();
+  for (const [r, k] of [[0.10, 'sticker'], [0.40, 'talk'], [0.65, 'song'], [0.90, 'dress']]) assert.equal(g.get(`choreBoxPrize(()=>${r}).kind`), k);
+});
+test('choreBoxPrize: loại hết món thì chọn lại, chỉ còn talk thì luôn talk', () => {
+  const g = setup();
+  g.run('S.stickers=[...STICKERS]');
+  assert.notEqual(g.get('choreBoxPrize(()=>0.10).kind'), 'sticker');
+  g.run('SHOP_ITEMS.forEach(x=>S.owned.push(x.id));RADIO_ITEMS.filter(x=>x.price>0).forEach(x=>S.songs.push(x.id))');
+  for (const r of [0.1, 0.5, 0.9]) assert.equal(g.get(`choreBoxPrize(()=>${r}).kind`), 'talk');
+});
+test('choreBoxPrize: hết sạch thì +5 sao', () => {
+  const g = setup();
+  g.run(`S.stickers=[...STICKERS];SHOP_ITEMS.forEach(x=>S.owned.push(x.id));RADIO_ITEMS.filter(x=>x.price>0).forEach(x=>S.songs.push(x.id));CHORE_BOX_ODDS=[['sticker',1]]`);
+  assert.deepEqual(g.get('JSON.parse(JSON.stringify(choreBoxPrize()))'), { kind: 'stars', value: 5 });
+});
+test('choreBoxOpen: bài hát là quà, không trừ sao', () => {
+  const g = setup(); withBox(g, 2); g.run('S.stars=7');
+  const b = g.get('balance()');
+  const p = g.get('JSON.parse(JSON.stringify(choreBoxOpen(()=>0.65)))');
+  assert.equal(p.kind, 'song');
+  assert.ok(g.get(`S.songs.includes('${p.value}')&&S.giftSongs.includes('${p.value}')`));
+  assert.equal(g.get('balance()'), b); assert.equal(g.get('choreBoxes()'), 1);
+});
+test('choreBoxOpen: váy vào owned và giftOwned, balance không đổi', () => {
+  const g = setup(); withBox(g); g.run('S.stars=7');
+  const p = g.get('JSON.parse(JSON.stringify(choreBoxOpen(()=>0.9)))');
+  assert.equal(p.kind, 'dress');
+  assert.ok(g.get(`owns('${p.value}')&&S.giftOwned.includes('${p.value}')`));
+  assert.equal(g.get('balance()'), 7);
+});
+test('choreBoxOpen: talk +5 và không hết hạn; hết hộp thì null', () => {
+  const g = setup(); withBox(g);
+  assert.equal(g.get('choreBoxOpen(()=>0.4).kind'), 'talk');
+  assert.equal(g.get('talkLeft()'), 15);
+  g.run(`S.talk.day='2000-1-1'`);
+  assert.equal(g.get('talkLeft()'), g.get('TALK_FREE+5'));
+  assert.equal(g.get('choreBoxOpen()'), null);
+});
+test('chorePrune: bỏ done cũ, giữ wait và done mới, cnt không đổi', () => {
+  const g = setup();
+  g.run(`const D=n=>choreDay(new Date(2026,10,5-n));
+    S.chore.log[choreKey('mac_do',D(15))]={st:'done',t:1};S.chore.log[choreKey('an_sang',D(30))]={st:'wait',t:1};
+    S.chore.log[choreKey('rua_tay',D(13))]={st:'done',t:1};S.chore.log[choreKey('cat_cap',D(20))]={st:'closed',t:1};
+    S.chore.log[choreKey('tuan_doc_truyen','2026-9-21')]={st:'done',t:1};S.chore.log[choreKey('tuan_hoc_tho','2026-10-5')]={st:'done',t:1};
+    S.chore.extra=[{id:'a',task:'diem10',st:'done',t:new Date(2026,10,5-15).getTime()},{id:'b',task:'diem10',st:'done',t:new Date(2026,10,5-13).getTime()},{id:'c',task:'diem10',st:'wait',t:1}];
+    S.chore.cnt.A={done:3}`);
+  g.run(`chorePrune(${NOW})`);
+  assert.deepEqual(g.get('Object.keys(S.chore.log).sort()').map(String), ['an_sang@' + g.get('choreDay(new Date(2026,10,5-30))'), 'rua_tay@' + g.get('choreDay(new Date(2026,10,5-13))'), 'tuan_hoc_tho@2026-10-5'].sort());
+  assert.deepEqual(plain(g.get('S.chore.extra.map(x=>x.id)')), ['b', 'c']);
+  assert.equal(g.get(`choreCount('done')`), 3);
 });

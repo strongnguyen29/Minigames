@@ -30,7 +30,8 @@ const radioUrl=it=>/^https?:\/\//.test(it.file)?it.file:(AUDIO_CDN||AUDIO_BASE)+
 const hasSong=id=>{const it=radioItem(id);return !!it&&(it.price<=0||(S.songs||[]).includes(id))};
 /* sao đã tiêu ở tiệm này: bài đã đổi + phút nghe đã đổi trên mọi máy (balance() trừ phần này) */
 function radioSpent(){
-  const songs=(S.songs||[]).reduce((n,id)=>{const it=radioItem(id);return n+(it?it.price:0)},0);
+  /* bài hát tặng từ hộp quà không bị trừ sao */
+  const songs=(S.songs||[]).filter(id=>!(S.giftSongs||[]).includes(id)).reduce((n,id)=>{const it=radioItem(id);return n+(it?it.price:0)},0);
   return songs+Object.values(S.listenSpent||{}).reduce((n,v)=>n+(v||0),0);
 }
 /* Phút nghe trên máy này: used = giây miễn phí đã nghe hôm nay, paid = giây đã đổi sao còn lại,

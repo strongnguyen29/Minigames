@@ -41,16 +41,17 @@ const chatFromB64=b=>Uint8Array.from(atob(b),c=>c.charCodeAt(0));
 /* Câu hỏi trên máy này: used = số câu miễn phí đã dùng hôm nay, paid = số câu đã đổi sao còn lại */
 function talkState(){
   let t=S.talk;
-  if(!t||typeof t!=='object')t=S.talk={day:'',used:0,paid:0};
+  if(!t||typeof t!=='object')t=S.talk={day:'',used:0,paid:0,gift:0};
   const d=dayStr(new Date());
-  if(t.day!==d){t.day=d;t.used=0;t.paid=0}
+  if(t.day!==d){t.day=d;t.used=0;t.paid=0}/* gift (quà hộp) không hết hạn */
+  t.gift=Math.max(0,t.gift||0);
   return t;
 }
-const talkLeft=()=>{const t=talkState();return Math.max(0,TALK_FREE-t.used)+Math.max(0,t.paid||0)};
-/* trừ một câu: miễn phí trước rồi tới câu đã đổi */
+const talkLeft=()=>{const t=talkState();return Math.max(0,TALK_FREE-t.used)+Math.max(0,t.paid||0)+t.gift};
+/* trừ một câu: miễn phí → đã đổi (hết hạn 0 giờ) → quà tặng (không hết hạn) */
 function talkUse(){
   const t=talkState();
-  if(t.used<TALK_FREE)t.used++;else t.paid=Math.max(0,(t.paid||0)-1);
+  if(t.used<TALK_FREE)t.used++;else if(t.paid>0)t.paid--;else t.gift=Math.max(0,t.gift-1);
   save();
 }
 /* sao đã tiêu cho câu hỏi trên mọi máy (balance() trừ phần này) */

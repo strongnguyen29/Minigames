@@ -110,3 +110,41 @@ const parentOpen=(now=Date.now())=>{_parentAt=now};
 const parentOn=(now=Date.now())=>now-_parentAt<PARENT_IDLE_MS;
 const parentTouch=(now=Date.now())=>{if(parentOn(now))_parentAt=now};
 const parentLock=()=>{_parentAt=-Infinity};
+/* Hộp quà chăm ngoan: tỷ lệ cộng dồn; loại hết món thì chọn lại trong các loại còn món; hết sạch thì +5 ⭐ */
+let CHORE_BOX_ODDS=[['sticker',35],['talk',25],['song',20],['dress',20]];
+const CHORE_BOX_TALK=5,CHORE_BOX_STARS=5;
+const choreBoxes=()=>choreCount('boxIn')-choreCount('boxOut');
+function choreBoxPrize(rnd=Math.random){
+  const pool={sticker:STICKERS.filter(x=>!S.stickers.includes(x)),talk:[CHORE_BOX_TALK],
+    song:RADIO_ITEMS.filter(x=>x.price>0&&!hasSong(x.id)).map(x=>x.id),dress:SHOP_ITEMS.filter(x=>!owns(x.id)).map(x=>x.id)};
+  const odds=CHORE_BOX_ODDS.filter(([k])=>pool[k]&&pool[k].length);
+  if(!odds.length)return {kind:'stars',value:CHORE_BOX_STARS};
+  let r=rnd()*odds.reduce((n,o)=>n+o[1],0),kind=odds[odds.length-1][0];
+  for(const [k,w] of odds){if(r<w){kind=k;break}r-=w}
+  const list=pool[kind];
+  return {kind,value:kind==='talk'?CHORE_BOX_TALK:list[Math.floor(rnd()*list.length)]};
+}
+/* mở một hộp: áp quà vào S (quà không bị trừ sao), null khi hết hộp */
+function choreBoxOpen(rnd=Math.random){
+  if(choreBoxes()<1)return null;
+  const p=choreBoxPrize(rnd);
+  if(p.kind==='sticker')S.stickers.push(p.value);
+  else if(p.kind==='talk')talkState().gift+=p.value;
+  else if(p.kind==='song'){S.songs=[...(S.songs||[]),p.value];S.giftSongs=[...(S.giftSongs||[]),p.value]}
+  else if(p.kind==='dress'){S.owned=[...(S.owned||[]),p.value];S.giftOwned=[...(S.giftOwned||[]),p.value]}
+  else S.stars+=p.value;
+  choreBump('boxOut');save();return p;
+}
+/* dọn lịch sử: bỏ mục done/closed cũ (ngày/đột xuất > 14 ngày, tuần > 5 tuần), giữ mọi mục wait; cnt không đổi */
+function chorePrune(now=new Date()){
+  const t0=new Date(now.getFullYear(),now.getMonth(),now.getDate()),cut=(n)=>{const d=new Date(t0);d.setDate(d.getDate()-n);return d.getTime()};
+  const dayCut=cut(14),[wy,wm,wd]=choreWeek(now).split('-').map(Number),weekCut=new Date(wy,wm-1,wd-35).getTime();
+  const log=choreLog();
+  for(const k in log){
+    if(log[k].st==='wait')continue;
+    const [id,p]=k.split('@'),[y,m,d]=p.split('-').map(Number);
+    if(new Date(y,m-1,d).getTime()<(choreIsWeek(id)?weekCut:dayCut))delete log[k];
+  }
+  S.chore.extra=S.chore.extra.filter(x=>x.st==='wait'||x.t>=dayCut);
+  save();
+}

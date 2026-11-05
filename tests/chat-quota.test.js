@@ -61,3 +61,12 @@ test('gộp hai máy: talkSpent lấy max từng máy, talk chỉ của máy nà
   assert.deepEqual(r.talkSpent, { A: 10, B: 7, C: 3 });
   assert.equal(r.talk.used, 3); assert.equal(r.talk.paid, 0);
 });
+
+test('trừ theo thứ tự miễn phí, đã đổi, quà tặng; quà tặng giữ qua ngày', () => {
+  const g = setup();
+  g.run(`talkState().used=9;talkState().paid=1;talkState().gift=2`);
+  g.run('talkUse();talkUse();talkUse()');
+  assert.equal(g.get('S.talk.paid'), 0); assert.equal(g.get('S.talk.gift'), 1);
+  g.run(`S.talk.day='2000-1-1'`);
+  assert.equal(g.get('talkLeft()'), 11);
+});
