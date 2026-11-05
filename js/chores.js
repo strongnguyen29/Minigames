@@ -86,3 +86,27 @@ function chorePending(now=new Date()){
   for(const k in choreLog())if(choreLog()[k].st==='wait'){const [task,period]=k.split('@');out.push({ref:k,task,period,past:chorePast(task,period,now)})}
   return out;
 }
+/* Câu khoá: 2–3 số 1–10, có × hoặc ÷; nhân chia trước, chia hết, mọi bước ≥ 0 */
+function lockQuestion(rnd=Math.random){
+  const pk=a=>a[Math.floor(rnd()*a.length)],OPS=['+','−','×','÷'];
+  for(let i=0;i<200;i++){
+    const k=pk([2,3]),nums=Array.from({length:k},()=>1+Math.floor(rnd()*10)),ops=Array.from({length:k-1},()=>pk(OPS));
+    if(!ops.some(o=>o==='×'||o==='÷'))continue;
+    const v=[nums[0]],add=[];let ok=true;
+    ops.forEach((o,j)=>{const b=nums[j+1];
+      if(o==='×')v[v.length-1]*=b;
+      else if(o==='÷'){if(v[v.length-1]%b)ok=false;else v[v.length-1]/=b}
+      else{v.push(b);add.push(o)}});
+    if(!ok)continue;
+    let acc=v[0];
+    for(let j=0;j<add.length&&ok;j++){acc+=add[j]==='+'?v[j+1]:-v[j+1];if(acc<0)ok=false}
+    if(ok)return {text:nums.map((n,j)=>j?`${ops[j-1]} ${n}`:`${n}`).join(' '),answer:acc};
+  }
+  return {text:'6 × 7',answer:42};
+}
+/* Chế độ bố mẹ: chỉ trong bộ nhớ, tự khoá sau 5 phút không bấm */
+const PARENT_IDLE_MS=300000;let _parentAt=-Infinity;
+const parentOpen=(now=Date.now())=>{_parentAt=now};
+const parentOn=(now=Date.now())=>now-_parentAt<PARENT_IDLE_MS;
+const parentTouch=(now=Date.now())=>{if(parentOn(now))_parentAt=now};
+const parentLock=()=>{_parentAt=-Infinity};

@@ -108,3 +108,46 @@ test('save cũ thiếu chore được bù', () => {
   assert.deepEqual(JSON.parse(JSON.stringify(g.get('S.chore.cnt'))), {});
   assert.equal(g.get(`Object.keys(S.chore.log).length`), 1);
 });
+
+test('câu khoá: hợp lệ, đúng đáp án', () => {
+  const g = setup();
+  let n2 = 0, n3 = 0;
+  for (let i = 0; i < 2000; i++) {
+    const q = JSON.parse(JSON.stringify(g.get('lockQuestion()')));
+    const t = q.text.split(' ');
+    const nums = t.filter((_, j) => j % 2 === 0), ops = t.filter((_, j) => j % 2 === 1);
+    assert.ok(nums.length >= 2 && nums.length <= 3, q.text);
+    nums.length === 2 ? n2++ : n3++;
+    nums.forEach(x => assert.ok(/^\d+$/.test(x) && +x >= 1 && +x <= 10, q.text));
+    ops.forEach(o => assert.ok('+−×÷'.includes(o), q.text));
+    assert.ok(ops.some(o => o === '×' || o === '÷'), q.text);
+    const js = t.map(x => ({ '−': '-', '×': '*', '÷': '/' }[x] || x)).join(' ');
+    assert.equal(Function(`return ${js}`)(), q.answer, q.text);
+    assert.ok(Number.isInteger(q.answer) && q.answer >= 0, q.text);
+    // gộp × ÷ trước, rồi + − từ trái sang phải
+    const v = [+nums[0]], o2 = [];
+    ops.forEach((o, j) => {
+      const b = +nums[j + 1];
+      if (o === '×') v[v.length - 1] *= b;
+      else if (o === '÷') { assert.equal(v[v.length - 1] % b, 0, q.text); v[v.length - 1] /= b; }
+      else { v.push(b); o2.push(o); }
+    });
+    let acc = v[0];
+    o2.forEach((o, j) => { acc = o === '+' ? acc + v[j + 1] : acc - v[j + 1]; assert.ok(acc >= 0, q.text); });
+    assert.equal(acc, q.answer, q.text);
+  }
+  assert.ok(n2 > 0 && n3 > 0);
+});
+
+test('chế độ bố mẹ tự khoá sau 5 phút', () => {
+  const g = setup();
+  assert.equal(g.get('PARENT_IDLE_MS'), 300000);
+  assert.equal(g.get('parentOn(0)'), false);
+  g.run('parentOpen(0)');
+  assert.equal(g.get('parentOn(299999)'), true);
+  assert.equal(g.get('parentOn(300000)'), false);
+  g.run('parentOpen(0);parentTouch(200000)');
+  assert.equal(g.get('parentOn(450000)'), true);
+  g.run('parentLock()');
+  assert.equal(g.get('parentOn(1)'), false);
+});
