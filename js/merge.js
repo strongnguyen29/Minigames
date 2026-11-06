@@ -45,6 +45,14 @@ function mergeChore(a,b){
   [a.cnt,b.cnt].forEach(src=>{for(const d in src||{}){const t=cnt[d]=cnt[d]||{};for(const k in src[d]||{})t[k]=Math.max(t[k]||0,src[d][k]||0)}});
   return{log:JSON.parse(JSON.stringify(log)),extra:Object.values(ex).map(e=>({...e})),cnt};
 }
+/* S.xmas: cùng ngày thì hợp việc và đồ; khác ngày thì lấy ngày mới hơn; thiếu bên nào thì lấy bên còn lại */
+const XMAS_EMPTY=()=>({day:'',done:[],found:[],bonus:false});
+function mergeXmas(a,b){
+  a=a||XMAS_EMPTY();b=b||XMAS_EMPTY();
+  if(a.day===b.day)return{day:a.day||'',done:union(a.done,b.done),found:union(a.found,b.found),bonus:!!(a.bonus||b.bonus)};
+  const w=dayNum(b.day)>dayNum(a.day)?b:a;
+  return{day:w.day||'',done:[...(w.done||[])],found:[...(w.found||[])],bonus:!!w.bonus};
+}
 /* base: cặp {gifts,luckyGifts} của lần đồng bộ trước (tuỳ chọn), để gộp quà 3 chiều */
 function mergeSave(local,remote,priceOf,base){
   /* trường lạ: lấy cả bản của bên có savedAt lớn hơn, rồi ghi đè các trường có luật riêng */
@@ -64,6 +72,7 @@ function mergeSave(local,remote,priceOf,base){
   ['stickers','badges','owned','giftOwned','songs'].forEach(k=>{out[k]=union(local[k],remote[k])});
   out.chore=mergeChore(local.chore,remote.chore);
   out.giftSongs=union(local.giftSongs,remote.giftSongs);
+  out.xmas=mergeXmas(local.xmas,remote.xmas);
   /* sao đổi phút nghe: mỗi máy chỉ tăng phần của mình → max từng máy */
   const ls={};
   [local.listenSpent,remote.listenSpent].forEach(src=>{for(const d in src||{})ls[d]=Math.max(ls[d]||0,src[d]||0)});

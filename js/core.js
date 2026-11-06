@@ -7,9 +7,9 @@ const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=R(0,i);[a[i]
 
 /* ============ Lưu trữ (localStorage) ============ */
 const KEY='be_vui_hoc_toan_v1';
-const DEF={name:'',avatar:'🐱',stars:0,gifts:0,stickers:[],best:{},rounds:0,perfect:0,streak:0,lastDay:'',sound:true,voice:true,sfx:true,music:true,badges:[],spent:0,owned:[],luckyGifts:[],giftOwned:[],earned:{},songs:[],giftSongs:[],listenSpent:{},talkSpent:{},chore:{log:{},extra:[],cnt:{}},profileUpdatedAt:0,savedAt:0};
+const DEF={name:'',avatar:'🐱',stars:0,gifts:0,stickers:[],best:{},rounds:0,perfect:0,streak:0,lastDay:'',sound:true,voice:true,sfx:true,music:true,badges:[],spent:0,owned:[],luckyGifts:[],giftOwned:[],earned:{},songs:[],giftSongs:[],listenSpent:{},talkSpent:{},chore:{log:{},extra:[],cnt:{}},xmas:{day:'',done:[],found:[],bonus:false},profileUpdatedAt:0,savedAt:0};
 /* bản mặc định mới: các mảng/object không dùng chung với DEF */
-const freshSave=()=>Object.assign({},DEF,{stickers:[],best:{},badges:[],owned:[],luckyGifts:[],giftOwned:[],earned:{},songs:[],giftSongs:[],listenSpent:{},talkSpent:{},chore:{log:{},extra:[],cnt:{}}});
+const freshSave=()=>Object.assign({},DEF,{stickers:[],best:{},badges:[],owned:[],luckyGifts:[],giftOwned:[],earned:{},songs:[],giftSongs:[],listenSpent:{},talkSpent:{},chore:{log:{},extra:[],cnt:{}},xmas:{day:'',done:[],found:[],bonus:false}});
 let memFallback=null;
 function load(){
   try{const s=JSON.parse(localStorage.getItem(KEY));if(s){
@@ -19,6 +19,8 @@ function load(){
     if(typeof s.luckyGifts==='number')s.luckyGifts=Array(s.luckyGifts).fill(0);
     /* Công chúa chăm ngoan: bù từng trường con khi thiếu */
     s.chore=Object.assign({log:{},extra:[],cnt:{}},s.chore);
+    /* Làng Giáng Sinh: bù trường thiếu */
+    s.xmas=Object.assign({day:'',done:[],found:[],bonus:false},s.xmas);
     return Object.assign({},DEF,{earned:{},songs:[],giftSongs:[],listenSpent:{},talkSpent:{}},s)}}catch(e){if(memFallback)return memFallback}
   return freshSave();
 }

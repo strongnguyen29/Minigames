@@ -96,9 +96,10 @@ function home(){
   /* thẻ Công chúa chăm ngoan: dòng phụ là số việc đang chờ bố mẹ chấm */
   const wait=typeof chorePending==='function'?chorePending().length:0;
   cards.push(card(n,'p-dark','⭕','Cờ caro','','caro'));
-  if(typeof chores==='function')cards.push(card(n+1,'p-pink','👸','Công chúa chăm ngoan',wait>0?`⏳ ${wait}`:'','chores'));
-  cards.push(card(n+2,'p-pink','👑','Tiệm công chúa','','shop'),card(n+3,'p-blue','🎵','Tiệm âm thanh','','radio'),
-    card(n+4,'p-purple','🎁','Bộ sưu tập',`${S.stickers.length}/${STICKERS.length}`,'album'));
+  if(typeof xmasHome==='function'){const d=xmasProgress().done;cards.push(card(n+1,'p-green','🎄','Làng Giáng Sinh',d===4?'✅':`${d}/4`,'xmasHome'))}
+  if(typeof chores==='function')cards.push(card(n+2,'p-pink','👸','Công chúa chăm ngoan',wait>0?`⏳ ${wait}`:'','chores'));
+  cards.push(card(n+3,'p-pink','👑','Tiệm công chúa','','shop'),card(n+4,'p-blue','🎵','Tiệm âm thanh','','radio'),
+    card(n+5,'p-purple','🎁','Bộ sưu tập',`${S.stickers.length}/${STICKERS.length}`,'album'));
   app.innerHTML=screenHTML({mascot:{emo:'neutral',size:'lg',extra:chatMicOK()?chatBtnHTML():''},top:topbar(),cls:'home',body:`<div class="hgrid">${cards.join('')}</div>`});
   const fire=S.streak>1?` 🔥 ${S.streak} ngày liên tiếp!`:'';
   if(chatHintDue())mascotSay('talk_hint',{ifIdle:true});

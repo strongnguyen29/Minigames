@@ -68,7 +68,7 @@ async function gen(r) {
   const body = { text: TAGGED ? r.elevenlabs : r.text, model_id: MODEL };
   if (MODEL !== 'eleven_multilingual_v2') body.language_code = 'vi';
   try {
-    const res = await api(`${API}/text-to-speech/${VOICE}?output_format=mp3_44100_128`, { method: 'POST', body: JSON.stringify(body) });
+    const res = await api(`${API}/text-to-speech/${r.voice || VOICE}?output_format=mp3_44100_128`, { method: 'POST', body: JSON.stringify(body) });
     fs.writeFileSync(path.join(DIR, r.file), Buffer.from(await res.arrayBuffer()));
     console.log(`✓ ${r.file}`); ok++;
   } catch (e) { console.error(`✗ ${r.file}: ${e.message}`); fail++; }
