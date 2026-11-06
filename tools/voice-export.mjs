@@ -5,12 +5,13 @@ const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ctx = { S: {}, VOICE_FILES: [] }; vm.createContext(ctx);
 for (const f of ['js/lines.js', 'js/voice.js']) vm.runInContext(fs.readFileSync(path.join(ROOT, f), 'utf8'), ctx);
 const { LINES, PHRASES, numberWords } = vm.runInContext('({LINES,PHRASES,numberWords})', ctx);
+const LINE_VOICES = vm.runInContext("typeof LINE_VOICES==='undefined'?{}:LINE_VOICES", ctx);
 
 const plain = t => String(t).replace(/[\p{Extended_Pictographic}‍️]/gu, '').replace(/\s+/g, ' ').trim();
 const rows = [];
-for (const [group, arr] of Object.entries(LINES)) for (const x of arr) rows.push({ file: x.id + '.mp3', text: plain(x.text), group, emotion: x.emo, tone: x.tone });
-for (const p of PHRASES) rows.push({ file: p.id + '.mp3', text: p.text, group: 'ghep_de', emotion: 'neutral', tone: 'đọc trung tính, đều giọng, không lên giọng cuối' });
-for (let n = 0; n <= 100; n++) rows.push({ file: `num_${n}.mp3`, text: numberWords(n), group: 'so', emotion: 'neutral', tone: 'đọc rõ, trung tính, không lên giọng cuối' });
+for (const [group, arr] of Object.entries(LINES)) for (const x of arr) rows.push({ file: x.id + '.mp3', text: plain(x.text), group, emotion: x.emo, tone: x.tone, voice: LINE_VOICES[group] || '' });
+for (const p of PHRASES) rows.push({ file: p.id + '.mp3', text: p.text, group: 'ghep_de', emotion: 'neutral', tone: 'đọc trung tính, đều giọng, không lên giọng cuối', voice: '' });
+for (let n = 0; n <= 100; n++) rows.push({ file: `num_${n}.mp3`, text: numberWords(n), group: 'so', emotion: 'neutral', tone: 'đọc rõ, trung tính, không lên giọng cuối', voice: '' });
 
 /* Thẻ cảm xúc (audio tag) của ElevenLabs v3 cho từng cách đọc; cột "elevenlabs" = thẻ + câu nói, dán thẳng vào ô nhập */
 const TAGS = {
@@ -47,7 +48,7 @@ for (const r of rows) r.elevenlabs = `${TAGS[r.tone] || EMO_TAG[r.emotion] || ''
 
 const csv = v => /[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v;
 const out = path.join(ROOT, 'audio/voice');
-fs.writeFileSync(path.join(out, 'script.csv'), ['file,text,group,emotion,tone,elevenlabs', ...rows.map(r => [r.file, r.text, r.group, r.emotion, r.tone, r.elevenlabs].map(csv).join(','))].join('\n') + '\n');
+fs.writeFileSync(path.join(out, 'script.csv'), ['file,text,group,emotion,tone,elevenlabs,voice', ...rows.map(r => [r.file, r.text, r.group, r.emotion, r.tone, r.elevenlabs, r.voice].map(csv).join(','))].join('\n') + '\n');
 
 const EMO = { neutral: 'Trung tính', happy: 'Vui sướng', think: 'Suy nghĩ', clap: 'Vỗ tay' };
 let md = `# Kịch bản giọng Kuromi\n\nTổng cộng **${rows.length} file**. Đặt tên file đúng cột "File", bỏ vào \`audio/voice/\`, rồi chạy \`npm run voice:manifest\`.\n`;
@@ -58,7 +59,7 @@ for (const r of rows) {
     const title = r.group === 'ghep_de' ? 'Mẩu ghép đề bài' : r.group === 'so' ? 'Mẩu số 0–100' : `Điểm chạm: ${r.group}`;
     md += `\n## ${title}\n\n| File | Câu nói | Cảm xúc | Cách đọc |\n|---|---|---|---|\n`;
   }
-  md += `| \`${r.file}\` | ${r.text} | ${EMO[r.emotion]} | ${r.tone} |\n`;
+  md += `| \`${r.file}\` | ${r.text}${r.voice ? ' (giọng Noel)' : ''} | ${EMO[r.emotion]} | ${r.tone} |\n`;
 }
 fs.writeFileSync(path.join(out, 'script.md'), md);
 

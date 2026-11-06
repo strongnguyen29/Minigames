@@ -1,6 +1,6 @@
 const test = require('node:test'), assert = require('node:assert/strict');
 const { loadGame } = require('./helpers/load');
-const FILES = ['js/core.js','js/merge.js','js/xmas-quiz.js','js/xmas.js'];
+const FILES = ['js/core.js','js/merge.js','js/shop.js','js/xmas-quiz.js','js/xmas.js'];
 const load = opts => loadGame(FILES, opts);
 const plain = x => JSON.parse(JSON.stringify(x));
 const NPCS = ['santa','snowman','reindeer','nutcracker'];
@@ -102,4 +102,23 @@ test('nhặt đồ và trạng thái quay lại', () => {
   }
   assert.equal(g.get(`xmasPickup(${spots[0]},today)`), false);
   assert.equal(g.get('xmasStatus(plan.quest)'), 'return');
+});
+test('bộ đồ: mặc định đứng đầu, thêm đồ đã mua', () => {
+  const g = load();
+  g.run("S.owned=['fashion/pink-dress']");
+  assert.deepEqual(plain(g.get('xmasOutfits().map(o=>o.id)')), ['default', 'fashion/pink-dress']);
+  assert.equal(g.get('xmasOutfits()[0].src'), 'images/shop-items/fashion/characters-cutout/white-dress.webp');
+});
+test('bộ đồ đã lưu không còn thì về mặc định', () => {
+  const g = load();
+  g.run("S.owned=['fashion/pink-dress']; xmasSetOutfit('fashion/pink-dress')");
+  assert.equal(g.get('xmasOutfit().id'), 'fashion/pink-dress');
+  g.run('S.owned=[]');
+  assert.equal(g.get('xmasOutfit().id'), 'default');
+});
+test('localStorage hỏng vẫn chạy', () => {
+  const g = load();
+  g.run('localStorage.getItem=()=>{throw 1}; localStorage.setItem=()=>{throw 1}');
+  assert.equal(g.get('xmasOutfit().id'), 'default');
+  g.run("xmasSetOutfit('fashion/pink-dress')");
 });

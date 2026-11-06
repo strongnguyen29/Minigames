@@ -1,6 +1,6 @@
 # Kịch bản giọng Kuromi
 
-Tổng cộng **344 file**. Đặt tên file đúng cột "File", bỏ vào `audio/voice/`, rồi chạy `npm run voice:manifest`.
+Tổng cộng **372 file**. Đặt tên file đúng cột "File", bỏ vào `audio/voice/`, rồi chạy `npm run voice:manifest`.
 
 ## Điểm chạm: splash
 
@@ -447,6 +447,104 @@ Tổng cộng **344 file**. Đặt tên file đúng cột "File", bỏ vào `aud
 | `poke_2.mp3` | Bạn chọc mình à? Hihi! | Vui sướng | tinh nghịch, cười khúc khích |
 | `poke_3.mp3` | Mình thương bạn lắm! | Vui sướng | tinh nghịch, cười khúc khích |
 | `poke_4.mp3` | Ê hê, mình ở đây nè! | Vui sướng | tinh nghịch, cười khúc khích |
+
+## Điểm chạm: xmas_outfit
+
+| File | Câu nói | Cảm xúc | Cách đọc |
+|---|---|---|---|
+| `xmas_outfit_1.mp3` | Bạn mặc bộ nào đi chơi làng nè? | Vui sướng | ấm áp, thân thiện |
+| `xmas_outfit_2.mp3` | Chọn một bộ thật xinh rồi vào làng nha! | Vui sướng | ấm áp, thân thiện |
+
+## Điểm chạm: xmas_enter
+
+| File | Câu nói | Cảm xúc | Cách đọc |
+|---|---|---|---|
+| `xmas_enter_1.mp3` | Làng Giáng Sinh nè! Đi chào mọi người thôi! | Vui sướng | reo vui, phấn khích |
+| `xmas_enter_2.mp3` | Oa, tuyết rơi đẹp quá! Mình đi chơi nào! | Vui sướng | reo vui, phấn khích |
+
+## Điểm chạm: xmas_quiz
+
+| File | Câu nói | Cảm xúc | Cách đọc |
+|---|---|---|---|
+| `xmas_quiz_1.mp3` | Có câu đố kìa! | Trung tính | háo hức, tò mò |
+| `xmas_quiz_2.mp3` | Bạn nghe câu đố nhé! | Trung tính | háo hức, tò mò |
+
+## Điểm chạm: xmas_quest
+
+| File | Câu nói | Cảm xúc | Cách đọc |
+|---|---|---|---|
+| `xmas_quest_1.mp3` | Có nhiệm vụ kìa! | Suy nghĩ | háo hức, tò mò |
+| `xmas_quest_2.mp3` | Bạn giúp bạn ấy nha! | Suy nghĩ | háo hức, tò mò |
+
+## Điểm chạm: xmas_found
+
+| File | Câu nói | Cảm xúc | Cách đọc |
+|---|---|---|---|
+| `xmas_found_1.mp3` | Tìm thấy rồi! | Vỗ tay | reo vui, ngắn gọn |
+| `xmas_found_2.mp3` | Hoan hô, bạn tìm được rồi! | Vỗ tay | reo vui, ngắn gọn |
+
+## Điểm chạm: xmas_all_done
+
+| File | Câu nói | Cảm xúc | Cách đọc |
+|---|---|---|---|
+| `xmas_all_done_1.mp3` | Xong hết rồi! Mai quay lại nha! | Vỗ tay | reo vui, tự hào |
+| `xmas_all_done_2.mp3` | Bạn giỏi quá, mai mình chơi tiếp nhé! | Vỗ tay | reo vui, tự hào |
+
+## Điểm chạm: xmas_santa_hi
+
+| File | Câu nói | Cảm xúc | Cách đọc |
+|---|---|---|---|
+| `xmas_santa_hi_1.mp3` | Hô hô hô! Chào con nhé! (giọng Noel) | Vui sướng | ấm áp, thân thiện |
+| `xmas_santa_hi_2.mp3` | Hô hô, con đến chơi đó à? (giọng Noel) | Vui sướng | ấm áp, thân thiện |
+
+## Điểm chạm: xmas_santa_thanks
+
+| File | Câu nói | Cảm xúc | Cách đọc |
+|---|---|---|---|
+| `xmas_santa_thanks_1.mp3` | Hô hô hô! Cảm ơn con nhiều lắm! (giọng Noel) | Vui sướng | vui vẻ, khích lệ |
+| `xmas_santa_thanks_2.mp3` | Con ngoan quá, hô hô! (giọng Noel) | Vui sướng | vui vẻ, khích lệ |
+
+## Điểm chạm: xmas_snowman_hi
+
+| File | Câu nói | Cảm xúc | Cách đọc |
+|---|---|---|---|
+| `xmas_snowman_hi_1.mp3` | Chào bạn! Mình là người tuyết nè! | Vui sướng | vui vẻ, khích lệ |
+| `xmas_snowman_hi_2.mp3` | Ui, trời hơi nóng, mình sợ tan mất! | Vui sướng | vui vẻ, khích lệ |
+
+## Điểm chạm: xmas_snowman_thanks
+
+| File | Câu nói | Cảm xúc | Cách đọc |
+|---|---|---|---|
+| `xmas_snowman_thanks_1.mp3` | Cảm ơn bạn! Mình mát rượi luôn! | Vui sướng | reo vui |
+| `xmas_snowman_thanks_2.mp3` | Bạn tốt quá, mình không tan nữa rồi! | Vui sướng | reo vui |
+
+## Điểm chạm: xmas_reindeer_hi
+
+| File | Câu nói | Cảm xúc | Cách đọc |
+|---|---|---|---|
+| `xmas_reindeer_hi_1.mp3` | Chào bạn! Mình thích chạy lắm! | Vui sướng | hào hứng, rõ ràng |
+| `xmas_reindeer_hi_2.mp3` | Đi nào, mình chạy thi nhé! | Vui sướng | hào hứng, rõ ràng |
+
+## Điểm chạm: xmas_reindeer_thanks
+
+| File | Câu nói | Cảm xúc | Cách đọc |
+|---|---|---|---|
+| `xmas_reindeer_thanks_1.mp3` | Cảm ơn bạn! Mình chạy vèo vèo luôn! | Vui sướng | reo vui |
+| `xmas_reindeer_thanks_2.mp3` | Hoan hô, mình vui quá! | Vui sướng | reo vui |
+
+## Điểm chạm: xmas_nutcracker_hi
+
+| File | Câu nói | Cảm xúc | Cách đọc |
+|---|---|---|---|
+| `xmas_nutcracker_hi_1.mp3` | Lính chì xin chào bạn! | Trung tính | hào hứng, rõ ràng |
+| `xmas_nutcracker_hi_2.mp3` | Nghiêm! Hôm nay mình vui lắm! | Trung tính | hào hứng, rõ ràng |
+
+## Điểm chạm: xmas_nutcracker_thanks
+
+| File | Câu nói | Cảm xúc | Cách đọc |
+|---|---|---|---|
+| `xmas_nutcracker_thanks_1.mp3` | Cảm ơn bạn! Mình xin đứng nghiêm chào! | Vui sướng | vui vẻ, khích lệ |
+| `xmas_nutcracker_thanks_2.mp3` | Tuyệt vời, lính chì vui quá! | Vui sướng | vui vẻ, khích lệ |
 
 ## Mẩu ghép đề bài
 

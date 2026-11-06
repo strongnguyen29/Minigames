@@ -96,3 +96,17 @@ function xmasQuizAnswer(sess,idx){
   return done?{ok:true,hint:false,next:false,done:true,stars:xmasQuizStars(sess.mistakes)}
              :{ok:true,hint:false,next:true,done:false};
 }
+
+/* Bộ đồ đi chơi làng: mặc định là váy trắng, thêm các váy bé đã mua; bộ đang mặc lưu theo máy */
+const XMAS_OUTFIT_KEY='be_vui_xmas_outfit_v1';
+const XMAS_DEFAULT_OUTFIT={id:'default',name:'Váy Trắng',src:'images/shop-items/fashion/characters-cutout/white-dress.webp'};
+function xmasOutfits(){
+  const owned=S.owned||[];
+  return [XMAS_DEFAULT_OUTFIT].concat(SHOP_ITEMS.filter(x=>owned.includes(x.id)).map(x=>({id:x.id,name:x.name,src:x.src})));
+}
+function xmasOutfit(){
+  let id=null;
+  try{id=localStorage.getItem(XMAS_OUTFIT_KEY)}catch(e){}
+  return xmasOutfits().find(o=>o.id===id)||XMAS_DEFAULT_OUTFIT;
+}
+function xmasSetOutfit(id){try{localStorage.setItem(XMAS_OUTFIT_KEY,id)}catch(e){}}

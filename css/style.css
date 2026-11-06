@@ -571,3 +571,12 @@ h2{text-align:center;margin:8px 0 14px}
 @keyframes talkbob{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(calc(var(--u)*-.7)) rotate(4deg)}}
 @keyframes talkdot{0%,70%,100%{transform:scale(1)}85%{transform:scale(1.35)}}
 @keyframes talkpulse{50%{transform:scale(1.08)}}
+
+/* ============ Làng Giáng Sinh: chọn đồ ============ */
+.xmas-pick .xgrid{flex:1;min-height:0;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(calc(var(--u)*14),1fr));gap:calc(var(--u)*1.4);align-content:start;padding:calc(var(--u)*.6)}
+.xo{display:flex;flex-direction:column;align-items:center;gap:calc(var(--u)*.4);padding:calc(var(--u)*.8);border:calc(var(--u)*.5) solid transparent;border-radius:calc(var(--u)*2);background:rgba(255,255,255,.85);cursor:pointer;font-weight:700;color:inherit}
+.xo img{width:100%;aspect-ratio:3/4;object-fit:contain}
+.xo span{font-size:calc(var(--u)*1.8);text-align:center}
+.xo.on{border-color:#2fb36b;background:#e9fff2;box-shadow:0 0 0 calc(var(--u)*.4) rgba(47,179,107,.35)}
+.xmas-pick #xgo{width:100%}
+.xwait{flex:1;display:flex;align-items:center;justify-content:center;font-size:calc(var(--u)*3.4);font-weight:800}

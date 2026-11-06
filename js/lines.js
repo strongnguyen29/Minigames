@@ -134,5 +134,23 @@ const LINES={
   gift_song:L_('gift_song','happy','reo vui, bất ngờ',['Oa! Bạn được tặng một bài mới nè! 🎵','Bài mới cho bạn đó, vào Tiệm âm thanh nghe nha!','Có bài mới để nghe rồi, vui quá!']),
   gift_talk:L_('gift_talk','happy','reo vui, bất ngờ',['Yeah! Bạn được thêm năm câu nói chuyện với mình nè! 💬','Thêm năm câu hỏi cho bạn, mình nói chuyện nhiều hơn nha!','Mình được nói chuyện với bạn thêm nữa rồi, vui ghê!']),
   parent_wrong:L_('parent_wrong','think','nhẹ nhàng, giải thích',['Chưa đúng rồi, bố mẹ thử câu khác nha!','Hmm… sai mất rồi, mình đổi câu mới nhé!','Ơ, chưa phải rồi. Bố mẹ tính lại nha!']),
-  poke:L_('poke','happy','tinh nghịch, cười khúc khích',['Hihi, nhột quá!','Bạn chọc mình à? Hihi!','Mình thương bạn lắm! 💜','Ê hê, mình ở đây nè!'])
+  poke:L_('poke','happy','tinh nghịch, cười khúc khích',['Hihi, nhột quá!','Bạn chọc mình à? Hihi!','Mình thương bạn lắm! 💜','Ê hê, mình ở đây nè!']),
+  /* Làng Giáng Sinh: Kuromi dẫn đường */
+  xmas_outfit:L_('xmas_outfit','happy','ấm áp, thân thiện',['Bạn mặc bộ nào đi chơi làng nè?','Chọn một bộ thật xinh rồi vào làng nha!']),
+  xmas_enter:L_('xmas_enter','happy','reo vui, phấn khích',['Làng Giáng Sinh nè! Đi chào mọi người thôi!','Oa, tuyết rơi đẹp quá! Mình đi chơi nào!']),
+  xmas_quiz:L_('xmas_quiz','neutral','háo hức, tò mò',['Có câu đố kìa!','Bạn nghe câu đố nhé!']),
+  xmas_quest:L_('xmas_quest','think','háo hức, tò mò',['Có nhiệm vụ kìa!','Bạn giúp bạn ấy nha!']),
+  xmas_found:L_('xmas_found','clap','reo vui, ngắn gọn',['Tìm thấy rồi!','Hoan hô, bạn tìm được rồi!']),
+  xmas_all_done:L_('xmas_all_done','clap','reo vui, tự hào',['Xong hết rồi! Mai quay lại nha!','Bạn giỏi quá, mai mình chơi tiếp nhé!']),
+  /* Làng Giáng Sinh: các nhân vật */
+  xmas_santa_hi:L_('xmas_santa_hi','happy','ấm áp, thân thiện',['Hô hô hô! Chào con nhé!','Hô hô, con đến chơi đó à?']),
+  xmas_santa_thanks:L_('xmas_santa_thanks','happy','vui vẻ, khích lệ',['Hô hô hô! Cảm ơn con nhiều lắm!','Con ngoan quá, hô hô!']),
+  xmas_snowman_hi:L_('xmas_snowman_hi','happy','vui vẻ, khích lệ',['Chào bạn! Mình là người tuyết nè!','Ui, trời hơi nóng, mình sợ tan mất!']),
+  xmas_snowman_thanks:L_('xmas_snowman_thanks','happy','reo vui',['Cảm ơn bạn! Mình mát rượi luôn!','Bạn tốt quá, mình không tan nữa rồi!']),
+  xmas_reindeer_hi:L_('xmas_reindeer_hi','happy','hào hứng, rõ ràng',['Chào bạn! Mình thích chạy lắm!','Đi nào, mình chạy thi nhé!']),
+  xmas_reindeer_thanks:L_('xmas_reindeer_thanks','happy','reo vui',['Cảm ơn bạn! Mình chạy vèo vèo luôn!','Hoan hô, mình vui quá!']),
+  xmas_nutcracker_hi:L_('xmas_nutcracker_hi','neutral','hào hứng, rõ ràng',['Lính chì xin chào bạn!','Nghiêm! Hôm nay mình vui lắm!']),
+  xmas_nutcracker_thanks:L_('xmas_nutcracker_thanks','happy','vui vẻ, khích lệ',['Cảm ơn bạn! Mình xin đứng nghiêm chào!','Tuyệt vời, lính chì vui quá!'])
 };
+/* Nhóm lời dùng giọng riêng (ElevenLabs voice id) thay cho giọng Kuromi; key là tên nhóm */
+const LINE_VOICES={xmas_santa_hi:'1wg2wOjdEWKA7yQD8Kca',xmas_santa_thanks:'1wg2wOjdEWKA7yQD8Kca'};
