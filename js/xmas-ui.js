@@ -68,8 +68,15 @@ const XMAS_MAP=(()=>{
   [[-15.6,-10.2],[1.6,-12.9],[12.4,-10.2],[-1.6,-12.9]].forEach(([x,z])=>P('candy-cane-green',x,z,{scale:2}));
   return {bound,start:{x:0,z:4.8},props,
     cabins:[{x:-14,z:-11.8,rotY:0},{x:0,z:-14.5,rotY:0},{x:14,z:-11.8,rotY:0}],
-    npcs:{santa:{x:0,z:-10,r:.45},snowman:{x:-17,z:0,r:.6},reindeer:{x:17,z:1,r:.6},nutcracker:{x:8,z:10,r:.4}}};
+    /* meet: chỗ búp bê xuất hiện khi vào làng, ngay dưới bên phải nhân vật để vừa vào đã thấy nhân vật và dấu ❗ */
+    npcs:{santa:{x:0,z:-10,r:.45,meet:{x:1.8,z:-6.8}},snowman:{x:-17,z:0,r:.6,meet:{x:-15.2,z:3.2}},
+      reindeer:{x:17,z:1,r:.6,meet:{x:15.2,z:4.2}},nutcracker:{x:8,z:10,r:.4,meet:{x:6.2,z:13.2}}}};
 })();
+/* chỗ búp bê xuất hiện: cạnh nhân vật đầu tiên còn việc; xong hết thì ở chỗ mặc định trước cây thông */
+function xmasStartPos(){
+  const p=XMAS_NPCS.find(n=>xmasStatus(n.id)!=='done');
+  return p?XMAS_MAP.npcs[p.id].meet:XMAS_MAP.start;
+}
 /* vị trí và hướng trên vòng ray (tàu chạy theo), u là quãng đường đã đi */
 function xmasTrackAt(u){
   const s=XMAS_TRACK_S,a=.5*s,R=.75*s,Ls=2*a+Math.PI*R/2;
@@ -136,7 +143,7 @@ async function xmasBuild(my){
   jobs.push(xmasTrain(w));
   await Promise.all(jobs);
   if(my!==xmasGen)return;
-  xmasPlayer=w.player(xmasOutfit().src,M.start);
+  xmasPlayer=w.player(xmasOutfit().src,xmasStartPos());
   w.onTap(xmasTapped);
   w.onPickup(xmasFound);
   /* màn bị thay mà không qua go(): tự giải phóng ở lượt sau */
@@ -189,7 +196,7 @@ function xmasBar(){
     const plan=xmasCurPlan(),item=xmasItem(),x=xmasState();
     const cnt=xmasQuestOn()&&xmasStatus(plan.quest)!=='done'?`<span class="xcnt" id="xcnt">${item.icon} ${Math.min(3,x.found.length)}/3</span>`:'';
     b.innerHTML=XMAS_NPCS.map(p=>{const ok=xmasStatus(p.id)==='done';
-      return `<span class="xbi${ok?' ok':''}" title="${esc(p.name)}">${XMAS_ICON[p.id]}${ok?'<i>✓</i>':''}</span>`}).join('')+cnt;
+      return `<button class="xbi${ok?' ok':''}" title="${esc(p.name)}" aria-label="Đi tới ${esc(p.name)}" onclick="xmasGoNpc('${p.id}')">${XMAS_ICON[p.id]}${ok?'<i>✓</i>':''}</button>`}).join('')+cnt;
   }
   const c=$('#xcoin');if(c)c.textContent=`⭐ ${balance()}`;
 }
@@ -229,14 +236,44 @@ function xmasFound(spot){
   if(xmasState().found.length>=3)xmasMarks();
   return true;
 }
+/* Đi tới (x,z). Không tìm đường: chỉ khi đường thẳng cắt vòng vật cản của cây thông giữa làng
+   thì đi qua một điểm vòng bên cạnh cây (phía cho đường ngắn hơn), rồi mới tới đích */
+const XMAS_TREE_R=3.8;
+function xmasRoute(x,z,stop,done){
+  const w=xmasWorld,pl=xmasPlayer;if(!w)return;
+  const c=XMAS_TREE,R=XMAS_TREE_R+.3;
+  let wp=null;
+  if(pl){
+    const dx=x-pl.x,dz=z-pl.z,L=Math.hypot(dx,dz)||1;
+    const t=Math.max(0,Math.min(1,((c.x-pl.x)*dx+(c.z-pl.z)*dz)/(L*L)));
+    if(Math.hypot(pl.x+dx*t-c.x,pl.z+dz*t-c.z)<R){
+      const nx=-dz/L,nz=dx/L,Rw=XMAS_TREE_R+1.7;
+      const cand=[1,-1].map(k=>({x:c.x+k*nx*Rw,z:c.z+k*nz*Rw}));
+      const len=q=>Math.hypot(q.x-pl.x,q.z-pl.z)+Math.hypot(x-q.x,z-q.z);
+      wp=len(cand[0])<=len(cand[1])?cand[0]:cand[1];
+    }
+  }
+  /* chặng vòng kẹt thì vẫn thử đi tiếp tới đích (trượt theo mép vật cản) */
+  if(wp)w.walkTo(wp.x,wp.z,.3,()=>{if(xmasWorld===w)w.walkTo(x,z,stop,done)});
+  else w.walkTo(x,z,stop,done);
+}
+/* Đi tới nhân vật rồi nói chuyện: đứng bên cạnh (không đứng trước, kẻo búp bê che nhân vật).
+   Kẹt mà đã đủ gần thì vẫn nói chuyện; kẹt xa thì Kuromi chỉ cách dùng thanh trên */
+function xmasGoNpc(id){
+  const w=xmasWorld,n=XMAS_MAP.npcs[id];
+  if(!w||!n||xmasDlgOn||!xmasReady)return;
+  const pl=xmasPlayer,sx=pl&&pl.x<n.x?-1:1,near=()=>pl&&Math.hypot(pl.x-n.x,pl.z-n.z)<2.2;
+  xmasRoute(n.x+sx*1.3,n.z+.3,.2,ok=>{
+    if(xmasWorld!==w)return;
+    if(ok||near())xmasTalk(id);
+    else mascot('think','Bấm vào hình bạn ấy ở thanh trên nha!');
+  });
+}
 function xmasTapped(ev){
   const w=xmasWorld;
   if(!w||xmasDlgOn)return;
-  if(ev.kind==='npc'){
-    /* đứng bên cạnh nhân vật (không đứng trước, kẻo búp bê che mất nhân vật); kẹt mà đã đủ gần thì vẫn nói chuyện */
-    const pl=xmasPlayer,sx=pl&&pl.x<ev.x?-1:1,near=()=>pl&&Math.hypot(pl.x-ev.x,pl.z-ev.z)<2.2;
-    w.walkTo(ev.x+sx*1.3,ev.z+.3,.2,ok=>{if(xmasWorld===w&&(ok||near()))xmasTalk(ev.id)});
-  }
+  if(ev.kind==='npc')xmasGoNpc(ev.id);
+  else if(ev.kind==='pickup')xmasRoute(ev.x,ev.z,0);
   else w.walkTo(ev.x,ev.z);
 }
 
@@ -333,11 +370,14 @@ function xmasChoose(i){
   }
   sfx.ok();if(b)b.classList.add('good');
   const said=mascotSay('correct');
-  if(r.done)s.done=true;
+  /* xong câu 3: cộng sao và lưu ngay (đóng hộp thoại hay rời làng lúc này cũng không mất), chỉ hoãn phần hiển thị */
+  let res=null;
+  if(r.done){s.done=true;res=xmasComplete(s.npc,r.stars,s.day);if(res)xmasMarks()}
+  const my=xmasGen;
   /* chờ Kuromi khen xong (ít nhất XMAS_NEXT_MS, tối đa 2,5 giây) rồi mới sang câu sau */
   voiceWait(said,XMAS_NEXT_MS,Math.max(XMAS_NEXT_MS,2500)).then(()=>{
-    if(xmasSess!==s)return;
-    if(r.done){xmasFinish(s.npc,r.stars,s.day);return}
+    if(xmasSess!==s){if(res&&res.bonus>0&&my===xmasGen)xmasParty(res.bonus);return}
+    if(r.done){xmasShowDone(s.npc,res,s.day);return}
     s.tried=[];s.lock=false;xmasQuizDraw(s);
     const nq=s.qs[s.i];
     xmasSpeak(()=>voice.text(nq.q));
@@ -346,8 +386,18 @@ function xmasChoose(i){
 
 /* ---- xong một việc: cộng sao, cảm ơn, cập nhật nhãn; đủ 4 việc thì ăn mừng ---- */
 function xmasFinish(id,stars,day){
-  xmasSess=null;
   const r=xmasComplete(id,stars,day);
+  if(r)xmasMarks();
+  xmasShowDone(id,r,day);
+}
+function xmasParty(n){
+  confetti(40);
+  burst($('#xbar'),12,['⭐','🎉','🎄','✨']);
+  toast(`+${n} ⭐ thưởng hoàn thành!`);
+}
+/* hiện kết quả một việc đã cộng sao (r từ xmasComplete; null là không cộng được) */
+function xmasShowDone(id,r,day){
+  xmasSess=null;
   if(!r){
     if(day!==dayStr(new Date())){xmasClose();xmasNewDay()}
     else xmasClose();
@@ -356,12 +406,8 @@ function xmasFinish(id,stars,day){
   xmasDlg(id,{body:`<div class="xgain">+${r.stars} ⭐</div>`,btns:XMAS_BYE});
   sfx.win();
   const box=$('#xdlg .xbox');burst(box,8,['⭐','✨']);
-  xmasMarks();
   if(r.bonus>0){
-    confetti(40);
-    burst($('#xbar'),12,['⭐','🎉','🎄','✨']);
-    toast(`+${r.bonus} ⭐ thưởng hoàn thành!`);
-    xmasBar();
+    xmasParty(r.bonus);
     xmasSpeak(()=>xmasNpcLine(`xmas_${id}_thanks`),()=>mascotSay('xmas_all_done'));
   }else xmasSpeak(()=>xmasNpcLine(`xmas_${id}_thanks`));
 }

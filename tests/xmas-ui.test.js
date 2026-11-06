@@ -113,6 +113,13 @@ test('bản đồ: chỗ giấu và nhân vật ở chỗ trống, trong biên, 
     for (const o of solids) assert.ok(Math.hypot(p.x - o.x, p.z - o.z) > o.r + .9, `trong vật cản ${JSON.stringify(o)}: ${tag}`);
     assert.ok(!hidden(p), 'bị nhà che ' + tag);
   }
+  /* chỗ búp bê xuất hiện khi vào làng: trong biên, ở chỗ trống, cách nhân vật đủ xa để không đè lên */
+  for (const n of npcs) {
+    const m = n.meet, tag = n.id + ' meet ' + JSON.stringify(m);
+    assert.ok(inBound(m, 1), tag);
+    for (const o of solids) assert.ok(Math.hypot(m.x - o.x, m.z - o.z) > o.r + .5, tag);
+    for (const k of npcs) assert.ok(Math.hypot(m.x - k.x, m.z - k.z) > k.r + .9, tag);
+  }
   /* chỗ giấu không trùng chỗ đứng của nhân vật và cách nhau đủ xa */
   for (const s of spots) for (const n of npcs) assert.ok(Math.hypot(s.x - n.x, s.z - n.z) > 2.5, `gần ${n.id}: ${JSON.stringify(s)}`);
   for (let i = 0; i < spots.length; i++) for (let j = i + 1; j < spots.length; j++)
@@ -120,4 +127,51 @@ test('bản đồ: chỗ giấu và nhân vật ở chỗ trống, trong biên, 
   /* đi từ đầu này sang đầu kia mất 15–20 giây ở tốc độ 3 */
   const secs = 2 * M.bound.rx / g.get('W3_SPEED');
   assert.ok(secs >= 15 && secs <= 20, String(secs));
+});
+
+test('đóng hộp thoại ngay sau câu đúng thứ 3 vẫn giữ sao', () => {
+  const g = setup();
+  g.run('XMAS_NEXT_MS=5000');
+  const npc = quizNpc(g);
+  g.run(`xmasTalk('${npc}')`);
+  for (let k = 0; k < 3; k++) g.run('xmasSess.lock=false;xmasChoose(xmasSess.qs[xmasSess.i].correct)');
+  g.run('xmasClose()');
+  assert.equal(g.get('S.stars'), 3);
+  assert.equal(g.get(`xmasStatus('${npc}')`), 'done');
+});
+
+/* world giả ghi lại các lần walkTo, có búp bê ở chỗ xuất phát */
+function walker(g, x, z) {
+  g.run(`var __walks=[];xmasReady=true;xmasPlayer={x:${x},z:${z}};
+    xmasWorld.walkTo=(x,z,stop,cb)=>{__walks.push({x,z,stop,cb})};`);
+}
+test('đường thẳng cắt cây thông giữa làng thì đi vòng qua một điểm', () => {
+  const g = setup();
+  walker(g, 0, 6);
+  g.run("xmasGoNpc('santa')");
+  const w1 = g.get('__walks[0]');
+  assert.ok(Math.hypot(w1.x - g.get('XMAS_TREE.x'), w1.z - g.get('XMAS_TREE.z')) > 4.5, 'điểm vòng nằm ngoài vòng cây');
+  assert.ok(Math.abs(w1.x) > 4, 'điểm vòng ở bên cạnh cây');
+  g.run('xmasPlayer.x=__walks[0].x;xmasPlayer.z=__walks[0].z;__walks[0].cb(true)');
+  const w2 = g.get('__walks[1]');
+  assert.ok(Math.hypot(w2.x - 0, w2.z + 10) < 1.6, 'chặng 2 tới cạnh ông già Noel');
+  /* không cắt cây thì đi thẳng */
+  walker(g, -15, 3);
+  g.run("xmasGoNpc('snowman')");
+  assert.equal(g.get('__walks.length'), 1);
+});
+test('kẹt xa nhân vật thì Kuromi nhắc, không im lặng', () => {
+  const g = setup();
+  walker(g, -15, 3);
+  g.run("xmasGoNpc('snowman');xmasPlayer.x=-10;__walks[0].cb(false)");
+  assert.equal(g.get('xmasDlgOn'), false);
+  assert.match(g.get("document.querySelector('#mbub').textContent"), /thanh trên/);
+});
+test('thanh việc có nút đi tới từng nhân vật; vào làng đứng gần nhân vật còn việc', () => {
+  const g = setup();
+  g.run('xmasBar()');
+  assert.match(g.get("document.querySelector('#xbar').innerHTML"), /<button[^>]*onclick="xmasGoNpc\('santa'\)"/);
+  const p = JSON.parse(g.get('JSON.stringify(xmasStartPos())'));
+  const near = Object.values(JSON.parse(g.get('JSON.stringify(XMAS_MAP.npcs)'))).some(n => Math.hypot(n.x - p.x, n.z - p.z) < 5);
+  assert.ok(near, JSON.stringify(p));
 });
