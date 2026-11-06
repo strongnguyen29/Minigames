@@ -93,6 +93,7 @@ function xmasTrackAt(u){
 const XMAS_ICON={santa:'🎅',snowman:'⛄',reindeer:'🦌',nutcracker:'💂'};
 let xmasWorld=null,xmasSess=null,xmasGen=0,xmasTok=0,xmasDlgOn=false,xmasReady=false;
 let xmasNpcH={},xmasPicks={},xmasPlanCur=null,xmasQuestDay='',xmasPlayer=null;
+let XMAS_BUILD_MS=25000;  // quá lâu chưa dựng xong làng thì báo "Làng đang ngủ", không để bé kẹt ở màn chờ
 let XMAS_NEXT_MS=900;   // dừng giữa hai câu đố để bé thấy nút xanh
 const xmasCurPlan=()=>xmasPlanCur||(xmasPlanCur=xmasPlan(xmasState().day));
 const xmasItem=()=>XMAS_ITEMS.find(i=>i.id===xmasCurPlan().item);
@@ -118,6 +119,8 @@ function xmasVillage(){
   if(!w3Supported())return xmasFail();
   xmasBar();
   xmasBuild(my).catch(e=>{if(my===xmasGen){console.warn('Làng Giáng Sinh không dựng được',e);xmasFail()}});
+  /* xmasFail → xmasLeave tăng xmasGen, nên bản dựng về muộn sẽ tự giải phóng (xem xmasBuild) */
+  setTimeout(()=>{if(my===xmasGen&&!xmasReady){console.warn('Làng Giáng Sinh dựng quá lâu');xmasFail()}},XMAS_BUILD_MS);
 }
 /* Không có WebGL hoặc nạp lỗi: báo nhẹ nhàng, cho về trang chủ (module nạp lỗi bị trình duyệt nhớ, nên không thử lại tại chỗ) */
 function xmasFail(){
@@ -204,7 +207,8 @@ function xmasMarks(){
   const icon=xmasItem().icon;
   XMAS_NPCS.forEach(p=>{
     const st=xmasStatus(p.id),h=xmasNpcH[p.id];
-    if(h)h.setMark(st==='done'?'✅':st==='return'?icon:'❗');
+    /* đang chờ bé mang đồ về (đã nhận việc đi tìm, hoặc đã tìm đủ) thì hiện món đồ */
+    if(h)h.setMark(st==='done'?'✅':st==='return'||(st==='quest'&&xmasQuestOn())?icon:'❗');
   });
   xmasBar();
 }
@@ -219,6 +223,9 @@ function xmasSpawn(){
       if(!o||my!==xmasGen||xmasWorld!==w)return;
       if(xmasState().found.includes(s)){delete xmasPicks[s];return}
       xmasPicks[s]=w.pickup(s,o,XMAS_SPOTS[s]);
+    }).catch(e=>{
+      console.warn('Không dựng được món đồ cần tìm',e);
+      if(my===xmasGen)delete xmasPicks[s];   // bỏ chỗ giữ để lần sau sinh lại
     });
   });
 }
@@ -229,11 +236,13 @@ function xmasFound(spot){
   const p=xmasPicks[spot];
   if(p&&p.remove)p.remove();
   delete xmasPicks[spot];
-  sfx.ok();mascotSay('xmas_found');
+  sfx.ok();
+  if(xmasState().found.length>=3){const q=xmasNpc(plan.quest);mascot('clap',`Đủ rồi! Mang về cho ${q?q.name:'bạn ấy'} nha!`)}
+  else mascotSay('xmas_found');
   xmasBar();
   const c=$('#xcnt');
   if(c){burst(c,3,[xmasItem().icon,'✨']);c.classList.remove('pop');void c.offsetWidth;c.classList.add('pop')}
-  if(xmasState().found.length>=3)xmasMarks();
+  xmasMarks();
   return true;
 }
 /* Đi tới (x,z). Không tìm đường: chỉ khi đường thẳng cắt vòng vật cản của cây thông giữa làng
@@ -335,7 +344,7 @@ function xmasTalk(id){
 function xmasAccept(){
   xmasQuestDay=xmasCurPlan().day;
   xmasClose();sfx.click();
-  xmasSpawn();xmasBar();
+  xmasSpawn();xmasMarks();
 }
 
 /* ---- phiên đố: 3 câu liên tiếp ---- */

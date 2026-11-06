@@ -147,3 +147,14 @@ test('xmas khác ngày lấy ngày mới hơn', () => {
 test('bản lưu cũ không có xmas', () => {
   assert.deepEqual(merge({}, {}).xmas, { day:'', done:[], found:[], bonus:false });
 });
+test('xmas chỉ một bên có thì giữ tiến độ bên đó (cả hai chiều)', () => {
+  const x = { day:'2026-12-24', done:['santa'], found:[1,2], bonus:true };
+  assert.deepEqual(merge({ xmas:x }, {}).xmas, x);
+  assert.deepEqual(merge({}, { xmas:x }).xmas, x);
+});
+test('xmas khác ngày, đảo vế vẫn lấy ngày mới hơn', () => {
+  const old = { day:'2026-12-9', done:['santa'], found:[1], bonus:true };
+  const neu = { day:'2026-12-10', done:['reindeer'], found:[2], bonus:false };
+  const r = merge({ xmas:neu }, { xmas:old });
+  assert.deepEqual(r.xmas, neu);
+});

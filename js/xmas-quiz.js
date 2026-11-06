@@ -11,7 +11,7 @@ const XMAS_QUIZ=[
 {id:'xq005',t:'xmas',q:'Ông già Noel đi vào nhà bằng đường nào?',c:['Cửa sổ nhỏ','Ống khói','Cái giếng'],a:1},
 {id:'xq006',t:'xmas',q:'Trên đỉnh cây thông Noel thường có gì?',c:['Ngôi sao ⭐','Con cá 🐟','Quả chuối 🍌'],a:0},
 {id:'xq007',t:'xmas',q:'Đêm Giáng sinh, bé treo gì để nhận quà?',c:['Cái mũ','Chiếc tất','Cái khăn'],a:1},
-{id:'xq008',t:'xmas',q:'Ông già Noel hay cười như thế nào?',c:['Ha ha ha','Hu hu hu','Hít hít hít'],a:0},
+{id:'xq008',t:'xmas',q:'Ông già Noel hay cười như thế nào?',c:['Hô hô hô','Hu hu hu','Hít hít hít'],a:0},
 {id:'xq009',t:'xmas',q:'Ông già Noel có bộ râu màu gì?',c:['Màu trắng','Màu xanh','Màu hồng'],a:0},
 {id:'xq010',t:'xmas',q:'Quà Giáng sinh thường được gói trong gì?',c:['Hộp quà 🎁','Cái nồi','Cái chậu'],a:0},
 {id:'xq011',t:'xmas',q:'Chiếc chuông Giáng sinh kêu như thế nào?',c:['Gâu gâu','Leng keng','Ầm ầm'],a:1},
@@ -58,7 +58,7 @@ const XMAS_QUIZ=[
 {id:'xq049',t:'color',q:'Quả nho chín có màu gì?',c:['Màu tím','Màu trắng','Màu cam'],a:0},
 {id:'xq050',t:'color',q:'Bông tuyết có màu gì?',c:['Màu nâu','Màu trắng','Màu đỏ'],a:1},
 {id:'xq051',t:'color',q:'Cầu vồng có mấy màu?',c:['Bảy màu','Một màu','Hai màu'],a:0},
-{id:'xq052',t:'color',q:'Chiếc nơ của Kuromi thường có màu gì?',c:['Màu hồng','Màu xanh lá','Màu nâu'],a:0},
+{id:'xq052',t:'color',q:'Củ cà rốt thường có màu gì?',c:['Màu cam','Màu xanh dương','Màu tím'],a:0},
 // ---- Đồ vật trong nhà (13) ----
 {id:'xq053',t:'home',q:'Bé dùng gì để đánh răng?',c:['Bàn chải','Cái muỗng','Cái lược'],a:0},
 {id:'xq054',t:'home',q:'Bé ngủ ở đâu?',c:['Trên giường 🛏️','Trong tủ lạnh','Trên bếp'],a:0},

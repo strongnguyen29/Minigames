@@ -41,3 +41,13 @@ test('nạp file không cần Three', () => {
   assert.equal(g.get('typeof w3Supported'), 'function');
   assert.equal(g.get('typeof THREE'), 'undefined');
 });
+test('w3Supported thả ngữ cảnh WebGL sau khi thử', () => {
+  const g = loadGame(FILES);
+  g.run(`var __lost=0;document.createElement=()=>({getContext:k=>k==='webgl2'?{getExtension:n=>n==='WEBGL_lose_context'?{loseContext(){__lost++}}:null}:null})`);
+  assert.equal(g.get('w3Supported()'), true);
+  assert.equal(g.get('__lost'), 1);
+  g.run(`document.createElement=()=>({getContext:()=>({})})`);   // không có tiện ích: không lỗi
+  assert.equal(g.get('w3Supported()'), true);
+  g.run(`document.createElement=()=>({getContext:()=>null})`);
+  assert.equal(g.get('w3Supported()'), false);
+});

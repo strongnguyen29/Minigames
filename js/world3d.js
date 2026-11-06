@@ -44,7 +44,10 @@ function w3Load() {
 function w3Supported() {
   try {
     const c = document.createElement('canvas');
-    return !!(c.getContext && (c.getContext('webgl2') || c.getContext('webgl')));
+    const gl = c.getContext && (c.getContext('webgl2') || c.getContext('webgl'));
+    /* thả ngữ cảnh thử ngay, kẻo mỗi lần thử rò một ngữ cảnh WebGL (trình duyệt giới hạn ~16) */
+    try { gl && gl.getExtension && gl.getExtension('WEBGL_lose_context')?.loseContext(); } catch (e) {}
+    return !!gl;
   } catch (e) { return false; }
 }
 

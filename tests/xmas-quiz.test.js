@@ -34,3 +34,10 @@ test('câu toán đúng', () => {
     assert.ok(Number.isInteger(n) && n >= 0 && n <= 10, x.id);
   }
 });
+
+test('Santa của game cười "Hô hô hô"; không câu nào nhắc Kuromi', () => {
+  const q = quiz(), by = id => q.find(x => x.id === id);
+  assert.equal(by('xq008').c[by('xq008').a], 'Hô hô hô');
+  assert.ok(!q.some(x => /Kuromi/i.test(x.q + x.c.join(' '))));
+  assert.equal(by('xq052').t, 'color');
+});

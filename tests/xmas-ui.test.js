@@ -175,3 +175,55 @@ test('thanh việc có nút đi tới từng nhân vật; vào làng đứng g�
   const near = Object.values(JSON.parse(g.get('JSON.stringify(XMAS_MAP.npcs)'))).some(n => Math.hypot(n.x - p.x, n.z - p.z) < 5);
   assert.ok(near, JSON.stringify(p));
 });
+
+test('dựng làng quá lâu thì báo "Làng đang ngủ", bản dựng về muộn tự giải phóng', async () => {
+  const g = loadGame(FILES, { pre: PRE, storage: { be_vui_device_v1: 'A', be_vui_hoc_toan_v1: JSON.stringify({ name: 'Mai', voice: false, sfx: false, music: false }) } });
+  g.run(`var __late,__disposed=0;XMAS_BUILD_MS=20;w3Supported=()=>true;
+    w3Create=()=>new Promise(r=>{__late=r});xmasVillage()`);
+  assert.match(g.get('app.innerHTML'), /xwait/);
+  assert.match(g.get('app.innerHTML'), /class="back"/, 'nút ⬅️ có ngay trong lúc chờ');
+  await tick(60);
+  assert.match(g.get('app.innerHTML'), /xfail/);
+  g.run('__late({dispose(){__disposed++}})');
+  await tick();
+  assert.equal(g.get('__disposed'), 1);
+  assert.equal(g.get('xmasWorld'), null);
+});
+
+test('đồ lỗi nạp: bỏ chỗ giữ để sinh lại, không lỗi chưa bắt', async () => {
+  const g = setup();
+  const plan = JSON.parse(g.get('JSON.stringify(xmasPlan(xmasState().day))'));
+  g.run(`var __warn=0;console={warn(){__warn++}};xmasReady=true;xmasQuestDay=xmasCurPlan().day;
+    xmasWorld.pickup=()=>({remove(){}});xmasWorld.model=()=>Promise.reject(new Error('404'));xmasSpawn()`);
+  assert.equal(g.get('Object.keys(xmasPicks).length'), 3);
+  await tick();
+  assert.equal(g.get('Object.keys(xmasPicks).length'), 0);
+  assert.equal(g.get('__warn'), 3);
+  /* lần sau sinh lại được */
+  g.run(`xmasWorld.model=()=>Promise.resolve({});xmasSpawn()`);
+  await tick();
+  assert.equal(g.get('Object.keys(xmasPicks).length'), 3);
+  assert.ok(plan.spots.length === 3);
+});
+
+test('nhãn nhân vật giao việc: ❗ khi chưa nhận, món đồ khi đang đi tìm; đủ 3 món Kuromi nhắc quay lại', async () => {
+  const g = setup();
+  const plan = JSON.parse(g.get('JSON.stringify(xmasPlan(xmasState().day))'));
+  for (const npc of Object.keys(plan.quiz)) {
+    g.run(`xmasTalk('${npc}')`);
+    for (let k = 0; k < 3; k++) { g.run('xmasChoose(xmasSess.qs[xmasSess.i].correct)'); await tick(); }
+    g.run('xmasClose()');
+  }
+  const icon = g.get('xmasItem().icon');
+  g.run(`xmasNpcH={};XMAS_NPCS.forEach(p=>xmasNpcH[p.id]={setMark(t){__marks[p.id]=t}});xmasMarks()`);
+  assert.equal(g.get(`__marks['${plan.quest}']`), '❗');
+  g.run('xmasTalk(' + JSON.stringify(plan.quest) + ');xmasAccept()');
+  assert.equal(g.get(`__marks['${plan.quest}']`), icon, 'đang tìm: hiện món đồ');
+  g.run(`document.querySelector('#mbub').textContent='';var __emo=null;xmasFound(${plan.spots[0]});xmasFound(${plan.spots[1]})`);
+  assert.equal(g.get(`__marks['${plan.quest}']`), icon);
+  assert.doesNotMatch(g.get("document.querySelector('#mbub').textContent"), /Đủ rồi/);
+  g.run(`xmasFound(${plan.spots[2]})`);
+  const name = g.get(`xmasNpc('${plan.quest}').name`);
+  assert.equal(g.get("document.querySelector('#mbub').textContent"), `Đủ rồi! Mang về cho ${name} nha!`);
+  assert.equal(g.get(`__marks['${plan.quest}']`), icon);
+});
