@@ -93,6 +93,7 @@ function w3Santa(THREE) {
 async function w3Create(canvas, opts) {
   const { THREE, GLTFLoader } = await w3Load();
   const bound = opts.bound, base = opts.base || '';
+  canvas.style.touchAction = 'none';   // iOS: chạm đúp không phóng to trang
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   const scene = new THREE.Scene(), sky = new THREE.Color(0xa9d2f2);
@@ -153,12 +154,14 @@ async function w3Create(canvas, opts) {
   const world = {
     THREE, scene, camera, renderer, obstacles,
     async model(name, o = {}) {
-      const obj = place((await load(name)).clone(true), o);
+      const src = await load(name); if (dead) return null;
+      const obj = place(src.clone(true), o);
       solidAt(o.x || 0, o.z || 0, o.solid || 0); return obj;
     },
     /* cây, đá lặp lại: InstancedMesh cho mỗi mesh trong model */
     async instances(name, list) {
-      const src = await load(name), grp = new THREE.Group(), m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), up = new THREE.Vector3(0, 1, 0);
+      const src = await load(name); if (dead) return null;
+      const grp = new THREE.Group(), m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), up = new THREE.Vector3(0, 1, 0);
       src.updateMatrixWorld(true);
       src.traverse(mesh => {
         if (!mesh.isMesh) return;
@@ -218,7 +221,7 @@ async function w3Create(canvas, opts) {
       blob.rotation.x = -Math.PI / 2; blob.position.y = .015; blob.scale.set(1, .6, 1);
       const root = new THREE.Group(); root.position.set(x, 0, z); root.add(blob, mesh); scene.add(root);
       player = { x, z, root, mesh, face: 1,
-        setSrc(s) { new THREE.TextureLoader().load(s, nt => { nt.colorSpace = THREE.SRGBColorSpace; const old = mesh.material.map; mesh.material.map = nt; mesh.material.needsUpdate = true; old.dispose(); }); } };
+        setSrc(s) { new THREE.TextureLoader().load(s, nt => { if (dead) { nt.dispose(); return; } nt.colorSpace = THREE.SRGBColorSpace; const old = mesh.material.map; mesh.material.map = nt; mesh.material.needsUpdate = true; old.dispose(); }); } };
       snapCamera(); return player;
     },
     onTap(cb) { tapCb = cb; },

@@ -13,8 +13,9 @@ const XMAS_ITEMS=[
   {id:'flake',model:'snowflake-a',name:'bông tuyết',icon:'❄️'},
   {id:'wreath',model:'wreath-decorated',name:'vòng nguyệt quế',icon:'🎀'}
 ];
-/* 14 chỗ giấu: tạm đặt trên vòng tròn bán kính 8 (toạ độ chốt ở Task 6) */
-const XMAS_SPOTS=Array.from({length:14},(_,i)=>({x:+(8*Math.cos(i/14*Math.PI*2)).toFixed(2),z:+(8*Math.sin(i/14*Math.PI*2)).toFixed(2)}));
+/* 14 chỗ giấu, khớp bố cục XMAS_MAP trong js/xmas-ui.js: ở chỗ trống, không nằm sau nhà hay cây (camera nhìn từ phía nam) */
+const XMAS_SPOTS=[{x:-6,z:4},{x:6,z:3},{x:-9,z:-5},{x:9,z:-6},{x:-19,z:5},{x:20,z:3},{x:-5,z:12},
+  {x:12,z:9},{x:-12,z:10},{x:-6,z:-10},{x:7,z:-11},{x:-14,z:-8},{x:15,z:-7},{x:0,z:13}];
 
 /* mulberry32: bộ số ngẫu nhiên tất định theo hạt */
 function xmasRng(seed){
