@@ -133,3 +133,17 @@ test('chore: bỏ qua mục extra/log hỏng thay vì ném lỗi', () => {
   const r = merge({ chore:bad }, { chore:{ log:{}, extra:[], cnt:{} } }).chore;
   assert.deepEqual(Object.keys(r.log), ['b']); assert.deepEqual(r.extra.map(e => e.id), ['x']);
 });
+
+test('xmas cùng ngày hợp việc và đồ', () => {
+  const r = merge({ xmas:{ day:'2026-12-24', done:['santa'], found:[1], bonus:false } },
+                  { xmas:{ day:'2026-12-24', done:['snowman'], found:[1,4], bonus:true } });
+  assert.deepEqual(r.xmas, { day:'2026-12-24', done:['santa','snowman'], found:[1,4], bonus:true });
+});
+test('xmas khác ngày lấy ngày mới hơn', () => {
+  const r = merge({ xmas:{ day:'2026-12-9', done:['santa'], found:[1], bonus:true } },
+                  { xmas:{ day:'2026-12-10', done:['reindeer'], found:[2], bonus:false } });
+  assert.equal(r.xmas.day, '2026-12-10'); assert.deepEqual(r.xmas.done, ['reindeer']); assert.equal(r.xmas.bonus, false);
+});
+test('bản lưu cũ không có xmas', () => {
+  assert.deepEqual(merge({}, {}).xmas, { day:'', done:[], found:[], bonus:false });
+});
