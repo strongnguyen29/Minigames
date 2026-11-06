@@ -19,7 +19,14 @@ const RADIO=[
   ]},
   {id:'story',icon:'📖',name:'Câu chuyện',items:[
     ['stories/tho-con-va-cu-ca-rot.m4a','Thỏ con và củ cà rốt',0,'🥕'],
-    ['stories/ngoi-sao-nho-di-lac.m4a','Ngôi sao nhỏ đi lạc',8,'🌟']
+    ['stories/ngoi-sao-nho-di-lac.m4a','Ngôi sao nhỏ đi lạc',8,'🌟'],
+    ['stories/tam-cam.mp3','Tấm Cám',10,'👘'],
+    ['stories/nang-tien-trong-ong-tre.mp3','Nàng tiên trong ống tre',10,'🎋'],
+    ['stories/su-tich-hoa-hong.mp3','Sự tích hoa hồng',10,'🌹'],
+    ['stories/bay-canh-hoa-vang.mp3','Bảy cánh hoa vàng',10,'🌼'],
+    ['stories/nang-cong-chua-tham-lam.mp3','Nàng công chúa tham lam',12,'👑'],
+    ['stories/mui-dai.mp3','Mũi dài',12,'👃'],
+    ['stories/day-chuyen-that-day-chuyen-gia.mp3','Dây chuyền thật, dây chuyền giả',12,'📿']
   ]}
 ];
 /* id = đường dẫn file bỏ tên miền và đuôi (giữ nguyên khi chuyển file sang CDN) */
