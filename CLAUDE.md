@@ -43,6 +43,8 @@ There is no build step, bundler, linter or framework.
 
 **Kuromi chat (`js/chat.js`, `js/chat-ui.js`, `js/live.js`).** Gemini API (Live websocket with native audio in `live.js`); the user's Gemini key is stored in localStorage (`be_vui_gemini_key_v1`), not in the repo. Daily free question quota per device, extra questions bought with stars.
 
+**3D village (`js/world3d.js`, `js/xmas-quiz.js`, `js/xmas.js`, `js/xmas-ui.js`).** `world3d.js` is the shared 3D core (three.js 0.170.0 via the import map in `index.html`, loaded only when entering a map; falls back to a "Làng đang ngủ" screen when WebGL/CDN fails). `xmas*.js` hold the Christmas village logic, daily quiz plan and UI; its progress is `S.xmas`, merged by `mergeXmas` in `js/merge.js`. Models are the Kenney Holiday Kit (CC0) in `models/holiday/`. Lines can use a per-group ElevenLabs voice: `LINE_VOICES` in `js/lines.js` → `voice` column in `script.csv`.
+
 **Shop & chores.** `js/shop.js` holds the fashion catalog `SHOP` (images under `images/shop-items/fashion/`); `js/chores.js` (logic, `S.chore`) + `js/chores-ui.js` (screens, parent lock).
 
 ## Testing

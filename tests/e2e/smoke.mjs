@@ -65,6 +65,22 @@ async function run(browser, url, [name, w, h]) {
     check(await pg.title() === 'Vương Quốc Vui Vẻ', `${name}: tên app (title) chưa đổi`);
     await noHScroll(pg, `${name} trang chủ`); await shot(pg, `${name}-03-home`);
   });
+  await step('làng giáng sinh', async () => {
+    await pg.locator('.hgrid .gc', { hasText: 'Làng Giáng Sinh' }).click();
+    await pg.waitForSelector('#xgo'); await pg.waitForTimeout(500);
+    await notCovered(pg, '#xgo', `${name} làng chọn đồ`); await noHScroll(pg, `${name} làng chọn đồ`);
+    await shot(pg, `${name}-xmas-pick`);
+    await pg.locator('#xgo').click();
+    await pg.waitForSelector('.xmas canvas, .xfail', { timeout: 20000 }); await pg.waitForTimeout(1500);
+    await shot(pg, `${name}-xmas-village`);
+    if (await pg.locator('.xmas canvas').count()) {
+      await pg.evaluate(() => xmasTalk(Object.keys(xmasPlan(dayStr(new Date())).quiz)[0]));
+      await pg.waitForSelector('#xdlg .ch'); await pg.waitForTimeout(500);
+      await notCovered(pg, '#xdlg .ch', `${name} đố trong làng`); await noHScroll(pg, `${name} đố trong làng`);
+      await shot(pg, `${name}-xmas-quiz`);
+    } else fails.push(`${name}: làng 3D không dựng được (hiện .xfail)`);
+    await tap(pg, '.ttl .back'); await pg.waitForSelector('.hgrid');
+  });
   await step('màn chơi', async () => {
     await pg.locator('.hgrid .gc').nth(2).click();            // Gộp số
     await pg.waitForSelector('.lvn'); await pg.waitForTimeout(600);
@@ -239,12 +255,30 @@ async function oldData(browser, url) {
   await pg.close();
 }
 
+/* Ép hỏng WebGL: vào làng phải thấy màn dự phòng .xfail, không lỗi console, nút về nhà vẫn chạy */
+async function noWebgl(browser, url) {
+  const saved = { name: 'Mai', avatar: '🐱', stars: 3 };
+  const { pg, errs } = await open(browser, url, 1024, 768, saved, 'HTMLCanvasElement.prototype.getContext=function(){return null}');
+  try {
+    await pg.waitForSelector('.splash.ready .start', { timeout: 10000 }); await pg.locator('.splash .start').click();
+    await pg.waitForSelector('.hgrid'); await pg.evaluate(() => { S.voice = false; save(); });
+    await pg.locator('.hgrid .gc', { hasText: 'Làng Giáng Sinh' }).click();
+    await pg.waitForSelector('#xgo'); await pg.locator('#xgo').click();
+    await pg.waitForSelector('.xfail', { timeout: 20000 });
+    await noHScroll(pg, 'làng không WebGL'); await shot(pg, '1024x768-xmas-nowebgl');
+    await tap(pg, '.ttl .back'); await pg.waitForSelector('.hgrid');
+  } catch (e) { fails.push('làng không WebGL: ' + e.message.split('\n')[0]); }
+  errs.forEach(e => fails.push(`làng không WebGL, lỗi console: ${e}`));
+  await pg.close();
+}
+
 const { srv, url } = await serve();
 const browser = await chromium.launch({ channel: 'chrome' });
 for (const v of VIEWS) await run(browser, url, v);
 await oldData(browser, url);
 for (const v of [VIEWS[0], VIEWS[2]]) await restore(browser, url, v);
 await cloudDown(browser, url);
+await noWebgl(browser, url);
 await browser.close(); srv.close();
 if (fails.length) { console.log('THẤT BẠI:\n- ' + fails.join('\n- ')); process.exit(1); }
 console.log(`ĐẠT: ${VIEWS.length} khung màn hình + dữ liệu cũ, ảnh ở tests/e2e/shots/`);
