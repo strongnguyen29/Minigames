@@ -2,7 +2,7 @@ const test = require('node:test'), assert = require('node:assert/strict');
 const { loadGame } = require('./helpers/load');
 const FILES = ['js/core.js','js/merge.js','js/questions.js','js/rewards.js','js/lines.js','audio/voice/manifest.js','js/voice.js',
   'js/music.js','js/scene.js','js/mascot.js','js/shop.js','js/radio.js','js/chat.js','js/chat-ui.js','js/chores.js','js/chores-ui.js',
-  'js/sync.js','js/ui.js','js/xmas-quiz.js','js/xmas.js','js/world3d.js','js/xmas-ui.js'];
+  'js/sync.js','js/ui.js','js/xmas-quiz.js','js/village.js','js/xmas.js','js/world3d.js','js/xmas-ui.js'];
 const PRE = 'var setInterval=()=>1,clearInterval=()=>{};var FIREBASE_CONFIG=null;';
 const tick = (ms = 5) => new Promise(r => setTimeout(r, ms));
 

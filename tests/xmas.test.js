@@ -1,6 +1,6 @@
 const test = require('node:test'), assert = require('node:assert/strict');
 const { loadGame } = require('./helpers/load');
-const FILES = ['js/core.js','js/merge.js','js/shop.js','js/xmas-quiz.js','js/xmas.js'];
+const FILES = ['js/core.js','js/merge.js','js/shop.js','js/xmas-quiz.js','js/village.js','js/xmas.js'];
 const load = opts => loadGame(FILES, opts);
 const plain = x => JSON.parse(JSON.stringify(x));
 const NPCS = ['santa','snowman','reindeer','nutcracker'];
@@ -121,4 +121,10 @@ test('localStorage hỏng vẫn chạy', () => {
   g.run('localStorage.getItem=()=>{throw 1}; localStorage.setItem=()=>{throw 1}');
   assert.equal(g.get('xmasOutfit().id'), 'default');
   g.run("xmasSetOutfit('fashion/pink-dress')");
+});
+
+test('kế hoạch Noel không đổi sau khi tách code chung', () => {
+  const g = load();
+  const s = JSON.stringify(['2026-12-24','2027-2-6','2027-7-1'].map(d => g.get(`xmasPlan('${d}')`)));
+  assert.equal(require('crypto').createHash('sha1').update(s).digest('hex'), '5602fffe08c8c9302805609f800f2105c3b9c799');
 });
