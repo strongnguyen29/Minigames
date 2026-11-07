@@ -145,3 +145,17 @@ test('dữ liệu cũ luckyGifts dạng số được đổi thành danh sách m
   const g = loadGame(['js/core.js'], { storage: { be_vui_hoc_toan_v1: JSON.stringify({ name: 'Mai', luckyGifts: 2 }) } });
   assert.deepEqual([...g.get('S.luckyGifts')], [0, 0]);
 });
+
+test('album hình dán: 2 album 112 hình, không trùng; bé đủ album 1 vẫn nhận hình mới từ album 2', async () => {
+  const s = setup(); s.g.run(GIFT_DOM);
+  assert.equal(s.g.get('STICKER_ALBUMS.length'), 2);
+  assert.equal(s.g.get('STICKERS.length'), 112);
+  assert.equal(s.g.get('new Set(STICKERS).size'), 112);
+  s.g.run("S.stickers=[...STICKER_ALBUMS[0].items];S.gifts=1;openGift(()=>{});$('#gb').onclick()");
+  assert.equal(s.g.get('S.stickers.length'), 57);
+  assert.ok(s.g.get('STICKER_ALBUMS[1].items.includes(S.stickers[56])'));
+  s.g.run("album('stickers')");
+  const html = s.g.get('app.innerHTML');
+  assert.ok(html.indexOf('Thế giới kỳ diệu') < html.indexOf('Bạn thú vui nhộn'), 'album chưa đủ hiện trước');
+  assert.ok(html.includes('56/56 ✅'));
+});

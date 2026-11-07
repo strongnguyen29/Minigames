@@ -1,5 +1,13 @@
 /* ============ Phần thưởng ============ */
-const STICKERS=['🐶','🐱','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🐔','🐧','🐦','🦆','🦉','🦄','🐝','🦋','🐢','🐙','🐬','🐳','🦒','🐘','🦖','🚀','🌈','🍭','🏆','🦕','🦈','🦜','🦩','🦔','🐿️','🦥','🦦','🐞','🦀','🐠','🦓','🐊','🐲','🛸','🎠','🍦','🍩','🧁','🍓','🎈','🎸','⚽','🌻'];
+/* Album hình dán: id album không đổi; hình dán lưu bằng chính emoji nên không bao giờ đổi/xoá emoji đã phát hành, chỉ thêm album mới */
+const STICKER_ALBUMS=[
+  {id:'a1',icon:'🐶',name:'Bạn thú vui nhộn',items:['🐶','🐱','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🐔','🐧','🐦','🦆','🦉','🦄','🐝','🦋','🐢','🐙','🐬','🐳','🦒','🐘','🦖','🚀','🌈','🍭','🏆','🦕','🦈','🦜','🦩','🦔','🐿️','🦥','🦦','🐞','🦀','🐠','🦓','🐊','🐲','🛸','🎠','🍦','🍩','🧁','🍓','🎈','🎸','⚽','🌻']},
+  {id:'a2',icon:'🏰',name:'Thế giới kỳ diệu',items:['🐹','🐭','🐺','🐗','🐴','🦌','🐑','🐐','🦘','🦙','🦛','🦏','🐫','🦚',
+    '🦢','🐤','🐣','🦇','🐌','🐛','🐜','🐡','🦑','🦐','🐋','🐟','🐚','🦞',
+    '🍉','🍒','🍑','🍍','🍌','🍇','🥝','🍰','🍪','🍫','🍬','🍿','🥞','🧃',
+    '🧚','👸','🏰','🌙','🔮','🎀','💎','🧸','🪁','🎡','🎢','🚂','⛵','🌸']}
+];
+const STICKERS=STICKER_ALBUMS.flatMap(a=>a.items);
 const AVATARS=['🐱','🐶','🐰','🦊','🐼','🐯','🦄','🐸'];
 /* Đếm số mức theo điều kiện sao (best có dạng 'game-level' → số sao) */
 const bestVals=s=>Object.values(s.best||{});
@@ -22,6 +30,7 @@ const BADGES=[
   {id:'s300',icon:'🌌',name:'Dải ngân hà',desc:'Thu thập 300 sao',ok:s=>s.stars>=300},
   {id:'stk',icon:'👑',name:'Nhà sưu tập',desc:'Có 10 hình dán',ok:s=>s.stickers.length>=10},
   {id:'stk25',icon:'🎨',name:'Album đầy ắp',desc:'Có 25 hình dán',ok:s=>s.stickers.length>=25},
+  {id:'stk80',icon:'📒',name:'Hai cuốn album',desc:'Có 80 hình dán',ok:s=>s.stickers.length>=80},
   {id:'all',icon:'🏆',name:'Vua sưu tập',desc:'Có tất cả hình dán',ok:s=>s.stickers.length>=STICKERS.length},
   {id:'lv3',icon:'🥉',name:'Ba sao đầu tiên',desc:'Đạt 3 sao ở 1 mức',ok:s=>levelsWith(s,3)>=1},
   {id:'lv10',icon:'🥈',name:'Mười mức 3 sao',desc:'Đạt 3 sao ở 10 mức',ok:s=>levelsWith(s,3)>=10},

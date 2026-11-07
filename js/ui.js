@@ -254,13 +254,21 @@ function openGift(done){
     return {pic,title,line};
   }});
 }
+/* Tab hình dán: mỗi album một khối; album chưa đủ xếp lên trước để bé thấy ngay hình còn thiếu */
+function stickerAlbums(){
+  const have=a=>a.items.filter(x=>S.stickers.includes(x)).length;
+  const list=[...STICKER_ALBUMS].sort((a,b)=>(have(a)===a.items.length)-(have(b)===b.items.length));
+  return list.map(a=>{const n=have(a),full=n===a.items.length;
+    return `<div class="salb"><div class="salb-h">${a.icon} ${esc(a.name)} <i>${n}/${a.items.length}${full?' ✅':''}</i></div>
+    <div class="stks">${a.items.map((s,i)=>S.stickers.includes(s)?`<div class="stk enter" style="--d:${(i*.015).toFixed(3)}s">${s}</div>`:`<div class="stk lk">❓</div>`).join('')}</div></div>`}).join('');
+}
 /* Bộ sưu tập: dải hộp quà + 3 tab (hình dán / tủ váy / huy hiệu); tab đang chọn được nhớ */
 let albumTab='stickers';
 function album(tab){
   if(tab)albumTab=tab;
   const mineN=SHOP_ITEMS.filter(x=>owns(x.id)).length;
   const tabs=[['stickers','🐶 Hình dán',`${S.stickers.length}/${STICKERS.length}`],['wardrobe','👗 Tủ váy',`${mineN}/${SHOP_ITEMS.length}`],['badges','🏅 Huy hiệu',`${S.badges.length}/${BADGES.length}`]];
-  const body=albumTab==='stickers'?`<div class="stks">${STICKERS.map((s,i)=>S.stickers.includes(s)?`<div class="stk enter" style="--d:${(i*.015).toFixed(3)}s">${s}</div>`:`<div class="stk lk">❓</div>`).join('')}</div>`
+  const body=albumTab==='stickers'?stickerAlbums()
     :albumTab==='wardrobe'?wardrobe()
     :`<div class="bdgs">${BADGES.map((b,i)=>`<div class="bdg enter ${S.badges.includes(b.id)?'':'lk'}" style="--d:${(i*.03).toFixed(2)}s"><span>${b.icon}</span><div>${esc(b.name)}<small>${esc(b.desc)}</small></div></div>`).join('')}</div>`;
   app.innerHTML=screenHTML({mascot:{emo:'happy',size:'md'},cls:'album',
