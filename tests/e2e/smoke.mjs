@@ -23,6 +23,8 @@ async function open(browser, url, w, h, saved, pre) {
   if (pre) await pg.addInitScript(pre);
   /* kiểm thử không bao giờ chạm Firebase thật: luôn chạy như máy chưa điền cấu hình */
   await pg.route('**/js/firebase-config.js', r => r.fulfill({ contentType: 'application/javascript', body: 'const FIREBASE_CONFIG = null;' }));
+  /* nhạc làng Tết ở R2 chỉ cho CORS github.io/localhost:8080: thay bằng file cục bộ, đỡ chạm mạng */
+  await pg.route('**/*.r2.dev/**', r => r.fulfill({ contentType: 'audio/mp4', headers: { 'Access-Control-Allow-Origin': '*' }, body: fs.readFileSync(path.join(ROOT, 'audio/music/kuromi-lofi.m4a')) }));
   await pg.goto(url);
   return { pg, errs, reqs };
 }
@@ -78,6 +80,22 @@ async function run(browser, url, [name, w, h]) {
       await pg.waitForSelector('#xdlg .ch'); await pg.waitForTimeout(500);
       await notCovered(pg, '#xdlg .ch', `${name} đố trong làng`); await noHScroll(pg, `${name} đố trong làng`);
       await shot(pg, `${name}-xmas-quiz`);
+    } else fails.push(`${name}: làng 3D không dựng được (hiện .xfail)`);
+    await tap(pg, '.ttl .back'); await pg.waitForSelector('.hgrid');
+  });
+  await step('làng tết', async () => {
+    await pg.locator('.hgrid .gc', { hasText: 'Làng Tết' }).click();
+    await pg.waitForSelector('#xgo'); await pg.waitForTimeout(500);
+    await notCovered(pg, '#xgo', `${name} làng chọn đồ`); await noHScroll(pg, `${name} làng chọn đồ`);
+    await shot(pg, `${name}-tet-pick`);
+    await pg.locator('#xgo').click();
+    await pg.waitForSelector('.vil canvas, .xfail', { timeout: 20000 }); await pg.waitForTimeout(1500);
+    await shot(pg, `${name}-tet-village`);
+    if (await pg.locator('.vil canvas').count()) {
+      await pg.evaluate(() => tetTalk(Object.keys(TET_V.plan(dayStr(new Date())).quiz)[0]));
+      await pg.waitForSelector('#xdlg .ch'); await pg.waitForTimeout(500);
+      await notCovered(pg, '#xdlg .ch', `${name} đố trong làng`); await noHScroll(pg, `${name} đố trong làng`);
+      await shot(pg, `${name}-tet-quiz`);
     } else fails.push(`${name}: làng 3D không dựng được (hiện .xfail)`);
     await tap(pg, '.ttl .back'); await pg.waitForSelector('.hgrid');
   });
