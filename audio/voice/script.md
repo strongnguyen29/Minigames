@@ -1,6 +1,6 @@
 # Kịch bản giọng Kuromi
 
-Tổng cộng **372 file**. Đặt tên file đúng cột "File", bỏ vào `audio/voice/`, rồi chạy `npm run voice:manifest`.
+Tổng cộng **400 file**. Đặt tên file đúng cột "File", bỏ vào `audio/voice/`, rồi chạy `npm run voice:manifest`.
 
 ## Điểm chạm: splash
 
@@ -545,6 +545,104 @@ Tổng cộng **372 file**. Đặt tên file đúng cột "File", bỏ vào `aud
 |---|---|---|---|
 | `xmas_nutcracker_thanks_1.mp3` | Cảm ơn bạn! Mình xin đứng nghiêm chào! | Vui sướng | vui vẻ, khích lệ |
 | `xmas_nutcracker_thanks_2.mp3` | Tuyệt vời, lính chì vui quá! | Vui sướng | vui vẻ, khích lệ |
+
+## Điểm chạm: tet_outfit
+
+| File | Câu nói | Cảm xúc | Cách đọc |
+|---|---|---|---|
+| `tet_outfit_1.mp3` | Bạn mặc bộ nào đi chơi Tết nè? | Vui sướng | ấm áp, thân thiện |
+| `tet_outfit_2.mp3` | Chọn một bộ thật xinh rồi đi chợ Tết nha! | Vui sướng | ấm áp, thân thiện |
+
+## Điểm chạm: tet_enter
+
+| File | Câu nói | Cảm xúc | Cách đọc |
+|---|---|---|---|
+| `tet_enter_1.mp3` | Chợ Tết đông vui quá! Đi chào mọi người thôi! | Vui sướng | reo vui, phấn khích |
+| `tet_enter_2.mp3` | Oa, hoa đào hoa mai nở rồi! Mình đi chơi nào! | Vui sướng | reo vui, phấn khích |
+
+## Điểm chạm: tet_quiz
+
+| File | Câu nói | Cảm xúc | Cách đọc |
+|---|---|---|---|
+| `tet_quiz_1.mp3` | Có câu đố ngày Tết kìa! | Trung tính | háo hức, tò mò |
+| `tet_quiz_2.mp3` | Bạn nghe câu đố nhé! | Trung tính | háo hức, tò mò |
+
+## Điểm chạm: tet_quest
+
+| File | Câu nói | Cảm xúc | Cách đọc |
+|---|---|---|---|
+| `tet_quest_1.mp3` | Có nhiệm vụ kìa! | Suy nghĩ | háo hức, tò mò |
+| `tet_quest_2.mp3` | Bạn giúp một tay nha! | Suy nghĩ | háo hức, tò mò |
+
+## Điểm chạm: tet_found
+
+| File | Câu nói | Cảm xúc | Cách đọc |
+|---|---|---|---|
+| `tet_found_1.mp3` | Tìm thấy rồi! | Vỗ tay | reo vui, ngắn gọn |
+| `tet_found_2.mp3` | Hoan hô, bạn tìm được rồi! | Vỗ tay | reo vui, ngắn gọn |
+
+## Điểm chạm: tet_all_done
+
+| File | Câu nói | Cảm xúc | Cách đọc |
+|---|---|---|---|
+| `tet_all_done_1.mp3` | Xong hết rồi! Mai quay lại chơi Tết tiếp nha! | Vỗ tay | reo vui, tự hào |
+| `tet_all_done_2.mp3` | Bạn giỏi quá, mai mình chơi tiếp nhé! | Vỗ tay | reo vui, tự hào |
+
+## Điểm chạm: tet_ongdo_hi
+
+| File | Câu nói | Cảm xúc | Cách đọc |
+|---|---|---|---|
+| `tet_ongdo_hi_1.mp3` | Chào con. Ông đang viết chữ đẹp đây. (giọng Noel) | Vui sướng | hiền từ, chậm rãi |
+| `tet_ongdo_hi_2.mp3` | Con đến xin chữ đầu năm đấy à? (giọng Noel) | Vui sướng | hiền từ, chậm rãi |
+
+## Điểm chạm: tet_ongdo_thanks
+
+| File | Câu nói | Cảm xúc | Cách đọc |
+|---|---|---|---|
+| `tet_ongdo_thanks_1.mp3` | Ông cảm ơn con. Ông cho con chữ Phúc nhé! (giọng Noel) | Vui sướng | hiền từ, chậm rãi |
+| `tet_ongdo_thanks_2.mp3` | Con ngoan lắm. Chúc con học giỏi, viết chữ đẹp! (giọng Noel) | Vui sướng | hiền từ, chậm rãi |
+
+## Điểm chạm: tet_seller_hi
+
+| File | Câu nói | Cảm xúc | Cách đọc |
+|---|---|---|---|
+| `tet_seller_hi_1.mp3` | Chào con! Con xem hàng Tết với cô nè! | Vui sướng | niềm nở, mời chào |
+| `tet_seller_hi_2.mp3` | Mứt Tết thơm lắm, con ghé xem nha! | Vui sướng | niềm nở, mời chào |
+
+## Điểm chạm: tet_seller_thanks
+
+| File | Câu nói | Cảm xúc | Cách đọc |
+|---|---|---|---|
+| `tet_seller_thanks_1.mp3` | Cô cảm ơn con nha! Chúc con năm mới vui! | Vui sướng | niềm nở, vui vẻ |
+| `tet_seller_thanks_2.mp3` | Con giỏi quá! Cô cảm ơn con nhiều nha! | Vui sướng | niềm nở, vui vẻ |
+
+## Điểm chạm: tet_lion_hi
+
+| File | Câu nói | Cảm xúc | Cách đọc |
+|---|---|---|---|
+| `tet_lion_hi_1.mp3` | Tùng tùng cắc! Chú Lân đến đây! | Vui sướng | sôi nổi, rộn ràng |
+| `tet_lion_hi_2.mp3` | Tùng tùng cắc! Mình cùng nhảy nào! | Vui sướng | sôi nổi, rộn ràng |
+
+## Điểm chạm: tet_lion_thanks
+
+| File | Câu nói | Cảm xúc | Cách đọc |
+|---|---|---|---|
+| `tet_lion_thanks_1.mp3` | Tùng tùng cắc! Cảm ơn bạn nhé! | Vỗ tay | sôi nổi, rộn ràng |
+| `tet_lion_thanks_2.mp3` | Hoan hô! Chú Lân vui quá, tùng tùng cắc! | Vỗ tay | sôi nổi, rộn ràng |
+
+## Điểm chạm: tet_goat_hi
+
+| File | Câu nói | Cảm xúc | Cách đọc |
+|---|---|---|---|
+| `tet_goat_hi_1.mp3` | Be be! Chào bạn, mình là Dê con! | Vui sướng | hồn nhiên, nhí nhảnh |
+| `tet_goat_hi_2.mp3` | Be be! Bạn chơi với mình nha! | Vui sướng | hồn nhiên, nhí nhảnh |
+
+## Điểm chạm: tet_goat_thanks
+
+| File | Câu nói | Cảm xúc | Cách đọc |
+|---|---|---|---|
+| `tet_goat_thanks_1.mp3` | Be be! Cảm ơn bạn nhiều nha! | Vui sướng | hồn nhiên, reo vui |
+| `tet_goat_thanks_2.mp3` | Be be! Bạn tốt quá đi! | Vui sướng | hồn nhiên, reo vui |
 
 ## Mẩu ghép đề bài
 
