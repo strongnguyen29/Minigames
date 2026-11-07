@@ -251,8 +251,9 @@ function vilTalk(id){
     vilSpeak(()=>vilNpcLine(`${pre}_${id}_thanks`));
   }else if(st==='quiz')vilQuizOpen(id,plan);
   else if(st==='quest'){
-    const n=L.state().found.length,on=vilQuestOn();
-    const ask=on?`Bạn tìm được ${n}/3 ${item.name} rồi, tìm tiếp nha!`:`Tìm giúp tớ 3 ${item.name} ${item.icon} nha!`;
+    const n=L.state().found.length,on=vilQuestOn(),p=vilNpc(id);
+    /* cách xưng hô theo nhân vật (mặc định tớ/bạn): ông đồ, cô bán hàng xưng ông/cô, gọi bé là con */
+    const ask=on?`${p.you||'Bạn'} tìm được ${n}/3 ${item.name} rồi, tìm tiếp nha!`:`Tìm giúp ${p.me||'tớ'} 3 ${item.name} ${item.icon} nha!`;
     vilDlg(id,{body:`<div class="xq">${esc(ask)}<button class="xspk" onclick="voice.text(this.parentNode.firstChild.textContent)">🔊</button></div>`,
       btns:`<button class="btn p-green gloss" id="xok" onclick="vilAccept()">${on?'Đi tìm tiếp!':'Đi tìm!'} ${item.icon}</button>`});
     vilSpeak(()=>vilNpcLine(`${pre}_${id}_hi`),()=>mascotSay(pre+'_quest'),()=>voice.text(ask));

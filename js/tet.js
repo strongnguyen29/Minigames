@@ -2,8 +2,8 @@
 /* Mọi thứ gắn với năm (năm, can chi, linh vật, chữ trên cổng) chỉ nằm ở đây; năm sau đổi chủ đề thì sửa hằng này */
 const TET_YEAR={year:2027,canchi:'Đinh Mùi',animal:'Dê',sign:'Làng Tết 2027'};
 const TET_NPCS=[
-  {id:'ongdo',name:'Ông đồ'},
-  {id:'seller',name:'Cô bán hàng'},
+  {id:'ongdo',name:'Ông đồ',me:'ông',you:'Con'},
+  {id:'seller',name:'Cô bán hàng',me:'cô',you:'Con'},
   {id:'lion',name:'Chú Lân'},
   {id:'goat',name:'Dê con'}
 ];

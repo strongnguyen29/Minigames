@@ -24,7 +24,7 @@ function vilQuizAnswer(sess,idx){
              :{ok:true,hint:false,next:true,done:false};
 }
 
-/* cfg = {id, field, npcs:[{id,name}], items:[{id,...}], spots:[{x,z}], quiz:()=>kho câu, seed}
+/* cfg = {id, field, npcs:[{id,name,me?,you?}] (me/you: cách xưng hô trong lời nhờ tìm đồ, mặc định tớ/Bạn), items:[{id,...}], spots:[{x,z}], quiz:()=>kho câu, seed}
    Luôn đọc S lúc gọi hàm (S bị gán lại khi tải từ mây), không giữ tham chiếu. */
 function makeVillage(cfg){
   const per=3,need=cfg.npcs.length,perDay=(need-1)*per;

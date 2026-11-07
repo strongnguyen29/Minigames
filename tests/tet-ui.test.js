@@ -46,6 +46,18 @@ test('đố trong làng Tết cộng sao vào S.tet', async () => {
   assert.equal(g.get('S.xmas.done.length'), 0);
 });
 
+test('lời nhờ tìm đồ xưng hô theo nhân vật', () => {
+  const g = setup();
+  g.run("vilCfg=TET_UI;vilReady=true;TET_V.status=()=>'quest'");
+  const ask = id => { g.run('vilClose()'); g.run(`tetTalk('${id}')`); return g.get("document.querySelector('#xdlg').innerHTML"); };
+  assert.match(ask('ongdo'), /Tìm giúp ông 3/);
+  assert.match(ask('seller'), /Tìm giúp cô 3/);
+  assert.match(ask('lion'), /Tìm giúp tớ 3/);
+  g.run("vilQuestDay.tet=vilCurPlan().day");
+  assert.match(ask('seller'), /Con tìm được 0\/3/);
+  assert.match(ask('goat'), /Bạn tìm được 0\/3/);
+});
+
 test('chuyển làng không mang trạng thái theo', () => {
   const g = setup();
   g.run('vilCfg=XMAS_UI;vilQuestDay.xmas=xmasState().day;vilPicks={1:"…"};w3Supported=()=>false');

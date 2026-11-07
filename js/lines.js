@@ -161,8 +161,8 @@ const LINES={
   /* nhân vật làng Tết */
   tet_ongdo_hi:L_('tet_ongdo_hi','happy','hiền từ, chậm rãi',['Chào con. Ông đang viết chữ đẹp đây.','Con đến xin chữ đầu năm đấy à?']),
   tet_ongdo_thanks:L_('tet_ongdo_thanks','happy','hiền từ, chậm rãi',['Ông cảm ơn con. Ông cho con chữ Phúc nhé!','Con ngoan lắm. Chúc con học giỏi, viết chữ đẹp!']),
-  tet_seller_hi:L_('tet_seller_hi','happy','niềm nở, mời chào',['Chào bạn! Mời bạn xem hàng Tết nè!','Mứt Tết thơm lắm, bạn ghé xem nha!']),
-  tet_seller_thanks:L_('tet_seller_thanks','happy','niềm nở, vui vẻ',['Cô cảm ơn bạn nha! Chúc bạn năm mới vui!','Bạn giỏi quá! Cô cảm ơn bạn nhiều nha!']),
+  tet_seller_hi:L_('tet_seller_hi','happy','niềm nở, mời chào',['Chào con! Con xem hàng Tết với cô nè!','Mứt Tết thơm lắm, con ghé xem nha!']),
+  tet_seller_thanks:L_('tet_seller_thanks','happy','niềm nở, vui vẻ',['Cô cảm ơn con nha! Chúc con năm mới vui!','Con giỏi quá! Cô cảm ơn con nhiều nha!']),
   tet_lion_hi:L_('tet_lion_hi','happy','sôi nổi, rộn ràng',['Tùng tùng cắc! Chú Lân đến đây!','Tùng tùng cắc! Mình cùng nhảy nào!']),
   tet_lion_thanks:L_('tet_lion_thanks','clap','sôi nổi, rộn ràng',['Tùng tùng cắc! Cảm ơn bạn nhé!','Hoan hô! Chú Lân vui quá, tùng tùng cắc!']),
   tet_goat_hi:L_('tet_goat_hi','happy','hồn nhiên, nhí nhảnh',['Be be! Chào bạn, mình là Dê con!','Be be! Bạn chơi với mình nha!']),
