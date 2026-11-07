@@ -150,7 +150,24 @@ const LINES={
   xmas_reindeer_hi:L_('xmas_reindeer_hi','happy','hào hứng, rõ ràng',['Chào bạn! Mình thích chạy lắm!','Đi nào, mình chạy thi nhé!']),
   xmas_reindeer_thanks:L_('xmas_reindeer_thanks','happy','reo vui',['Cảm ơn bạn! Mình chạy vèo vèo luôn!','Hoan hô, mình vui quá!']),
   xmas_nutcracker_hi:L_('xmas_nutcracker_hi','neutral','hào hứng, rõ ràng',['Lính chì xin chào bạn!','Nghiêm! Hôm nay mình vui lắm!']),
-  xmas_nutcracker_thanks:L_('xmas_nutcracker_thanks','happy','vui vẻ, khích lệ',['Cảm ơn bạn! Mình xin đứng nghiêm chào!','Tuyệt vời, lính chì vui quá!'])
+  xmas_nutcracker_thanks:L_('xmas_nutcracker_thanks','happy','vui vẻ, khích lệ',['Cảm ơn bạn! Mình xin đứng nghiêm chào!','Tuyệt vời, lính chì vui quá!']),
+  /* Làng Tết 3D */
+  tet_outfit:L_('tet_outfit','happy','ấm áp, thân thiện',['Bạn mặc bộ nào đi chơi Tết nè?','Chọn một bộ thật xinh rồi đi chợ Tết nha!']),
+  tet_enter:L_('tet_enter','happy','reo vui, phấn khích',['Chợ Tết đông vui quá! Đi chào mọi người thôi!','Oa, hoa đào hoa mai nở rồi! Mình đi chơi nào!']),
+  tet_quiz:L_('tet_quiz','neutral','háo hức, tò mò',['Có câu đố ngày Tết kìa!','Bạn nghe câu đố nhé!']),
+  tet_quest:L_('tet_quest','think','háo hức, tò mò',['Có nhiệm vụ kìa!','Bạn giúp một tay nha!']),
+  tet_found:L_('tet_found','clap','reo vui, ngắn gọn',['Tìm thấy rồi!','Hoan hô, bạn tìm được rồi!']),
+  tet_all_done:L_('tet_all_done','clap','reo vui, tự hào',['Xong hết rồi! Mai quay lại chơi Tết tiếp nha!','Bạn giỏi quá, mai mình chơi tiếp nhé!']),
+  /* nhân vật làng Tết */
+  tet_ongdo_hi:L_('tet_ongdo_hi','happy','hiền từ, chậm rãi',['Chào con. Ông đang viết chữ đẹp đây.','Con đến xin chữ đầu năm đấy à?']),
+  tet_ongdo_thanks:L_('tet_ongdo_thanks','happy','hiền từ, chậm rãi',['Ông cảm ơn con. Ông cho con chữ Phúc nhé!','Con ngoan lắm. Chúc con học giỏi, viết chữ đẹp!']),
+  tet_seller_hi:L_('tet_seller_hi','happy','niềm nở, mời chào',['Chào bạn! Mời bạn xem hàng Tết nè!','Mứt Tết thơm lắm, bạn ghé xem nha!']),
+  tet_seller_thanks:L_('tet_seller_thanks','happy','niềm nở, vui vẻ',['Cô cảm ơn bạn nha! Chúc bạn năm mới vui!','Bạn giỏi quá! Cô cảm ơn bạn nhiều nha!']),
+  tet_lion_hi:L_('tet_lion_hi','happy','sôi nổi, rộn ràng',['Tùng tùng cắc! Chú Lân đến đây!','Tùng tùng cắc! Mình cùng nhảy nào!']),
+  tet_lion_thanks:L_('tet_lion_thanks','clap','sôi nổi, rộn ràng',['Tùng tùng cắc! Cảm ơn bạn nhé!','Hoan hô! Chú Lân vui quá, tùng tùng cắc!']),
+  tet_goat_hi:L_('tet_goat_hi','happy','hồn nhiên, nhí nhảnh',['Be be! Chào bạn, mình là Dê con!','Be be! Bạn chơi với mình nha!']),
+  tet_goat_thanks:L_('tet_goat_thanks','happy','hồn nhiên, reo vui',['Be be! Cảm ơn bạn nhiều nha!','Be be! Bạn tốt quá đi!'])
 };
 /* Nhóm lời dùng giọng riêng (ElevenLabs voice id) thay cho giọng Kuromi; key là tên nhóm */
-const LINE_VOICES={xmas_santa_hi:'1wg2wOjdEWKA7yQD8Kca',xmas_santa_thanks:'1wg2wOjdEWKA7yQD8Kca'};
+const LINE_VOICES={xmas_santa_hi:'1wg2wOjdEWKA7yQD8Kca',xmas_santa_thanks:'1wg2wOjdEWKA7yQD8Kca',
+  tet_ongdo_hi:'1wg2wOjdEWKA7yQD8Kca',tet_ongdo_thanks:'1wg2wOjdEWKA7yQD8Kca'};
