@@ -24,6 +24,7 @@ test('kho câu Tết hợp lệ', () => {
     assert.ok(x.q.length <= 80, x.id);
     assert.ok(x.q.split(/\s+/).length <= 15, x.id);
     assert.ok(TOPICS.includes(x.t), x.id);
+    x.c.forEach(c => assert.ok(c.length <= 25, x.id + ' ' + c));
   }
   for (const t of TOPICS) assert.ok(q.filter(x => x.t === t).length >= 5, t);
 });
