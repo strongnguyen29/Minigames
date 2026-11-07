@@ -636,3 +636,4 @@ h2{text-align:center;margin:8px 0 14px}
   .xchs.n4{grid-template-columns:repeat(2,minmax(0,1fr))}
   .vil #tt{top:42%}
 }
+.update-banner{position:fixed;left:50%;bottom:calc(var(--u)*2);transform:translateX(-50%);z-index:9999;border:0;border-radius:calc(var(--u)*2);padding:calc(var(--u)*1.2) calc(var(--u)*2.4);font:inherit;font-weight:800;font-size:calc(var(--u)*2.2);background:linear-gradient(90deg,#fff3b0,#ffe4f1);box-shadow:0 calc(var(--u)*.4) 0 #f0c9a0;cursor:pointer}

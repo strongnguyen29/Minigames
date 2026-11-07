@@ -25,6 +25,8 @@ npm run voice:manifest    # rescan audio/voice/*.mp3 → audio/voice/manifest.js
 
 There is no build step, bundler, linter or framework.
 
+**Cache trình duyệt:** sau khi sửa bất kỳ `js/`/`css/` nào phải chạy `npm run stamp` (gắn `?v=<hash>` vào script/css trong `index.html`, ghi `<meta name="app-version">` + `version.json`) rồi commit; `tests/update.test.js` fail nếu quên. `js/update.js` so meta với `version.json` và hiện nút "Có bản mới" cho máy đang mở app.
+
 ## Architecture
 
 **Plain global scripts, order matters.** `index.html` loads `js/*.js` as classic `<script>` tags that share one global scope (no modules, no imports). Later files call functions defined in earlier ones; optional dependencies are guarded with `typeof x!=='undefined'` / `typeof fn==='function'` so files can be loaded in subsets. When adding a file, insert it in the right place in `index.html` *and* in the `FILES` arrays of any tests that need it. `js/main.js` is the entry point (`cloud.init()` + splash → welcome/home).
