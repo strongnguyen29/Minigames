@@ -107,3 +107,6 @@ const TET_UI={logic:TET_V,
 const tetHome=()=>vilHome(TET_UI);
 const tetVillage=()=>vilVillage(TET_UI);
 const tetTalk=id=>vilTalk(id);
+
+/* nhạc nền riêng của làng Tết */
+if(typeof music!=='undefined'&&typeof radioUrl==='function')music.theme('vil-tet',radioUrl({file:'songs/xuan-sum-vay.mp3'}));
