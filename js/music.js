@@ -12,7 +12,7 @@ const music=(()=>{
   function audio(){
     if(el)return el;
     el=new Audio();el.loop=true;
-    el.addEventListener('error',()=>{if(cur!==MUSIC_SRC){bad.add(cur);play(MUSIC_SRC)}});
+    el.addEventListener('error',()=>{if(cur!==MUSIC_SRC&&el.src===cur){bad.add(cur);play(MUSIC_SRC);sync()}});
     if(location.protocol==='file:'){el.src=cur;el.volume=MUSIC_VOL;return el}
     /* bài nằm ở CDN khác nguồn: cần crossOrigin (đặt trước src) thì GainNode mới không ra im lặng */
     el.crossOrigin='anonymous';el.src=cur;

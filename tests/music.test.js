@@ -43,9 +43,8 @@ test('màn có nhạc riêng phát bài của màn', () => {
 
 test('màn chơi vẫn tắt nhạc', () => {
   const { g, log } = setup();
-  g.run(`music.scene('play')`);
-  assert.ok(log.pauses > 0 || log.plays === 0);
   g.run(`music.scene('home')`);
+  assert.ok(log.plays > 0);
   const p = log.pauses;
   g.run(`music.scene('play')`);
   assert.ok(log.pauses > p);
@@ -54,10 +53,22 @@ test('màn chơi vẫn tắt nhạc', () => {
 test('tải bài riêng lỗi thì quay về nhạc chung', () => {
   const { g, log } = setup();
   g.run(`music.scene('vil vil-tet')`);
+  const pl = log.plays;
   log.el.fire('error');
+  assert.ok(log.plays > pl, 'lofi phải phát tiếp sau khi bài riêng lỗi');
   assert.match(g.get('music.src()'), /kuromi-lofi\.m4a$/);
   g.run(`music.scene('vil-pick vil-tet')`);
   assert.match(g.get('music.src()'), /kuromi-lofi\.m4a$/);
+});
+
+test('lỗi của bài cũ (src đã đổi) không đánh dấu bài riêng là hỏng', () => {
+  const { g, log } = setup();
+  g.run(`music.scene('vil vil-tet')`);
+  log.el._src = 'audio/music/other.m4a';
+  log.el.fire('error');
+  g.run(`music.scene('home')`);
+  g.run(`music.scene('vil vil-tet')`);
+  assert.equal(g.get('music.src()'), TET);
 });
 
 test('tắt nhạc thì không phát bài riêng', () => {
