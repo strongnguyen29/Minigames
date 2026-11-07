@@ -15,8 +15,8 @@ const TET_ITEMS=[
   {id:'lantern',name:'chiếc đèn lồng',icon:'🏮'},
   {id:'mai',name:'cành mai',icon:'🌼'}
 ];
-/* 14 chỗ giấu (toạ độ tạm, chỉnh lại cho khớp bố cục bản đồ Tết; luôn giữ đúng 14 điểm) */
-const TET_SPOTS=[{x:-6,z:4},{x:6,z:3},{x:-9,z:-5},{x:9,z:-6},{x:-18,z:5},{x:18,z:3},{x:-5,z:12},
-  {x:12,z:9},{x:-12,z:10},{x:-6,z:-10},{x:7,z:-11},{x:-14,z:-8},{x:15,z:-7},{x:0,z:13}];
+/* 14 chỗ giấu ở chỗ trống, nhìn thấy từ camera (không nằm sau nhà, sạp hay sân khấu), khớp bố cục TET_MAP ở js/tet-ui.js; luôn giữ đúng 14 điểm */
+const TET_SPOTS=[{x:-7.2,z:3.4},{x:7.4,z:3.8},{x:-9.6,z:-6},{x:9.6,z:-6.4},{x:-15.4,z:6.4},{x:15.4,z:5.4},{x:-4.6,z:6.6},
+  {x:11,z:9.4},{x:-11,z:10.2},{x:-3,z:-8.6},{x:4.4,z:-8.8},{x:-12,z:-8.4},{x:20,z:-4.2},{x:5.2,z:12.4}];
 
 const TET_V=makeVillage({id:'tet',field:'tet',npcs:TET_NPCS,items:TET_ITEMS,spots:TET_SPOTS,quiz:()=>TET_QUIZ,seed:20270206});

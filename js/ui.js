@@ -84,7 +84,7 @@ function settings(){
     if(inn){if(!(await cloud.flushNow())&&!confirm(RESET_UNSYNCED_MSG))return;cloud.signOut()}
     cloud.forget();try{localStorage.removeItem(KEY)}catch(e){}newDevice();memFallback=null;S=freshSave();m.remove();go(welcome)};
 }
-/* Trang chủ: 6 trò học + cờ caro, Công chúa chăm ngoan, tiệm công chúa, tiệm âm thanh, bộ sưu tập */
+/* Trang chủ: 6 trò học + cờ caro, hai làng 3D, Công chúa chăm ngoan, tiệm công chúa, tiệm âm thanh, bộ sưu tập */
 const HOME_ORDER=['count','shape','add','split','cmp','pattern'];
 const HOME_COLORS=['p-purple','p-pink','p-blue'];
 function home(){
@@ -97,9 +97,10 @@ function home(){
   const wait=typeof chorePending==='function'?chorePending().length:0;
   cards.push(card(n,'p-dark','⭕','Cờ caro','','caro'));
   if(typeof xmasHome==='function'){const d=xmasProgress().done;cards.push(card(n+1,'p-green','🎄','Làng Giáng Sinh',d===4?'✅':`${d}/4`,'xmasHome'))}
-  if(typeof chores==='function')cards.push(card(n+2,'p-pink','👸','Công chúa chăm ngoan',wait>0?`⏳ ${wait}`:'','chores'));
-  cards.push(card(n+3,'p-pink','👑','Tiệm công chúa','','shop'),card(n+4,'p-blue','🎵','Tiệm âm thanh','','radio'),
-    card(n+5,'p-purple','🎁','Bộ sưu tập',`${S.stickers.length}/${STICKERS.length}`,'album'));
+  if(typeof tetHome==='function'){const d=TET_V.progress().done;cards.push(card(n+2,'p-pink','🧧','Làng Tết',d===4?'✅':`${d}/4`,'tetHome'))}
+  if(typeof chores==='function')cards.push(card(n+3,'p-pink','👸','Công chúa chăm ngoan',wait>0?`⏳ ${wait}`:'','chores'));
+  cards.push(card(n+4,'p-pink','👑','Tiệm công chúa','','shop'),card(n+5,'p-blue','🎵','Tiệm âm thanh','','radio'),
+    card(n+6,'p-purple','🎁','Bộ sưu tập',`${S.stickers.length}/${STICKERS.length}`,'album'));
   app.innerHTML=screenHTML({mascot:{emo:'neutral',size:'lg',extra:chatMicOK()?chatBtnHTML():''},top:topbar(),cls:'home',body:`<div class="hgrid">${cards.join('')}</div>`});
   const fire=S.streak>1?` 🔥 ${S.streak} ngày liên tiếp!`:'';
   if(chatHintDue())mascotSay('talk_hint',{ifIdle:true});
