@@ -49,7 +49,7 @@ const TET_MAP=(()=>{
 
 /* bàn thấp của ông đồ: mặt gỗ, giấy đỏ, nghiên mực (dựng bằng khối, theo bảng màu của kit) */
 function tetDesk(THREE,kit){
-  const g=new THREE.Group(),C=kit.C,mat=c=>new THREE.MeshStandardMaterial({color:c,roughness:.8,flatShading:true});
+  const g=new THREE.Group(),C=kit.C,mat=c=>kit.M(c);
   const box=(w,h,d,c,x,y,z,ry=0)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(c));m.position.set(x,y,z);m.rotation.y=ry;g.add(m)};
   box(1.3,.08,.7,C.wood,0,.4,0);
   for(const x of [-.55,.55])for(const z of [-.25,.25])box(.08,.38,.08,C.woodDk||C.wood,x,.19,z);
@@ -59,7 +59,7 @@ function tetDesk(THREE,kit){
 }
 /* đèn lồng cột: cột gỗ, tay treo, đèn lồng đỏ có chóp vàng */
 function tetPostLantern(THREE,kit){
-  const g=new THREE.Group(),C=kit.C,mat=c=>new THREE.MeshStandardMaterial({color:c,roughness:.8,flatShading:true});
+  const g=new THREE.Group(),C=kit.C,mat=c=>kit.M(c);
   const add=(geo,c,x,y,z,s)=>{const m=new THREE.Mesh(geo,mat(c));m.position.set(x,y,z);if(s)m.scale.set(...s);g.add(m);return m};
   add(new THREE.CylinderGeometry(.05,.07,2.2,6),C.wood,0,1.1,0);
   add(new THREE.BoxGeometry(.5,.05,.05),C.wood,.2,2.1,0);
@@ -78,12 +78,14 @@ const TET_UI={logic:TET_V,
   world:{bound:TET_MAP.bound,base:'models/holiday/',sky:0xbfe3ff,ground:0x9fd36b,particles:'petals'},
   map:TET_MAP,
   around:{x:TET_MARKET.x,z:TET_MARKET.z,r:4.8},   // vòng bao cả chợ Tết, đường đi vòng qua chợ
-  /* cảnh tĩnh: vật lặp từ 3 lần trở lên vẽ bằng InstancedMesh; vật có userData.tick thì cho chạy theo khung hình */
+  /* cảnh tĩnh: vật lặp từ 3 lần trở lên vẽ bằng InstancedMesh; vật có userData.tick thì cho chạy theo khung hình.
+     Mỗi vật dựng xong được gộp mesh tĩnh theo material (w.mergeStatic) cho ít draw call; phần cử động (userData.live) giữ riêng */
   async build(w){
     const T=w.THREE,kit=tetKitOf(w),by={},jobs=[];
     TET_MAP.props.forEach(p=>(by[p.kind]=by[p.kind]||[]).push(p));
-    const make=p=>p.kind==='stall'?kit.stall(p.goods):p.kind==='lanternString'?kit.lanternString(p.len):p.kind==='gate'?kit.gate(TET_YEAR.sign)
-      :p.kind==='desk'?tetDesk(T,kit):p.kind==='postLantern'?tetPostLantern(T,kit):kit[p.kind]();
+    const merge=o=>typeof w.mergeStatic==='function'?w.mergeStatic(o):o;
+    const make=p=>merge(p.kind==='stall'?kit.stall(p.goods):p.kind==='lanternString'?kit.lanternString(p.len):p.kind==='gate'?kit.gate(TET_YEAR.sign)
+      :p.kind==='desk'?tetDesk(T,kit):p.kind==='postLantern'?tetPostLantern(T,kit):kit[p.kind]());
     /* sân chợ lát màu be dưới các sạp, cho chợ nổi lên là chỗ giữa làng */
     const plaza=new T.Mesh(new T.CircleGeometry(1,40),new T.MeshLambertMaterial({color:0xead9a8}));
     plaza.rotation.x=-Math.PI/2;plaza.position.set(TET_MARKET.x,.012,TET_MARKET.z+.6);plaza.scale.set(7,6.2,1);w.scene.add(plaza);
@@ -101,9 +103,9 @@ const TET_UI={logic:TET_V,
     await Promise.all(jobs);
   },
   /* nhân vật Tết đã dựng đúng cỡ (≈ 1.33), không phóng thêm */
-  async npcObj(w,p){const k=tetKitOf(w);return typeof k[p.id]==='function'?k[p.id]():null},
+  async npcObj(w,p){const k=tetKitOf(w),m=o=>typeof w.mergeStatic==='function'?w.mergeStatic(o):o;return typeof k[p.id]==='function'?m(k[p.id]()):null},
   /* đồ để tìm: phóng to cho dễ thấy, cỡ tương đương đồ làng Noel */
-  itemObj:async (w,item)=>{const o=tetKitOf(w).item(item.id);o.scale.setScalar(1.5);return o}};
+  itemObj:async (w,item)=>{let o=tetKitOf(w).item(item.id);if(typeof w.mergeStatic==='function')o=w.mergeStatic(o);o.scale.setScalar(1.5);return o}};
 const tetHome=()=>vilHome(TET_UI);
 const tetVillage=()=>vilVillage(TET_UI);
 const tetTalk=id=>vilTalk(id);

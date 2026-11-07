@@ -33,10 +33,12 @@ function w3Move(pos, target, step, obstacles, bound, radius) {
 }
 
 let _w3lib = null;
-/* Nạp Three.js + GLTFLoader một lần (theo import map trong index.html) */
+/* Nạp Three.js + GLTFLoader một lần (theo import map trong index.html).
+   BufferGeometryUtils (gộp mesh tĩnh) là tuỳ chọn: nạp hỏng thì mergeGeometries = null, làng vẫn chạy như cũ */
 function w3Load() {
-  if (!_w3lib) _w3lib = Promise.all([import('three'), import('three/addons/loaders/GLTFLoader.js')])
-    .then(([THREE, G]) => ({ THREE, GLTFLoader: G.GLTFLoader }))
+  if (!_w3lib) _w3lib = Promise.all([import('three'), import('three/addons/loaders/GLTFLoader.js'),
+    import('three/addons/utils/BufferGeometryUtils.js').catch(() => null)])
+    .then(([THREE, G, U]) => ({ THREE, GLTFLoader: G.GLTFLoader, mergeGeometries: (U && U.mergeGeometries) || null }))
     .catch(e => { _w3lib = null; throw e; });
   return _w3lib;
 }
@@ -94,7 +96,7 @@ function w3Santa(THREE) {
 
 /* Tạo thế giới trên canvas. opts: {bound:{rx,rz}, base:'models/holiday/'} */
 async function w3Create(canvas, opts) {
-  const { THREE, GLTFLoader } = await w3Load();
+  const { THREE, GLTFLoader, mergeGeometries } = await w3Load();
   const bound = opts.bound, base = opts.base || '';
   canvas.style.touchAction = 'none';   // iOS: chạm đúp không phóng to trang
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
@@ -185,6 +187,43 @@ async function w3Create(canvas, opts) {
       list.forEach(it => solidAt(it.x, it.z, it.solid || 0));
       scene.add(grp); return grp;
     },
+    /* Gộp các mesh tĩnh trong root: mỗi material còn một mesh (bớt draw call, hình không đổi). Gọi trước khi đặt root vào cảnh.
+       Nhánh có userData.live (phần cử động theo tick) không gộp vào root mà tự gộp riêng bên trong nó (vẫn cử động nguyên khối). Bỏ qua hitbox, InstancedMesh, mesh nhiều material và mesh bị lật (det<0).
+       Geometry gốc có thể dùng chung (cache của kit) nên không bao giờ bị sửa: clone/toNonIndexed rồi mới áp ma trận.
+       Geometry gộp mang userData.merged; mesh gộp nằm trong cảnh nên dispose() giải phóng qua scene.traverse.
+       Không có mergeGeometries (nạp hỏng, chạy test trong node) thì trả nguyên root. */
+    mergeStatic(root) {
+      if (!mergeGeometries || !root) return root;
+      root.updateMatrixWorld(true);
+      const inv = root.matrixWorld.clone().invert(), by = new Map(), m4 = new THREE.Matrix4(), live = [];
+      (function walk(o) {
+        if (o.userData.live && o !== root) { live.push(o); return; }
+        if (o.isMesh && !o.isInstancedMesh && !o.userData.hit && o.material && !Array.isArray(o.material)) {
+          if (!by.has(o.material)) by.set(o.material, []);
+          by.get(o.material).push(o);
+        }
+        o.children.forEach(walk);
+      })(root);
+      for (const [mat, list] of by) {
+        const use = list.filter(m => m.matrixWorld.determinant() > 0);
+        if (use.length < 2) continue;
+        const parts = use.map(m => {
+          const src = m.geometry, g = src.index ? src.toNonIndexed() : src.clone();
+          for (const k of Object.keys(g.attributes)) if (!['position', 'normal', 'uv'].includes(k)) g.deleteAttribute(k);
+          g.clearGroups(); g.morphAttributes = {};
+          return g.applyMatrix4(m4.multiplyMatrices(inv, m.matrixWorld));
+        });
+        let merged = null;
+        try { merged = mergeGeometries(parts, false); } catch (e) { merged = null; }
+        parts.forEach(g => g.dispose());
+        if (!merged) continue;
+        merged.userData.merged = true;
+        use.forEach(m => m.removeFromParent());
+        root.add(new THREE.Mesh(merged, mat));
+      }
+      live.forEach(o => world.mergeStatic(o));
+      return root;
+    },
     group(obj, { x = 0, z = 0, solid = 0, rotY = 0 } = {}) { place(obj, { x, z, rotY, scale: obj.scale.x }); solidAt(x, z, solid); return obj; },
     npc(id, obj, { x = 0, z = 0, r = .5, rotY = 0 } = {}) {
       const root = new THREE.Group(); root.position.set(x, 0, z); obj.position.set(0, 0, 0); obj.rotation.y = rotY; root.add(obj); scene.add(root);
@@ -216,7 +255,7 @@ async function w3Create(canvas, opts) {
         remove() {
           const i = pickups.indexOf(p); if (i < 0) return;
           pickups.splice(i, 1); scene.remove(root); spark.material.dispose();
-          root.traverse(o => { if (o.userData.hit) o.geometry.dispose(); });
+          root.traverse(o => { if (o.userData.hit || (o.geometry && o.geometry.userData.merged)) o.geometry.dispose(); });
         } };
       pickups.push(p); return p;
     },

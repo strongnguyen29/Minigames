@@ -1,6 +1,7 @@
 /* Bộ model làng Tết dựng bằng khối cơ bản của Three.js (chibi, flatShading).
    tetKit(THREE) tạo MỘT bộ material + geometry dùng chung cho lần vào làng đó (world giải phóng khi rời làng,
    nên không giữ cache toàn cục). Mỗi hàm trả THREE.Group: gốc ở mặt đất (y=0), mặt trước nhìn về +z.
+   Phần cử động theo userData.tick gắn userData.live = true để bước gộp mesh tĩnh (world.mergeStatic) chừa ra.
    Thước đo: người cao TK_MAN = W3_SNOW_H*1.25 (bằng nhân vật làng Noel sau khi phóng), dựng sẵn đúng cỡ, không cần scale. */
 
 const TK_MAN = (typeof W3_SNOW_H !== 'undefined' ? W3_SNOW_H : 1.06) * 1.25;   // ≈1.33
@@ -82,7 +83,7 @@ function tetKit(THREE) {
   }
 
   const kit = {
-    C: TK_C, MAN: TK_MAN,
+    C: TK_C, MAN: TK_MAN, M,
 
     /* nhà mái ngói đỏ, nền 4×3, cao ≈ 2.8; hiên cột gỗ phía trước */
     house() {
@@ -130,7 +131,7 @@ function tetKit(THREE) {
         for (let i = 0; i < 5; i++) blob(g, .12, f[(i + 1) % 4], -.7 + i * .35, 1.0, -.45);
       } else if (goods === 'lantern') {
         for (let i = 0; i < 4; i++) {
-          const pv = new THREE.Group(); pv.position.set(-.75 + i * .5, 1.6, .5); g.add(pv);
+          const pv = new THREE.Group(); pv.position.set(-.75 + i * .5, 1.6, .5); pv.userData.live = true; g.add(pv);
           box(pv, .02, .2, .02, TK_C.black, 0, -.1, 0);
           lantern(pv, .13, 0, -.38, 0); tick.push(pv);
         }
@@ -186,7 +187,7 @@ function tetKit(THREE) {
       for (const s of [-1, 1]) cyl(g, .05, .06, H, TK_C.wood, s * len / 2, H / 2, 0, 6);
       box(g, len, .025, .025, TK_C.ridge, 0, H - .1, 0);
       for (let i = 1; i < n; i++) {
-        const pv = new THREE.Group(); pv.position.set(-len / 2 + i * len / n, H - .1, 0); g.add(pv);
+        const pv = new THREE.Group(); pv.position.set(-len / 2 + i * len / n, H - .1, 0); pv.userData.live = true; g.add(pv);
         box(pv, .015, .14, .015, TK_C.black, 0, -.07, 0);
         lantern(pv, .13, 0, -.3, 0); sway.push(pv);
       }
@@ -241,7 +242,7 @@ function tetKit(THREE) {
       const g = new THREE.Group();
       for (let i = 0; i < 3; i++) { const a = i * 2.09 + .5; blob(g, .17, TK_C.stone, Math.cos(a) * .42, .14, Math.sin(a) * .42, [1, .8, 1]); }
       for (let i = 0; i < 3; i++) cyl(g, .05, .05, .9, TK_C.woodDk, 0, .06, 0, 5, [Math.PI / 2, i * 1.05, 0]).position.set(Math.sin(i * 1.05) * .2, .06, Math.cos(i * 1.05) * .2);
-      const fire = new THREE.Group(); g.add(fire);
+      const fire = new THREE.Group(); fire.userData.live = true; g.add(fire);
       cone(fire, .2, .45, M(0xff7a1a, FIRE), 0, .3, 0, 6);
       for (let i = 0; i < 5; i++) {                                          // lưỡi lửa thò ra quanh đáy nồi
         const a = i * 1.26 + .3;
