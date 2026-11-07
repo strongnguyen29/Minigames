@@ -575,25 +575,25 @@ h2{text-align:center;margin:8px 0 14px}
 @keyframes talkdot{0%,70%,100%{transform:scale(1)}85%{transform:scale(1.35)}}
 @keyframes talkpulse{50%{transform:scale(1.08)}}
 
-/* ============ Làng Giáng Sinh: chọn đồ ============ */
-.xmas-pick .xgrid{flex:1;min-height:0;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(calc(var(--u)*14),1fr));gap:calc(var(--u)*1.4);align-content:start;padding:calc(var(--u)*.6)}
+/* ============ Làng 3D (Noel, Tết): chọn đồ ============ */
+.vil-pick .xgrid{flex:1;min-height:0;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(calc(var(--u)*14),1fr));gap:calc(var(--u)*1.4);align-content:start;padding:calc(var(--u)*.6)}
 .xo{display:flex;flex-direction:column;align-items:center;gap:calc(var(--u)*.4);padding:calc(var(--u)*.8);border:calc(var(--u)*.5) solid transparent;border-radius:calc(var(--u)*2);background:rgba(255,255,255,.85);cursor:pointer;font-weight:700;color:inherit}
 .xo img{width:100%;aspect-ratio:3/4;object-fit:contain}
 .xo span{font-size:calc(var(--u)*1.8);text-align:center}
 .xo.on{border-color:#2fb36b;background:#e9fff2;box-shadow:0 0 0 calc(var(--u)*.4) rgba(47,179,107,.35)}
-.xmas-pick #xgo{width:100%}
+.vil-pick #xgo{width:100%}
 .xwait{flex:1;display:flex;align-items:center;justify-content:center;font-size:calc(var(--u)*3.4);font-weight:800}
 .xfail{margin:auto;max-width:calc(var(--u)*60);display:flex;flex-direction:column;align-items:center;gap:calc(var(--u)*1.4);text-align:center;font-weight:800;font-size:calc(var(--u)*2.8)}
 .xfail p{margin:0}.xfail .xfz{font-size:calc(var(--u)*9)}.xfail .xsub{font-size:calc(var(--u)*2);opacity:.7}
 
-/* ============ Làng Giáng Sinh: màn làng 3D ============
+/* ============ Làng 3D (Noel, Tết): màn làng ============
    canvas phủ cả màn; thanh trên, Kuromi, hộp thoại nổi trên canvas */
-.scr.xmas{height:100%;min-height:100%;overflow:hidden}
-.scr.xmas .xcv{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:1;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
-.scr.xmas .mainc{position:static;pointer-events:none;padding:calc(var(--u)*2);overflow:visible}
-.scr.xmas .mainc>*{pointer-events:auto}
-.scr.xmas .mcol{position:absolute;left:0;bottom:0;z-index:3;width:calc(var(--u)*22);height:calc(var(--u)*34);pointer-events:none}
-.scr.xmas .mcol .kuromi{pointer-events:none}.scr.xmas #mimg{pointer-events:auto}
+.scr.vil{height:100%;min-height:100%;overflow:hidden}
+.scr.vil .xcv{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:1;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.scr.vil .mainc{position:static;pointer-events:none;padding:calc(var(--u)*2);overflow:visible}
+.scr.vil .mainc>*{pointer-events:auto}
+.scr.vil .mcol{position:absolute;left:0;bottom:0;z-index:3;width:calc(var(--u)*22);height:calc(var(--u)*34);pointer-events:none}
+.scr.vil .mcol .kuromi{pointer-events:none}.scr.vil #mimg{pointer-events:auto}
 .xtop{position:relative;z-index:4;align-self:stretch;background:rgba(255,255,255,.85);border-radius:calc(var(--u)*2.4);padding:calc(var(--u)*.8) calc(var(--u)*1.4);box-shadow:0 calc(var(--u)*.4) 0 var(--soft)}
 .xbar{flex:1;min-width:0;display:flex;align-items:center;gap:calc(var(--u)*1);flex-wrap:wrap}
 .xbi{position:relative;border:0;cursor:pointer;font-size:calc(var(--u)*3.6);line-height:1;padding:calc(var(--u)*.4);border-radius:calc(var(--u)*1.4);background:#f3e9ff;box-shadow:0 calc(var(--u)*.3) 0 var(--soft);min-width:44px;min-height:44px}
@@ -602,7 +602,9 @@ h2{text-align:center;margin:8px 0 14px}
 .xbi i{position:absolute;right:calc(var(--u)*-.6);bottom:calc(var(--u)*-.6);font-style:normal;font-size:calc(var(--u)*1.8);color:#fff;background:#2fb36b;border-radius:50%;width:calc(var(--u)*2.6);height:calc(var(--u)*2.6);display:flex;align-items:center;justify-content:center}
 .xcnt{position:relative;font-size:calc(var(--u)*2.6);padding:calc(var(--u)*.4) calc(var(--u)*1.2);border-radius:calc(var(--u)*1.4);background:#fff3b0;white-space:nowrap}
 .xcnt.pop{animation:jelly .45s}
-.xwait{position:absolute;inset:0;z-index:3;padding-top:calc(var(--u)*6);display:flex;flex-direction:column;gap:calc(var(--u)*1);background:linear-gradient(#cfe6fb,#f2f6fc);color:var(--ink)}
+.xwait{position:absolute;inset:0;z-index:3;padding-top:calc(var(--u)*6);display:flex;flex-direction:column;gap:calc(var(--u)*1);color:var(--ink)}
+.vil-xmas .xwait{background:linear-gradient(#cfe6fb,#f2f6fc)}
+.vil-tet .xwait{background:linear-gradient(#ffe7a8,#fff6dc)}
 .xwait span{font-size:calc(var(--u)*8);animation:spin 3s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .xdlg{display:none;position:absolute;z-index:6;left:calc(var(--u)*23);right:calc(var(--u)*2);bottom:calc(var(--u)*2);max-height:calc(100% - var(--u)*14);overflow-y:auto}
@@ -619,18 +621,18 @@ h2{text-align:center;margin:8px 0 14px}
 .xchs .ch{font-size:calc(var(--u)*3.4);min-height:max(64px,calc(var(--u)*10));padding:calc(var(--u)*1);text-shadow:none;line-height:1.2}
 .xchs.n3 .ch{font-size:calc(var(--u)*3.6)}
 .xgain{font-size:calc(var(--u)*7);font-weight:800;text-align:center;color:#e09a00;animation:jelly .5s}
-.xmas #tt{position:absolute;left:50%;top:calc(var(--u)*13);transform:translateX(-50%);z-index:7;pointer-events:none}
-.xmas #tt:empty{display:none}
+.vil #tt{position:absolute;left:50%;top:calc(var(--u)*13);transform:translateX(-50%);z-index:7;pointer-events:none}
+.vil #tt:empty{display:none}
 
-/* Làng Giáng Sinh trên màn dọc: Kuromi nhỏ ở góc trái ngay dưới thanh trên (bong bóng bên phải),
+/* Làng 3D trên màn dọc: Kuromi nhỏ ở góc trái ngay dưới thanh trên (bong bóng bên phải),
    hộp thoại chiếm cả bề ngang phía dưới nên không bị Kuromi che */
 @media (orientation:portrait),(max-width:700px){
-  .scr.xmas{height:100%}
-  .scr.xmas .mcol{top:calc(var(--u)*12);bottom:auto;width:calc(var(--u)*18);height:calc(var(--u)*24)}
-  .scr.xmas .mcol .kuromi{flex-direction:column;align-items:center;justify-content:flex-start;padding-left:0}
-  .scr.xmas .mcol .kuromi img{width:100%;height:auto;max-height:100%}
-  .scr.xmas .mcol .bub{position:absolute;left:92%;top:18%;bottom:auto;margin:0;width:max-content;max-width:calc(var(--u)*36)}
+  .scr.vil{height:100%}
+  .scr.vil .mcol{top:calc(var(--u)*12);bottom:auto;width:calc(var(--u)*18);height:calc(var(--u)*24)}
+  .scr.vil .mcol .kuromi{flex-direction:column;align-items:center;justify-content:flex-start;padding-left:0}
+  .scr.vil .mcol .kuromi img{width:100%;height:auto;max-height:100%}
+  .scr.vil .mcol .bub{position:absolute;left:92%;top:18%;bottom:auto;margin:0;width:max-content;max-width:calc(var(--u)*36)}
   .xdlg{left:calc(var(--u)*2);right:calc(var(--u)*2)}
   .xchs.n4{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .xmas #tt{top:42%}
+  .vil #tt{top:42%}
 }

@@ -71,9 +71,9 @@ async function run(browser, url, [name, w, h]) {
     await notCovered(pg, '#xgo', `${name} làng chọn đồ`); await noHScroll(pg, `${name} làng chọn đồ`);
     await shot(pg, `${name}-xmas-pick`);
     await pg.locator('#xgo').click();
-    await pg.waitForSelector('.xmas canvas, .xfail', { timeout: 20000 }); await pg.waitForTimeout(1500);
+    await pg.waitForSelector('.vil canvas, .xfail', { timeout: 20000 }); await pg.waitForTimeout(1500);
     await shot(pg, `${name}-xmas-village`);
-    if (await pg.locator('.xmas canvas').count()) {
+    if (await pg.locator('.vil canvas').count()) {
       await pg.evaluate(() => xmasTalk(Object.keys(xmasPlan(dayStr(new Date())).quiz)[0]));
       await pg.waitForSelector('#xdlg .ch'); await pg.waitForTimeout(500);
       await notCovered(pg, '#xdlg .ch', `${name} đố trong làng`); await noHScroll(pg, `${name} đố trong làng`);

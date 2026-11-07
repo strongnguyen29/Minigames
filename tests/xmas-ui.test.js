@@ -2,15 +2,16 @@ const test = require('node:test'), assert = require('node:assert/strict');
 const { loadGame } = require('./helpers/load');
 const FILES = ['js/core.js','js/merge.js','js/questions.js','js/rewards.js','js/lines.js','audio/voice/manifest.js','js/voice.js',
   'js/music.js','js/scene.js','js/mascot.js','js/shop.js','js/radio.js','js/chat.js','js/chat-ui.js','js/chores.js','js/chores-ui.js',
-  'js/sync.js','js/ui.js','js/xmas-quiz.js','js/village.js','js/xmas.js','js/world3d.js','js/xmas-ui.js'];
+  'js/sync.js','js/ui.js','js/xmas-quiz.js','js/village.js','js/xmas.js','js/world3d.js','js/village-ui.js','js/xmas-ui.js'];
 const PRE = 'var setInterval=()=>1,clearInterval=()=>{};var FIREBASE_CONFIG=null;';
 const tick = (ms = 5) => new Promise(r => setTimeout(r, ms));
 
 function setup() {
   const g = loadGame(FILES, { pre: PRE, storage: { be_vui_device_v1: 'A', be_vui_hoc_toan_v1: JSON.stringify({ name: 'Mai', voice: false, sfx: false, music: false }) } });
-  /* world giả: không cần WebGL; ghi lại nhãn đặt lên đầu nhân vật */
-  g.run(`var __marks={};xmasWorld={dispose(){},walkTo(){},onTap(){},onPickup(){},onFrame(){},
-    setMark(id,t){__marks[id]=t}};XMAS_NEXT_MS=0;`);
+  /* làng đang mở là làng Noel (thường do xmasHome/xmasVillage đặt); world giả: không cần WebGL; ghi lại nhãn đặt lên đầu nhân vật */
+  g.run("vilCfg=XMAS_UI");
+  g.run(`var __marks={};vilWorld={dispose(){},walkTo(){},onTap(){},onPickup(){},onFrame(){},
+    setMark(id,t){__marks[id]=t}};VIL_NEXT_MS=0;`);
   return g;
 }
 /* nhân vật đố đầu tiên của hôm nay */
@@ -27,10 +28,10 @@ test('trò chuyện đố: đúng đủ 3 câu thì cộng 3 sao', async () => {
   const g = setup();
   const npc = quizNpc(g);
   g.run(`xmasTalk('${npc}')`);
-  assert.ok(g.get('xmasSess'), 'phải mở phiên đố');
+  assert.ok(g.get('vilSess'), 'phải mở phiên đố');
   assert.match(g.get("document.querySelector('#xdlg').innerHTML"), /class="ch btn/);
   for (let k = 0; k < 3; k++) {
-    g.run('xmasChoose(xmasSess.qs[xmasSess.i].correct)');
+    g.run('vilChoose(vilSess.qs[vilSess.i].correct)');
     await tick();
   }
   assert.equal(g.get('S.stars'), 3);
@@ -41,27 +42,27 @@ test('sai một lần thì được 2 sao, sai lại cùng nút không tính th�
   const g = setup();
   const npc = quizNpc(g);
   g.run(`xmasTalk('${npc}')`);
-  g.run('var __w=(xmasSess.qs[0].correct+1)%xmasSess.qs[0].choices.length;xmasChoose(__w);xmasChoose(__w)');
-  assert.equal(g.get('xmasSess.mistakes'), 1);
-  for (let k = 0; k < 3; k++) { g.run('xmasChoose(xmasSess.qs[xmasSess.i].correct)'); await tick(); }
+  g.run('var __w=(vilSess.qs[0].correct+1)%vilSess.qs[0].choices.length;vilChoose(__w);vilChoose(__w)');
+  assert.equal(g.get('vilSess.mistakes'), 1);
+  for (let k = 0; k < 3; k++) { g.run('vilChoose(vilSess.qs[vilSess.i].correct)'); await tick(); }
   assert.equal(g.get('S.stars'), 2);
 });
 
 test('bấm đáp án hai lần liền chỉ tính một', () => {
   const g = setup();
   g.run(`xmasTalk('${quizNpc(g)}')`);
-  g.run('xmasChoose(xmasSess.qs[0].correct);xmasChoose(xmasSess.qs[0].correct)');
-  assert.equal(g.get('xmasSess.i'), 1);
+  g.run('vilChoose(vilSess.qs[0].correct);vilChoose(vilSess.qs[0].correct)');
+  assert.equal(g.get('vilSess.i'), 1);
 });
 
 test('xong rồi thì nói cảm ơn, không cộng thêm sao', async () => {
   const g = setup();
   const npc = quizNpc(g);
   g.run(`xmasTalk('${npc}')`);
-  for (let k = 0; k < 3; k++) { g.run('xmasChoose(xmasSess.qs[xmasSess.i].correct)'); await tick(); }
-  g.run('xmasClose()');
+  for (let k = 0; k < 3; k++) { g.run('vilChoose(vilSess.qs[vilSess.i].correct)'); await tick(); }
+  g.run('vilClose()');
   g.run(`xmasTalk('${npc}')`);
-  assert.equal(g.get('xmasSess'), null);
+  assert.equal(g.get('vilSess'), null);
   assert.match(g.get("document.querySelector('#xdlg').innerHTML"), /Tạm biệt/);
   assert.equal(g.get('S.stars'), 3);
 });
@@ -72,16 +73,16 @@ test('tìm đồ: nhận việc, nhặt đủ 3 món, quay lại nhận sao; xon
   /* đố xong 3 bạn */
   for (const npc of Object.keys(plan.quiz)) {
     g.run(`xmasTalk('${npc}')`);
-    for (let k = 0; k < 3; k++) { g.run('xmasChoose(xmasSess.qs[xmasSess.i].correct)'); await tick(); }
-    g.run('xmasClose()');
+    for (let k = 0; k < 3; k++) { g.run('vilChoose(vilSess.qs[vilSess.i].correct)'); await tick(); }
+    g.run('vilClose()');
   }
   assert.equal(g.get('S.stars'), 9);
   g.run(`xmasTalk('${plan.quest}')`);
   assert.match(g.get("document.querySelector('#xdlg').innerHTML"), /Tìm giúp tớ 3/);
-  g.run('xmasAccept()');
-  assert.equal(g.get('xmasQuestOn()'), true);
-  for (const s of plan.spots) g.run(`xmasFound(${s})`);
-  g.run(`xmasFound(${plan.spots[0]})`);   // nhặt lại cùng chỗ: không tính
+  g.run('vilAccept()');
+  assert.equal(g.get('vilQuestOn()'), true);
+  for (const s of plan.spots) g.run(`vilFound(${s})`);
+  g.run(`vilFound(${plan.spots[0]})`);   // nhặt lại cùng chỗ: không tính
   assert.equal(g.get(`xmasStatus('${plan.quest}')`), 'return');
   g.run(`xmasTalk('${plan.quest}')`);
   assert.equal(g.get('S.stars'), 15);
@@ -91,9 +92,9 @@ test('tìm đồ: nhận việc, nhặt đủ 3 món, quay lại nhận sao; xon
 
 test('rời làng bằng go() thì giải phóng thế giới', () => {
   const g = setup();
-  g.run('var __disposed=0;xmasWorld.dispose=()=>{__disposed++};go(home)');
+  g.run('var __disposed=0;vilWorld.dispose=()=>{__disposed++};go(home)');
   assert.equal(g.get('__disposed'), 1);
-  assert.equal(g.get('xmasWorld'), null);
+  assert.equal(g.get('vilWorld'), null);
 });
 
 test('bản đồ: chỗ giấu và nhân vật ở chỗ trống, trong biên, không bị nhà che', () => {
@@ -131,54 +132,54 @@ test('bản đồ: chỗ giấu và nhân vật ở chỗ trống, trong biên, 
 
 test('đóng hộp thoại ngay sau câu đúng thứ 3 vẫn giữ sao', () => {
   const g = setup();
-  g.run('XMAS_NEXT_MS=5000');
+  g.run('VIL_NEXT_MS=5000');
   const npc = quizNpc(g);
   g.run(`xmasTalk('${npc}')`);
-  for (let k = 0; k < 3; k++) g.run('xmasSess.lock=false;xmasChoose(xmasSess.qs[xmasSess.i].correct)');
-  g.run('xmasClose()');
+  for (let k = 0; k < 3; k++) g.run('vilSess.lock=false;vilChoose(vilSess.qs[vilSess.i].correct)');
+  g.run('vilClose()');
   assert.equal(g.get('S.stars'), 3);
   assert.equal(g.get(`xmasStatus('${npc}')`), 'done');
 });
 
 /* world giả ghi lại các lần walkTo, có búp bê ở chỗ xuất phát */
 function walker(g, x, z) {
-  g.run(`var __walks=[];xmasReady=true;xmasPlayer={x:${x},z:${z}};
-    xmasWorld.walkTo=(x,z,stop,cb)=>{__walks.push({x,z,stop,cb})};`);
+  g.run(`var __walks=[];vilReady=true;vilPlayer={x:${x},z:${z}};
+    vilWorld.walkTo=(x,z,stop,cb)=>{__walks.push({x,z,stop,cb})};`);
 }
 test('đường thẳng cắt cây thông giữa làng thì đi vòng qua một điểm', () => {
   const g = setup();
   walker(g, 0, 6);
-  g.run("xmasGoNpc('santa')");
+  g.run("vilGoNpc('santa')");
   const w1 = g.get('__walks[0]');
   assert.ok(Math.hypot(w1.x - g.get('XMAS_TREE.x'), w1.z - g.get('XMAS_TREE.z')) > 4.5, 'điểm vòng nằm ngoài vòng cây');
   assert.ok(Math.abs(w1.x) > 4, 'điểm vòng ở bên cạnh cây');
-  g.run('xmasPlayer.x=__walks[0].x;xmasPlayer.z=__walks[0].z;__walks[0].cb(true)');
+  g.run('vilPlayer.x=__walks[0].x;vilPlayer.z=__walks[0].z;__walks[0].cb(true)');
   const w2 = g.get('__walks[1]');
   assert.ok(Math.hypot(w2.x - 0, w2.z + 10) < 1.6, 'chặng 2 tới cạnh ông già Noel');
   /* không cắt cây thì đi thẳng */
   walker(g, -15, 3);
-  g.run("xmasGoNpc('snowman')");
+  g.run("vilGoNpc('snowman')");
   assert.equal(g.get('__walks.length'), 1);
 });
 test('kẹt xa nhân vật thì Kuromi nhắc, không im lặng', () => {
   const g = setup();
   walker(g, -15, 3);
-  g.run("xmasGoNpc('snowman');xmasPlayer.x=-10;__walks[0].cb(false)");
-  assert.equal(g.get('xmasDlgOn'), false);
+  g.run("vilGoNpc('snowman');vilPlayer.x=-10;__walks[0].cb(false)");
+  assert.equal(g.get('vilDlgOn'), false);
   assert.match(g.get("document.querySelector('#mbub').textContent"), /thanh trên/);
 });
 test('thanh việc có nút đi tới từng nhân vật; vào làng đứng gần nhân vật còn việc', () => {
   const g = setup();
-  g.run('xmasBar()');
-  assert.match(g.get("document.querySelector('#xbar').innerHTML"), /<button[^>]*onclick="xmasGoNpc\('santa'\)"/);
-  const p = JSON.parse(g.get('JSON.stringify(xmasStartPos())'));
+  g.run('vilBar()');
+  assert.match(g.get("document.querySelector('#xbar').innerHTML"), /<button[^>]*onclick="vilGoNpc\('santa'\)"/);
+  const p = JSON.parse(g.get('JSON.stringify(vilStartPos())'));
   const near = Object.values(JSON.parse(g.get('JSON.stringify(XMAS_MAP.npcs)'))).some(n => Math.hypot(n.x - p.x, n.z - p.z) < 5);
   assert.ok(near, JSON.stringify(p));
 });
 
 test('dựng làng quá lâu thì báo "Làng đang ngủ", bản dựng về muộn tự giải phóng', async () => {
   const g = loadGame(FILES, { pre: PRE, storage: { be_vui_device_v1: 'A', be_vui_hoc_toan_v1: JSON.stringify({ name: 'Mai', voice: false, sfx: false, music: false }) } });
-  g.run(`var __late,__disposed=0;XMAS_BUILD_MS=20;w3Supported=()=>true;
+  g.run(`var __late,__disposed=0;VIL_BUILD_MS=20;w3Supported=()=>true;
     w3Create=()=>new Promise(r=>{__late=r});xmasVillage()`);
   assert.match(g.get('app.innerHTML'), /xwait/);
   assert.match(g.get('app.innerHTML'), /class="back"/, 'nút ⬅️ có ngay trong lúc chờ');
@@ -187,22 +188,22 @@ test('dựng làng quá lâu thì báo "Làng đang ngủ", bản dựng về mu
   g.run('__late({dispose(){__disposed++}})');
   await tick();
   assert.equal(g.get('__disposed'), 1);
-  assert.equal(g.get('xmasWorld'), null);
+  assert.equal(g.get('vilWorld'), null);
 });
 
 test('đồ lỗi nạp: bỏ chỗ giữ để sinh lại, không lỗi chưa bắt', async () => {
   const g = setup();
   const plan = JSON.parse(g.get('JSON.stringify(xmasPlan(xmasState().day))'));
-  g.run(`var __warn=0;console={warn(){__warn++}};xmasReady=true;xmasQuestDay=xmasCurPlan().day;
-    xmasWorld.pickup=()=>({remove(){}});xmasWorld.model=()=>Promise.reject(new Error('404'));xmasSpawn()`);
-  assert.equal(g.get('Object.keys(xmasPicks).length'), 3);
+  g.run(`var __warn=0;console={warn(){__warn++}};vilReady=true;vilQuestDay.xmas=vilCurPlan().day;
+    vilWorld.pickup=()=>({remove(){}});vilWorld.model=()=>Promise.reject(new Error('404'));vilSpawn()`);
+  assert.equal(g.get('Object.keys(vilPicks).length'), 3);
   await tick();
-  assert.equal(g.get('Object.keys(xmasPicks).length'), 0);
+  assert.equal(g.get('Object.keys(vilPicks).length'), 0);
   assert.equal(g.get('__warn'), 3);
   /* lần sau sinh lại được */
-  g.run(`xmasWorld.model=()=>Promise.resolve({});xmasSpawn()`);
+  g.run(`vilWorld.model=()=>Promise.resolve({});vilSpawn()`);
   await tick();
-  assert.equal(g.get('Object.keys(xmasPicks).length'), 3);
+  assert.equal(g.get('Object.keys(vilPicks).length'), 3);
   assert.ok(plan.spots.length === 3);
 });
 
@@ -211,19 +212,19 @@ test('nhãn nhân vật giao việc: ❗ khi chưa nhận, món đồ khi đang 
   const plan = JSON.parse(g.get('JSON.stringify(xmasPlan(xmasState().day))'));
   for (const npc of Object.keys(plan.quiz)) {
     g.run(`xmasTalk('${npc}')`);
-    for (let k = 0; k < 3; k++) { g.run('xmasChoose(xmasSess.qs[xmasSess.i].correct)'); await tick(); }
-    g.run('xmasClose()');
+    for (let k = 0; k < 3; k++) { g.run('vilChoose(vilSess.qs[vilSess.i].correct)'); await tick(); }
+    g.run('vilClose()');
   }
-  const icon = g.get('xmasItem().icon');
-  g.run(`xmasNpcH={};XMAS_NPCS.forEach(p=>xmasNpcH[p.id]={setMark(t){__marks[p.id]=t}});xmasMarks()`);
+  const icon = g.get('vilItem().icon');
+  g.run(`vilNpcH={};XMAS_NPCS.forEach(p=>vilNpcH[p.id]={setMark(t){__marks[p.id]=t}});vilMarks()`);
   assert.equal(g.get(`__marks['${plan.quest}']`), '❗');
-  g.run('xmasTalk(' + JSON.stringify(plan.quest) + ');xmasAccept()');
+  g.run('xmasTalk(' + JSON.stringify(plan.quest) + ');vilAccept()');
   assert.equal(g.get(`__marks['${plan.quest}']`), icon, 'đang tìm: hiện món đồ');
-  g.run(`document.querySelector('#mbub').textContent='';var __emo=null;xmasFound(${plan.spots[0]});xmasFound(${plan.spots[1]})`);
+  g.run(`document.querySelector('#mbub').textContent='';var __emo=null;vilFound(${plan.spots[0]});vilFound(${plan.spots[1]})`);
   assert.equal(g.get(`__marks['${plan.quest}']`), icon);
   assert.doesNotMatch(g.get("document.querySelector('#mbub').textContent"), /Đủ rồi/);
-  g.run(`xmasFound(${plan.spots[2]})`);
-  const name = g.get(`xmasNpc('${plan.quest}').name`);
+  g.run(`vilFound(${plan.spots[2]})`);
+  const name = g.get(`vilNpc('${plan.quest}').name`);
   assert.equal(g.get("document.querySelector('#mbub').textContent"), `Đủ rồi! Mang về cho ${name} nha!`);
   assert.equal(g.get(`__marks['${plan.quest}']`), icon);
 });

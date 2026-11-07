@@ -1,16 +1,4 @@
-/* Làng Giáng Sinh: màn chọn đồ, màn làng 3D, hộp thoại với nhân vật, tìm đồ và ăn mừng */
-function xmasHome(){
-  const cur=xmasOutfit().id;
-  const grid=xmasOutfits().map(o=>`<button class="xo btn${o.id===cur?' on':''}" data-id="${esc(o.id)}"><img src="${esc(o.src)}" alt=""><span>${esc(o.name)}</span></button>`).join('');
-  app.innerHTML=screenHTML({mascot:{emo:'happy',size:'sm'},cls:'xmas-pick',
-    top:`<div class="ttl"><button class="back" onclick="goTap(this,home)">⬅️</button>🎄 Làng Giáng Sinh</div>`,
-    body:`<div class="xgrid">${grid}</div><div class="row"><button class="btn p-green gloss" id="xgo" onclick="goTap(this,xmasVillage)">🎄 Vào làng</button></div>`});
-  document.querySelectorAll('.xo').forEach(b=>b.onclick=()=>{
-    sfx.click();xmasSetOutfit(b.dataset.id);
-    document.querySelectorAll('.xo').forEach(x=>x.classList.toggle('on',x===b));
-  });
-  mascotSay('xmas_outfit');
-}
+/* Làng Giáng Sinh: dữ liệu bản đồ, nhà gỗ, đoàn tàu và cấu hình giao diện XMAS_UI (giao diện chung ở js/village-ui.js) */
 
 /* ============ Bản đồ làng (dữ liệu cố định) ============
    Trục x sang phải, z về phía camera (xuống dưới màn hình). Nhà gỗ đặt sát rìa bắc,
@@ -72,11 +60,6 @@ const XMAS_MAP=(()=>{
     npcs:{santa:{x:0,z:-10,r:.45,meet:{x:1.8,z:-6.8}},snowman:{x:-17,z:0,r:.6,meet:{x:-15.2,z:3.2}},
       reindeer:{x:17,z:1,r:.6,meet:{x:15.2,z:4.2}},nutcracker:{x:8,z:10,r:.4,meet:{x:6.2,z:13.2}}}};
 })();
-/* chỗ búp bê xuất hiện: cạnh nhân vật đầu tiên còn việc; xong hết thì ở chỗ mặc định trước cây thông */
-function xmasStartPos(){
-  const p=XMAS_NPCS.find(n=>xmasStatus(n.id)!=='done');
-  return p?XMAS_MAP.npcs[p.id].meet:XMAS_MAP.start;
-}
 /* vị trí và hướng trên vòng ray (tàu chạy theo), u là quãng đường đã đi */
 function xmasTrackAt(u){
   const s=XMAS_TRACK_S,a=.5*s,R=.75*s,Ls=2*a+Math.PI*R/2;
@@ -88,82 +71,6 @@ function xmasTrackAt(u){
   for(let i=0;i<k;i++){[x,z]=[-z,x];[dx,dz]=[-dz,dx]}
   return {x:XMAS_TREE.x+x,z:XMAS_TREE.z+z,rot:Math.atan2(-dz,dx)};
 }
-
-/* ============ Trạng thái màn làng ============ */
-const XMAS_ICON={santa:'🎅',snowman:'⛄',reindeer:'🦌',nutcracker:'💂'};
-let xmasWorld=null,xmasSess=null,xmasGen=0,xmasTok=0,xmasDlgOn=false,xmasReady=false;
-let xmasNpcH={},xmasPicks={},xmasPlanCur=null,xmasQuestDay='',xmasPlayer=null;
-let XMAS_BUILD_MS=25000;  // quá lâu chưa dựng xong làng thì báo "Làng đang ngủ", không để bé kẹt ở màn chờ
-let XMAS_NEXT_MS=900;   // dừng giữa hai câu đố để bé thấy nút xanh
-const xmasCurPlan=()=>xmasPlanCur||(xmasPlanCur=xmasPlan(xmasState().day));
-const xmasItem=()=>XMAS_ITEMS.find(i=>i.id===xmasCurPlan().item);
-const xmasNpc=id=>XMAS_NPCS.find(p=>p.id===id);
-/* đã nhận việc tìm đồ hôm nay (bấm "Đi tìm!" hoặc đã nhặt ít nhất 1 món) */
-function xmasQuestOn(){const x=xmasState();return xmasQuestDay===x.day||x.found.length>0}
-
-/* Rời màn làng bằng bất kỳ đường nào: dừng vòng render, giải phóng renderer, huỷ mọi việc đang chờ */
-function xmasLeave(){
-  xmasGen++;xmasTok++;xmasSess=null;xmasDlgOn=false;xmasReady=false;xmasNpcH={};xmasPicks={};xmasPlanCur=null;xmasPlayer=null;
-  if(xmasWorld){const w=xmasWorld;xmasWorld=null;try{w.dispose()}catch(e){}}
-}
-if(typeof go==='function'){const _xgo=go;go=function(fn){xmasLeave();return _xgo(fn)}}
-
-function xmasVillage(){
-  xmasLeave();
-  const my=xmasGen;
-  xmasPlanCur=xmasPlan(xmasState().day);
-  app.innerHTML=screenHTML({mascot:{emo:'happy',size:'sm'},cls:'xmas',
-    top:`<div class="ttl xtop"><button class="back" onclick="goTap(this,home)">⬅️</button><div class="xbar" id="xbar"></div><span class="coin" id="xcoin">⭐ ${balance()}</span></div>`,
-    body:`<canvas class="xcv" id="xcv"></canvas><div class="xwait" id="xwait"><span>❄️</span>Kuromi đang dẫn đường…</div>
-      <div class="xdlg" id="xdlg"></div><div id="tt"></div>`});
-  if(!w3Supported())return xmasFail();
-  xmasBar();
-  xmasBuild(my).catch(e=>{if(my===xmasGen){console.warn('Làng Giáng Sinh không dựng được',e);xmasFail()}});
-  /* xmasFail → xmasLeave tăng xmasGen, nên bản dựng về muộn sẽ tự giải phóng (xem xmasBuild) */
-  setTimeout(()=>{if(my===xmasGen&&!xmasReady){console.warn('Làng Giáng Sinh dựng quá lâu');xmasFail()}},XMAS_BUILD_MS);
-}
-/* Không có WebGL hoặc nạp lỗi: báo nhẹ nhàng, cho về trang chủ (module nạp lỗi bị trình duyệt nhớ, nên không thử lại tại chỗ) */
-function xmasFail(){
-  xmasLeave();
-  app.innerHTML=screenHTML({mascot:{emo:'think',size:'sm'},cls:'xmas-pick',
-    top:`<div class="ttl"><button class="back" onclick="goTap(this,home)">⬅️</button>🎄 Làng Giáng Sinh</div>`,
-    body:`<div class="xfail card3d"><div class="xfz">💤</div><p>Làng đang ngủ, mình quay lại sau nha 💤</p>
-      <p class="xsub">Bố mẹ có thể tải lại trang rồi vào lại làng.</p>
-      <button class="btn p-pink gloss" onclick="goTap(this,home)">🏠 Về trang chủ</button></div>`});
-}
-
-async function xmasBuild(my){
-  const cv=$('#xcv');
-  const w=await w3Create(cv,{bound:XMAS_MAP.bound,base:'models/holiday/'});
-  if(my!==xmasGen){w.dispose();return}
-  xmasWorld=w;
-  const M=XMAS_MAP,by={},jobs=[];
-  M.props.forEach(p=>(by[p.model]=by[p.model]||[]).push(p));
-  /* model lặp từ 3 lần trở lên thì vẽ bằng InstancedMesh */
-  for(const [name,list] of Object.entries(by))jobs.push(list.length>=3?w.instances(name,list):Promise.all(list.map(p=>w.model(name,p))));
-  M.cabins.forEach(c=>jobs.push(xmasCabin(w,c)));
-  XMAS_NPCS.forEach(p=>jobs.push(xmasNpcMake(w,p,my)));
-  jobs.push(xmasTrain(w));
-  await Promise.all(jobs);
-  if(my!==xmasGen)return;
-  xmasPlayer=w.player(xmasOutfit().src,xmasStartPos());
-  w.onTap(xmasTapped);
-  w.onPickup(xmasFound);
-  /* màn bị thay mà không qua go(): tự giải phóng ở lượt sau */
-  let gone=false,lift=-.08;
-  w.onFrame(dt=>{
-    if(!gone&&!cv.isConnected){gone=true;setTimeout(()=>{if(my===xmasGen)xmasLeave()})}
-    /* bình thường dời camera lên bắc một chút (thanh trên che mép trên); mở hộp thoại thì lùi về nam
-       để bé và nhân vật nổi lên nửa trên màn, không bị hộp thoại che */
-    lift+=((xmasDlgOn?(w.camera.aspect<1?.2:.34):-.08)-lift)*Math.min(1,dt*4);
-    w.camera.position.z+=lift*(w.camera.position.y-.6);
-  });
-  xmasReady=true;
-  const wait=$('#xwait');if(wait)wait.remove();
-  xmasMarks();
-  if(xmasQuestOn())xmasSpawn();
-  mascotSay(xmasProgress().done>=4?'xmas_all_done':'xmas_enter');
-}
 async function xmasCabin(w,c){
   const objs=await Promise.all(XMAS_CABIN.map(([m])=>w.model(m)));
   if(objs.some(o=>!o))return;
@@ -172,13 +79,6 @@ async function xmasCabin(w,c){
   g.scale.setScalar(2);
   w.group(g,{x:c.x,z:c.z,rotY:c.rotY||0});
   w.obstacles.push(...xmasCabinSolids(c));
-}
-async function xmasNpcMake(w,p,my){
-  const pos=XMAS_MAP.npcs[p.id];
-  const obj=p.model?await w.model(p.model):w3Santa(w.THREE);
-  if(!obj||my!==xmasGen)return;
-  obj.scale.multiplyScalar(XMAS_NPC_SCALE);
-  xmasNpcH[p.id]=w.npc(p.id,obj,{x:pos.x,z:pos.z,r:pos.r,rotY:pos.rotY||0});
 }
 /* đoàn tàu chạy vòng quanh cây thông */
 async function xmasTrain(w){
@@ -192,231 +92,29 @@ async function xmasTrain(w){
   });
 }
 
-/* ============ Thanh việc, nhãn trên đầu, đồ để nhặt ============ */
-function xmasBar(){
-  const b=$('#xbar');
-  if(b){
-    const plan=xmasCurPlan(),item=xmasItem(),x=xmasState();
-    const cnt=xmasQuestOn()&&xmasStatus(plan.quest)!=='done'?`<span class="xcnt" id="xcnt">${item.icon} ${Math.min(3,x.found.length)}/3</span>`:'';
-    b.innerHTML=XMAS_NPCS.map(p=>{const ok=xmasStatus(p.id)==='done';
-      return `<button class="xbi${ok?' ok':''}" title="${esc(p.name)}" aria-label="Đi tới ${esc(p.name)}" onclick="xmasGoNpc('${p.id}')">${XMAS_ICON[p.id]}${ok?'<i>✓</i>':''}</button>`}).join('')+cnt;
-  }
-  const c=$('#xcoin');if(c)c.textContent=`⭐ ${balance()}`;
-}
-function xmasMarks(){
-  const icon=xmasItem().icon;
-  XMAS_NPCS.forEach(p=>{
-    const st=xmasStatus(p.id),h=xmasNpcH[p.id];
-    /* đang chờ bé mang đồ về (đã nhận việc đi tìm, hoặc đã tìm đủ) thì hiện món đồ */
-    if(h)h.setMark(st==='done'?'✅':st==='return'||(st==='quest'&&xmasQuestOn())?icon:'❗');
-  });
-  xmasBar();
-}
-/* sinh đồ ở các chỗ giấu hôm nay chưa nhặt (chỉ khi đã nhận việc và thế giới đã dựng xong) */
-function xmasSpawn(){
-  const w=xmasWorld;if(!w||!xmasReady||typeof w.pickup!=='function')return;
-  const plan=xmasCurPlan(),x=xmasState(),item=xmasItem(),my=xmasGen;
-  if(xmasStatus(plan.quest)==='done')return;
-  plan.spots.filter(s=>!x.found.includes(s)&&!xmasPicks[s]).forEach(s=>{
-    xmasPicks[s]='…';
-    w.model(item.model,{scale:1.8}).then(o=>{
-      if(!o||my!==xmasGen||xmasWorld!==w)return;
-      if(xmasState().found.includes(s)){delete xmasPicks[s];return}
-      xmasPicks[s]=w.pickup(s,o,XMAS_SPOTS[s]);
-    }).catch(e=>{
-      console.warn('Không dựng được món đồ cần tìm',e);
-      if(my===xmasGen)delete xmasPicks[s];   // bỏ chỗ giữ để lần sau sinh lại
-    });
-  });
-}
-/* bé đi tới gần một món đồ */
-function xmasFound(spot){
-  const plan=xmasCurPlan();
-  if(!xmasPickup(spot,plan.day))return false;
-  const p=xmasPicks[spot];
-  if(p&&p.remove)p.remove();
-  delete xmasPicks[spot];
-  sfx.ok();
-  if(xmasState().found.length>=3){const q=xmasNpc(plan.quest);mascot('clap',`Đủ rồi! Mang về cho ${q?q.name:'bạn ấy'} nha!`)}
-  else mascotSay('xmas_found');
-  xmasBar();
-  const c=$('#xcnt');
-  if(c){burst(c,3,[xmasItem().icon,'✨']);c.classList.remove('pop');void c.offsetWidth;c.classList.add('pop')}
-  xmasMarks();
-  return true;
-}
-/* Đi tới (x,z). Không tìm đường: chỉ khi đường thẳng cắt vòng vật cản của cây thông giữa làng
-   thì đi qua một điểm vòng bên cạnh cây (phía cho đường ngắn hơn), rồi mới tới đích */
-const XMAS_TREE_R=3.8;
-function xmasRoute(x,z,stop,done){
-  const w=xmasWorld,pl=xmasPlayer;if(!w)return;
-  const c=XMAS_TREE,R=XMAS_TREE_R+.3;
-  let wp=null;
-  if(pl){
-    const dx=x-pl.x,dz=z-pl.z,L=Math.hypot(dx,dz)||1;
-    const t=Math.max(0,Math.min(1,((c.x-pl.x)*dx+(c.z-pl.z)*dz)/(L*L)));
-    if(Math.hypot(pl.x+dx*t-c.x,pl.z+dz*t-c.z)<R){
-      const nx=-dz/L,nz=dx/L,Rw=XMAS_TREE_R+1.7;
-      const cand=[1,-1].map(k=>({x:c.x+k*nx*Rw,z:c.z+k*nz*Rw}));
-      const len=q=>Math.hypot(q.x-pl.x,q.z-pl.z)+Math.hypot(x-q.x,z-q.z);
-      wp=len(cand[0])<=len(cand[1])?cand[0]:cand[1];
-    }
-  }
-  /* chặng vòng kẹt thì vẫn thử đi tiếp tới đích (trượt theo mép vật cản) */
-  if(wp)w.walkTo(wp.x,wp.z,.3,()=>{if(xmasWorld===w)w.walkTo(x,z,stop,done)});
-  else w.walkTo(x,z,stop,done);
-}
-/* Đi tới nhân vật rồi nói chuyện: đứng bên cạnh (không đứng trước, kẻo búp bê che nhân vật).
-   Kẹt mà đã đủ gần thì vẫn nói chuyện; kẹt xa thì Kuromi chỉ cách dùng thanh trên */
-function xmasGoNpc(id){
-  const w=xmasWorld,n=XMAS_MAP.npcs[id];
-  if(!w||!n||xmasDlgOn||!xmasReady)return;
-  const pl=xmasPlayer,sx=pl&&pl.x<n.x?-1:1,near=()=>pl&&Math.hypot(pl.x-n.x,pl.z-n.z)<2.2;
-  xmasRoute(n.x+sx*1.3,n.z+.3,.2,ok=>{
-    if(xmasWorld!==w)return;
-    if(ok||near())xmasTalk(id);
-    else mascot('think','Bấm vào hình bạn ấy ở thanh trên nha!');
-  });
-}
-function xmasTapped(ev){
-  const w=xmasWorld;
-  if(!w||xmasDlgOn)return;
-  if(ev.kind==='npc')xmasGoNpc(ev.id);
-  else if(ev.kind==='pickup')xmasRoute(ev.x,ev.z,0);
-  else w.walkTo(ev.x,ev.z);
-}
-
-/* ============ Hộp thoại ============ */
-/* chuỗi lời nói: chạy nối tiếp, dừng ngay khi có lời mới, bé trả lời, hoặc đóng hộp thoại */
-function xmasSpeak(...steps){
-  const my=++xmasTok;
-  let p=Promise.resolve(steps[0]());
-  for(const f of steps.slice(1))p=p.then(()=>my===xmasTok?f():null);
-  return p.catch(()=>{});
-}
-/* nhân vật nói một câu của nhóm: chữ hiện trong hộp thoại (không phải bong bóng của Kuromi) */
-function xmasNpcLine(group){
-  const {line,done}=voice.line(group);
-  const t=$('#xdlg .xsay');if(t)t.textContent=line.text;
-  if(xmasSess)xmasSess.say=line.text;
-  return done;
-}
-function xmasDlg(id,{say='',body='',btns=''}={}){
-  const d=$('#xdlg');if(!d)return;
-  const p=xmasNpc(id);
-  xmasDlgOn=true;
-  d.innerHTML=`<div class="xbox card3d"><div class="xwho"><span class="xic">${XMAS_ICON[id]}</span><b>${esc(p.name)}</b>
-    <button class="xx" onclick="xmasClose()" aria-label="Đóng">✖</button></div>
-    <div class="xsay">${esc(say)}</div>${body}${btns?`<div class="row xbtns">${btns}</div>`:''}</div>`;
-  d.classList.add('on');
-}
-function xmasClose(){
-  xmasTok++;voice.stop();xmasSess=null;xmasDlgOn=false;
-  const d=$('#xdlg');if(d){d.classList.remove('on');d.innerHTML=''}
-}
-/* sang ngày mới khi đang chơi: tiến độ hôm qua không còn, dựng lại làng cho ngày mới */
-function xmasNewDay(){
-  const my=xmasGen;
-  toast('Sang ngày mới rồi!');
-  setTimeout(()=>{if(my===xmasGen)go(xmasVillage)},1500);
-}
-const XMAS_BYE=`<button class="btn p-pink gloss" onclick="xmasClose()">Tạm biệt 👋</button>`;
-function xmasTalk(id){
-  if(xmasDlgOn||!xmasNpc(id))return;
-  const plan=xmasCurPlan();
-  if(plan.day!==dayStr(new Date()))return xmasNewDay();
-  const st=xmasStatus(id),item=xmasItem();
-  if(st==='done'){
-    xmasDlg(id,{btns:XMAS_BYE});
-    xmasSpeak(()=>xmasNpcLine(`xmas_${id}_thanks`));
-  }else if(st==='quiz')xmasQuizOpen(id,plan);
-  else if(st==='quest'){
-    const n=xmasState().found.length,on=xmasQuestOn();
-    const ask=on?`Bạn tìm được ${n}/3 ${item.name} rồi, tìm tiếp nha!`:`Tìm giúp tớ 3 ${item.name} ${item.icon} nha!`;
-    xmasDlg(id,{body:`<div class="xq">${esc(ask)}<button class="xspk" onclick="voice.text(this.parentNode.firstChild.textContent)">🔊</button></div>`,
-      btns:`<button class="btn p-green gloss" id="xok" onclick="xmasAccept()">${on?'Đi tìm tiếp!':'Đi tìm!'} ${item.icon}</button>`});
-    xmasSpeak(()=>xmasNpcLine(`xmas_${id}_hi`),()=>mascotSay('xmas_quest'),()=>voice.text(ask));
-  }else{
-    xmasDlg(id,{say:'…'});
-    xmasFinish(id,3,plan.day);
-  }
-}
-function xmasAccept(){
-  xmasQuestDay=xmasCurPlan().day;
-  xmasClose();sfx.click();
-  xmasSpawn();xmasMarks();
-}
-
-/* ---- phiên đố: 3 câu liên tiếp ---- */
-function xmasQuizOpen(id,plan){
-  const s=xmasSess=xmasQuizNew(id,plan);
-  s.tried=[];s.lock=false;s.done=false;s.say='';
-  xmasQuizDraw(s);
-  const q=s.qs[s.i];
-  xmasSpeak(()=>mascotSay('xmas_quiz'),()=>xmasNpcLine(`xmas_${id}_hi`),()=>voice.text(q.q));
-}
-function xmasQuizDraw(s){
-  const q=s.qs[s.i];
-  xmasDlg(s.npc,{say:s.say,body:`<div class="xq"><span class="xn">${s.i+1}/${s.qs.length}</span>${esc(q.q)}<button class="xspk" onclick="xmasRead()">🔊</button></div>
-    <div class="chs xchs n${q.choices.length}">${q.choices.map((c,i)=>`<button class="ch btn enter" style="--d:${(i*.05).toFixed(2)}s" onclick="xmasChoose(${i})">${esc(c)}</button>`).join('')}</div>`});
-}
-function xmasRead(){const s=xmasSess;if(s&&s.qs[s.i]){xmasTok++;voice.text(s.qs[s.i].q)}}
-const xmasBtn=i=>document.querySelectorAll('#xdlg .ch')[i];
-/* bé chọn đáp án i: khoá trong lúc xử lý để bấm đúp không chấm hai lần */
-function xmasChoose(i){
-  const s=xmasSess;
-  if(!s||s.done||s.lock||s.tried.includes(i))return;
-  const q=s.qs[s.i];
-  if(!q||!(i>=0&&i<q.choices.length))return;
-  s.lock=true;xmasTok++;
-  const r=xmasQuizAnswer(s,i),b=xmasBtn(i);
-  if(!r.ok){
-    s.tried.push(i);s.lock=false;
-    sfx.bad();if(b)b.classList.add('bad');
-    if(r.hint){const c=xmasBtn(q.correct);if(c)c.classList.add('hint');mascotSay('hint')}
-    else mascotSay('wrong');
-    return;
-  }
-  sfx.ok();if(b)b.classList.add('good');
-  const said=mascotSay('correct');
-  /* xong câu 3: cộng sao và lưu ngay (đóng hộp thoại hay rời làng lúc này cũng không mất), chỉ hoãn phần hiển thị */
-  let res=null;
-  if(r.done){s.done=true;res=xmasComplete(s.npc,r.stars,s.day);if(res)xmasMarks()}
-  const my=xmasGen;
-  /* chờ Kuromi khen xong (ít nhất XMAS_NEXT_MS, tối đa 2,5 giây) rồi mới sang câu sau */
-  voiceWait(said,XMAS_NEXT_MS,Math.max(XMAS_NEXT_MS,2500)).then(()=>{
-    if(xmasSess!==s){if(res&&res.bonus>0&&my===xmasGen)xmasParty(res.bonus);return}
-    if(r.done){xmasShowDone(s.npc,res,s.day);return}
-    s.tried=[];s.lock=false;xmasQuizDraw(s);
-    const nq=s.qs[s.i];
-    xmasSpeak(()=>voice.text(nq.q));
-  });
-}
-
-/* ---- xong một việc: cộng sao, cảm ơn, cập nhật nhãn; đủ 4 việc thì ăn mừng ---- */
-function xmasFinish(id,stars,day){
-  const r=xmasComplete(id,stars,day);
-  if(r)xmasMarks();
-  xmasShowDone(id,r,day);
-}
-function xmasParty(n){
-  confetti(40);
-  burst($('#xbar'),12,['⭐','🎉','🎄','✨']);
-  toast(`+${n} ⭐ thưởng hoàn thành!`);
-}
-/* hiện kết quả một việc đã cộng sao (r từ xmasComplete; null là không cộng được) */
-function xmasShowDone(id,r,day){
-  xmasSess=null;
-  if(!r){
-    if(day!==dayStr(new Date())){xmasClose();xmasNewDay()}
-    else xmasClose();
-    return;
-  }
-  xmasDlg(id,{body:`<div class="xgain">+${r.stars} ⭐</div>`,btns:XMAS_BYE});
-  sfx.win();
-  const box=$('#xdlg .xbox');burst(box,8,['⭐','✨']);
-  if(r.bonus>0){
-    xmasParty(r.bonus);
-    xmasSpeak(()=>xmasNpcLine(`xmas_${id}_thanks`),()=>mascotSay('xmas_all_done'));
-  }else xmasSpeak(()=>xmasNpcLine(`xmas_${id}_thanks`));
-}
+/* ============ Cấu hình giao diện làng Noel (dùng js/village-ui.js) ============ */
+const XMAS_UI={logic:XMAS_V,
+  title:'Làng Giáng Sinh',icon:'🎄',btnCls:'p-green',waitIcon:'❄️',lines:'xmas',
+  npcIcons:{santa:'🎅',snowman:'⛄',reindeer:'🦌',nutcracker:'💂'},
+  partyIcons:['⭐','🎉','🎄','✨'],
+  world:{bound:XMAS_MAP.bound,base:'models/holiday/'},
+  map:XMAS_MAP,
+  around:{x:XMAS_TREE.x,z:XMAS_TREE.z,r:3.8},   // vòng vật cản của cây thông (gồm cả vòng ray)
+  /* cảnh tĩnh: props (model lặp từ 3 lần trở lên thì vẽ bằng InstancedMesh), nhà gỗ, đoàn tàu */
+  async build(w){
+    const M=XMAS_MAP,by={},jobs=[];
+    M.props.forEach(p=>(by[p.model]=by[p.model]||[]).push(p));
+    for(const [name,list] of Object.entries(by))jobs.push(list.length>=3?w.instances(name,list):Promise.all(list.map(p=>w.model(name,p))));
+    M.cabins.forEach(c=>jobs.push(xmasCabin(w,c)));
+    jobs.push(xmasTrain(w));
+    await Promise.all(jobs);
+  },
+  async npcObj(w,p){
+    const obj=p.model?await w.model(p.model):w3Santa(w.THREE);
+    if(obj)obj.scale.multiplyScalar(XMAS_NPC_SCALE);
+    return obj;
+  },
+  itemObj:async (w,item)=>w.model(item.model,{scale:1.8})};
+const xmasHome=()=>vilHome(XMAS_UI);
+const xmasVillage=()=>vilVillage(XMAS_UI);
+const xmasTalk=id=>vilTalk(id);
