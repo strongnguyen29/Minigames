@@ -31,3 +31,11 @@ test('toggleAllSound: đang bật một trong hai thì tắt cả hai; đang t�
   assert.equal(g.get('S.voice'), true); assert.equal(g.get('S.sfx'), true);
   assert.equal(JSON.parse(g.ctx.__store.get(KEY)).voice, true);
 });
+
+test('bản lưu cũ không có tet thì được bù', () => {
+  const g = withSaved({ name:'Mai' });
+  const empty = { day:'', done:[], found:[], bonus:false };
+  assert.deepEqual(JSON.parse(JSON.stringify(g.get('S.tet'))), empty);
+  assert.deepEqual(JSON.parse(JSON.stringify(g.get('freshSave().tet'))), empty);
+  assert.equal(g.get('freshSave().tet===DEF.tet'), false);
+});

@@ -158,3 +158,21 @@ test('xmas khác ngày, đảo vế vẫn lấy ngày mới hơn', () => {
   const r = merge({ xmas:neu }, { xmas:old });
   assert.deepEqual(r.xmas, neu);
 });
+
+test('tet cùng ngày hợp việc và đồ', () => {
+  const r = merge({ tet:{ day:'2027-2-6', done:['ongdo'], found:[1], bonus:false } },
+                  { tet:{ day:'2027-2-6', done:['seller'], found:[1,4], bonus:true } });
+  assert.deepEqual(r.tet, { day:'2027-2-6', done:['ongdo','seller'], found:[1,4], bonus:true });
+});
+test('tet khác ngày lấy ngày mới hơn', () => {
+  const r = merge({ tet:{ day:'2027-2-6', done:['ongdo'], found:[1], bonus:true } },
+                  { tet:{ day:'2027-2-7', done:['lion'], found:[2], bonus:false } });
+  assert.equal(r.tet.day, '2027-2-7'); assert.deepEqual(r.tet.done, ['lion']); assert.equal(r.tet.bonus, false);
+});
+test('bản lưu cũ không có tet', () => {
+  assert.deepEqual(merge({}, {}).tet, { day:'', done:[], found:[], bonus:false });
+});
+test('một bên có tet, bên kia chưa có', () => {
+  const t = { day:'2027-2-6', done:['goat'], found:[], bonus:false };
+  assert.deepEqual(merge({ tet:t }, {}).tet, t);
+});
