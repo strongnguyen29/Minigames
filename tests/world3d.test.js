@@ -51,3 +51,9 @@ test('w3Supported thả ngữ cảnh WebGL sau khi thử', () => {
   g.run(`document.createElement=()=>({getContext:()=>null})`);
   assert.equal(g.get('w3Supported()'), false);
 });
+test('w3Create nhận tuỳ chọn giao diện làng', () => {
+  const src = require('fs').readFileSync('js/world3d.js', 'utf8');
+  assert.ok(src.includes('opts.sky'));
+  assert.ok(src.includes('opts.ground'));
+  assert.ok(src.includes("'petals'"));
+});

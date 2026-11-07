@@ -99,22 +99,28 @@ async function w3Create(canvas, opts) {
   canvas.style.touchAction = 'none';   // iOS: chạm đúp không phóng to trang
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-  const scene = new THREE.Scene(), sky = new THREE.Color(0xa9d2f2);
+  const scene = new THREE.Scene(), sky = new THREE.Color(opts.sky != null ? opts.sky : 0xa9d2f2);
   scene.background = sky; scene.fog = new THREE.Fog(sky, 24, 60);
   const camera = new THREE.PerspectiveCamera(W3_CAM.fov, 1, .1, 120);
   scene.add(new THREE.HemisphereLight(0xeef6ff, 0x8fa3c4, 2));
   const sun = new THREE.DirectionalLight(0xffeedd, 1.8); sun.position.set(6, 12, 8); scene.add(sun);
 
-  const ground = new THREE.Mesh(new THREE.CircleGeometry(1, 64), new THREE.MeshLambertMaterial({ color: 0xf2f6fc }));
+  const ground = new THREE.Mesh(new THREE.CircleGeometry(1, 64), new THREE.MeshLambertMaterial({ color: opts.ground != null ? opts.ground : 0xf2f6fc }));
   ground.rotation.x = -Math.PI / 2; ground.scale.set(bound.rx + 10, bound.rz + 10, 1); scene.add(ground);
 
-  /* tuyết rơi: 300 hạt trong khối quanh camera */
-  const N = 300, snowPos = new Float32Array(N * 3);
-  for (let i = 0; i < N; i++) snowPos.set([(Math.random() - .5) * 30, Math.random() * 12, (Math.random() - .5) * 30], i * 3);
-  const snowGeo = new THREE.BufferGeometry(); snowGeo.setAttribute('position', new THREE.BufferAttribute(snowPos, 3));
-  const snow = new THREE.Points(snowGeo, new THREE.PointsMaterial({ size: .09, transparent: true, depthWrite: false,
-    map: _w3Radial(THREE, [[0, 'rgba(255,255,255,1)'], [.5, 'rgba(255,255,255,.8)'], [1, 'rgba(255,255,255,0)']]) }));
-  scene.add(snow);
+  /* hạt rơi quanh camera: 'snow' (300 tuyết, mặc định) | 'petals' (120 cánh hoa) | 'none' */
+  const kind = opts.particles || 'snow', petals = kind === 'petals';
+  const N = petals ? 120 : 300;
+  let snow = null, snowGeo = null;
+  if (kind !== 'none') {
+    const snowPos = new Float32Array(N * 3);
+    for (let i = 0; i < N; i++) snowPos.set([(Math.random() - .5) * 30, Math.random() * 12, (Math.random() - .5) * 30], i * 3);
+    snowGeo = new THREE.BufferGeometry(); snowGeo.setAttribute('position', new THREE.BufferAttribute(snowPos, 3));
+    const c = petals ? '255,183,201' : '255,255,255';   // hồng #ffb7c9 hoặc trắng
+    snow = new THREE.Points(snowGeo, new THREE.PointsMaterial({ size: petals ? .14 : .09, transparent: true, depthWrite: false,
+      map: _w3Radial(THREE, [[0, `rgba(${c},1)`], [.5, `rgba(${c},.8)`], [1, `rgba(${c},0)`]]) }));
+    scene.add(snow);   // map của material được dispose() gom qua scene.traverse
+  }
 
   /* ngôi sao 4 cánh lấp lánh */
   const sparkTex = _w3CanvasTex(THREE, 64, (g, s) => {
@@ -162,8 +168,9 @@ async function w3Create(canvas, opts) {
       solidAt(o.x || 0, o.z || 0, o.solid || 0); return obj;
     },
     /* cây, đá lặp lại: InstancedMesh cho mỗi mesh trong model */
-    async instances(name, list) {
-      const src = await load(name); if (dead) return null;
+    async instances(src, list) {
+      if (typeof src === 'string') src = await load(src);   // tên model GLB hoặc Object3D dựng sẵn
+      if (dead) return null;
       const grp = new THREE.Group(), m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), up = new THREE.Vector3(0, 1, 0);
       src.updateMatrixWorld(true);
       src.traverse(mesh => {
@@ -320,13 +327,15 @@ async function w3Create(canvas, opts) {
       p.obj.rotation.y += dt * 1.5; p.obj.position.y = .12 + Math.sin(t * 2.5 + p.phase) * .08;
       const s = .3 + .3 * Math.abs(Math.sin(t * 4 + p.phase)); p.spark.scale.setScalar(s); p.spark.material.rotation = t * 2;
     }
-    const a = snowGeo.attributes.position;
-    for (let i = 0; i < N; i++) {
-      let y = a.array[i * 3 + 1] - dt * (.8 + (i % 5) * .15);
-      a.array[i * 3] += Math.sin(t + i) * dt * .2;
-      a.array[i * 3 + 1] = y < 0 ? 12 : y;
+    if (snow) {
+      const a = snowGeo.attributes.position, fall = petals ? .5 : 1, sway = petals ? .6 : .2;
+      for (let i = 0; i < N; i++) {
+        let y = a.array[i * 3 + 1] - dt * (.8 + (i % 5) * .15) * fall;
+        a.array[i * 3] += Math.sin(t + i) * dt * sway;
+        a.array[i * 3 + 1] = y < 0 ? 12 : y;
+      }
+      a.needsUpdate = true; snow.position.set(look.x, 0, look.z);
     }
-    a.needsUpdate = true; snow.position.set(look.x, 0, look.z);
     placeCamera(Math.min(1, dt * 4));
     for (const f of ticks) f(dt, t);
   }
